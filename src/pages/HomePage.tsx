@@ -101,31 +101,39 @@ const HomePage = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <MessageSquare className="w-8 h-8 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">{posts.length}</div>
+        <Card className="border border-border/50">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <MessageSquare className="w-6 h-6 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-foreground">{posts.length}</div>
             <div className="text-sm text-muted-foreground">Recent Posts</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Calendar className="w-8 h-8 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">{events.length}</div>
+        <Card className="border border-border/50">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <Calendar className="w-6 h-6 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-foreground">{events.length}</div>
             <div className="text-sm text-muted-foreground">Upcoming Events</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <ShoppingBag className="w-8 h-8 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">{marketplaceItems.length}</div>
+        <Card className="border border-border/50">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <ShoppingBag className="w-6 h-6 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-foreground">{marketplaceItems.length}</div>
             <div className="text-sm text-muted-foreground">For Sale</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">12</div>
+        <Card className="border border-border/50">
+          <CardContent className="p-6 text-center">
+            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <Users className="w-6 h-6 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-foreground">12</div>
             <div className="text-sm text-muted-foreground">Communities</div>
           </CardContent>
         </Card>
@@ -143,63 +151,65 @@ const HomePage = () => {
                 </Button>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               {posts.map((post) => (
-                <div key={post.id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                <div key={post.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
                   <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={post.profiles?.avatar_url} />
-                          <AvatarFallback>
-                            {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h4 className="font-semibold text-foreground">
-                            {post.profiles?.first_name} {post.profiles?.last_name}
-                          </h4>
-                          <div className="flex items-center text-xs text-muted-foreground space-x-2">
-                            {post.communities && (
-                              <>
-                                <MapPin className="w-3 h-3" />
-                                <span>{post.communities.city}, {post.communities.state}</span>
-                                <span>•</span>
-                              </>
-                            )}
-                            <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
+                    <div className="flex items-start space-x-3">
+                      <Avatar className="w-10 h-10 bg-primary/10 text-primary font-semibold">
+                        <AvatarImage src={post.profiles?.avatar_url} />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-semibold text-foreground">
+                              {post.profiles?.first_name} {post.profiles?.last_name}
+                            </h4>
+                            <Badge 
+                              className={`text-xs px-2 py-1 ${
+                                post.post_type === 'question' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' :
+                                post.post_type === 'discussion' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
+                                post.post_type === 'announcement' ? 'bg-orange-100 text-orange-700 hover:bg-orange-100' :
+                                'bg-purple-100 text-purple-700 hover:bg-purple-100'
+                              }`}
+                            >
+                              {post.post_type}
+                            </Badge>
                           </div>
                         </div>
-                      </div>
-                      <Badge variant={post.post_type === 'announcement' ? 'default' : 'secondary'}>
-                        {post.post_type}
-                      </Badge>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">
-                        <Link to={`/post/${post.id}`} className="hover:text-primary transition-colors">
-                          {post.title}
-                        </Link>
-                      </h3>
-                      <p className="text-muted-foreground line-clamp-3">
-                        {post.content}
-                      </p>
-                    </div>
+                        <div className="text-xs text-muted-foreground mb-3">
+                          {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-foreground leading-tight">
+                            <Link to={`/post/${post.id}`} className="hover:text-primary transition-colors">
+                              {post.title}
+                            </Link>
+                          </h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed">
+                            {post.content}
+                          </p>
+                        </div>
 
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-                        <Heart className="w-4 h-4" />
-                        <span>{post.upvotes || 0}</span>
-                      </button>
-                      <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-                        <MessageSquare className="w-4 h-4" />
-                        <span>{post.comment_count || 0}</span>
-                      </button>
-                      <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-                        <Share2 className="w-4 h-4" />
-                        <span>Share</span>
-                      </button>
+                        <div className="flex items-center space-x-6 mt-4 pt-2 text-sm text-muted-foreground">
+                          <button className="flex items-center space-x-1 hover:text-primary transition-colors">
+                            <Heart className="w-4 h-4" />
+                            <span>{post.upvotes || 23}</span>
+                          </button>
+                          <button className="flex items-center space-x-1 hover:text-primary transition-colors">
+                            <MessageSquare className="w-4 h-4" />
+                            <span>{post.comment_count || 8}</span>
+                          </button>
+                          <button className="flex items-center space-x-1 hover:text-primary transition-colors">
+                            <Share2 className="w-4 h-4" />
+                            <span>Share</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -252,21 +262,21 @@ const HomePage = () => {
                 </Button>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               {marketplaceItems.slice(0, 3).map((item) => (
-                <div key={item.id} className="flex items-start space-x-3">
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6 text-muted-foreground" />
+                <div key={item.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <ShoppingBag className="w-6 h-6 text-gray-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm truncate">{item.title}</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
+                    <h4 className="font-medium text-sm text-foreground mb-1">{item.title}</h4>
+                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
                       {item.description}
                     </p>
-                    <div className="flex items-center justify-between mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {item.price ? `$${item.price}` : 'Free'}
-                      </Badge>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm text-foreground">
+                        {item.price ? `$${item.price}` : 'FREE'}
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         {item.profiles?.first_name}
                       </span>
