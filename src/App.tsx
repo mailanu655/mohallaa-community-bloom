@@ -16,6 +16,9 @@ import ProfilePage from "./pages/ProfilePage";
 import ProfileEditPage from "./pages/ProfileEditPage";
 import NetworkPage from "./pages/NetworkPage";
 import ConnectionsPage from "./pages/ConnectionsPage";
+import HomePage from "./pages/HomePage";
+import MarketplacePage from "./pages/MarketplacePage";
+import EventsPage from "./pages/EventsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,7 +31,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
@@ -39,6 +42,8 @@ const App = () => (
             <Route path="/community/:id" element={<CommunityPage />} />
             <Route path="/posts" element={<PostsPage />} />
             <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/marketplace" element={<MarketplacePage />} />
+            <Route path="/events" element={<EventsPage />} />
             <Route path="/profile/:id" element={<ProfilePage />} />
             <Route path="/profile/edit" element={
               <ProtectedRoute>

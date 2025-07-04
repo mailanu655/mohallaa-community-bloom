@@ -32,10 +32,13 @@ const Header = () => {
             <div className="flex items-center space-x-6">
               <nav className="flex items-center space-x-6">
                 <Link to="/communities" className="text-foreground hover:text-primary transition-colors font-medium">
-                  Communities
+                  Groups
                 </Link>
-                <Link to="/posts" className="text-foreground hover:text-primary transition-colors font-medium">
-                  Posts
+                <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors font-medium">
+                  For Sale & Free
+                </Link>
+                <Link to="/events" className="text-foreground hover:text-primary transition-colors font-medium">
+                  Events
                 </Link>
                 {user && (
                   <>
