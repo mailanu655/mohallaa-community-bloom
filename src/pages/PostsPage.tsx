@@ -420,6 +420,7 @@ const PostsPage = () => {
           </div>
         </div>
       </div>
+    </div>
     </>
   );
 };
@@ -445,3 +446,5 @@ const VoteButton: React.FC<{ postId: string }> = ({ postId }) => {
     </div>
   );
 };
+
+export default PostsPage;
