@@ -912,7 +912,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_moderate_community: {
+        Args: { user_id: string; community_id: string }
+        Returns: boolean
+      }
+      get_user_community_role: {
+        Args: { user_id: string; community_id: string }
+        Returns: string
+      }
     }
     Enums: {
       business_category:

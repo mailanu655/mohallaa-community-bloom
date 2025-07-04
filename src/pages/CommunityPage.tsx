@@ -5,9 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign } from "lucide-react";
+import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign, UserPlus, UserMinus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useCommunityMembership } from "@/hooks/useCommunityMembership";
+import CommunityMemberCard from "@/components/CommunityMemberCard";
+import PostModerationActions from "@/components/PostModerationActions";
+import RichContentRenderer from "@/components/RichContentRenderer";
+import PostMediaGallery from "@/components/PostMediaGallery";
 
 const CommunityPage = () => {
   const { id } = useParams();
@@ -16,6 +21,18 @@ const CommunityPage = () => {
   const [events, setEvents] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const {
+    isMember,
+    canModerate,
+    canManageRoles,
+    userRole,
+    isLoading: membershipLoading,
+    joinCommunity,
+    leaveCommunity,
+    updateMemberRole,
+    removeMember
+  } = useCommunityMembership(id || '');
 
   useEffect(() => {
     if (id) {
@@ -55,11 +72,15 @@ const CommunityPage = () => {
         .order('start_date', { ascending: true })
         .limit(10);
 
-      // Fetch community members (profiles associated with this community)
+      // Fetch community members with their profiles
       const { data: membersData } = await supabase
-        .from('profiles')
-        .select('*')
+        .from('community_members')
+        .select(`
+          *,
+          profiles!inner(*)
+        `)
         .eq('community_id', id)
+        .order('joined_at', { ascending: false })
         .limit(20);
 
       setCommunity(communityData);
@@ -138,12 +159,27 @@ const CommunityPage = () => {
                   )}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button variant="hero" size="lg">
-                    Join Community
-                  </Button>
-                  <Button variant="outline" size="lg">
-                    Follow
-                  </Button>
+                  {isMember ? (
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      onClick={leaveCommunity}
+                      disabled={membershipLoading}
+                    >
+                      <UserMinus className="w-4 h-4 mr-2" />
+                      Leave Community
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="hero" 
+                      size="lg" 
+                      onClick={joinCommunity}
+                      disabled={membershipLoading}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Join Community
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -162,7 +198,7 @@ const CommunityPage = () => {
           <TabsContent value="posts" className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Community Discussions</h2>
-              <Button variant="cultural">New Post</Button>
+              {isMember && <Button variant="cultural">New Post</Button>}
             </div>
             
             <div className="space-y-4">
@@ -185,10 +221,31 @@ const CommunityPage = () => {
                               {post.title}
                             </Link>
                           </h3>
-                          <p className="text-muted-foreground line-clamp-3">
-                            {post.content}
-                          </p>
+                          <RichContentRenderer 
+                            content={post.content} 
+                            richContent={post.rich_content}
+                            maxLength={200}
+                            className="line-clamp-3"
+                          />
+                          <PostMediaGallery 
+                            mediaUrls={post.media_urls || []}
+                            className="mt-4"
+                          />
                         </div>
+                        <PostModerationActions
+                          postId={post.id}
+                          isPinned={post.is_pinned || false}
+                          canModerate={canModerate}
+                          isAuthor={false} // We'd need to check this properly
+                          onUpdate={(postId, updates) => {
+                            setPosts(posts.map(p => 
+                              p.id === postId ? { ...p, ...updates } : p
+                            ));
+                          }}
+                          onDelete={(postId) => {
+                            setPosts(posts.filter(p => p.id !== postId));
+                          }}
+                        />
                       </div>
                       
                       <div className="flex items-center justify-between">
@@ -320,56 +377,15 @@ const CommunityPage = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {members.map((member) => (
-                <Card key={member.id} className="border-0 bg-card/80 backdrop-blur-sm hover:shadow-cultural transition-all duration-300 hover:-translate-y-1">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-4">
-                        <Avatar className="w-12 h-12">
-                          <AvatarImage src={member.avatar_url} />
-                          <AvatarFallback>
-                            {member.first_name?.[0]}{member.last_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-1">
-                          <h3 className="font-semibold text-foreground">
-                            {member.first_name} {member.last_name}
-                          </h3>
-                          {member.profession && (
-                            <p className="text-sm text-muted-foreground">{member.profession}</p>
-                          )}
-                          {member.is_verified && (
-                            <Badge variant="default" className="text-xs">Verified</Badge>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {member.bio && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {member.bio}
-                        </p>
-                      )}
-                      
-                      {member.skills && member.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {member.skills.slice(0, 3).map((skill, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                          {member.skills.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{member.skills.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                      
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link to={`/profile/${member.id}`}>View Profile</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <CommunityMemberCard
+                  key={member.id}
+                  member={member}
+                  canModerate={canModerate}
+                  canManageRoles={canManageRoles}
+                  currentUserRole={userRole}
+                  onRoleUpdate={updateMemberRole}
+                  onRemoveMember={removeMember}
+                />
               ))}
             </div>
 
