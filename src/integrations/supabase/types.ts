@@ -9,7 +9,603 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          address: string
+          business_hours: Json | null
+          category: Database["public"]["Enums"]["business_category"]
+          city: string
+          community_id: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          name: string
+          owner_id: string | null
+          phone: string | null
+          rating: number | null
+          review_count: number | null
+          state: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address: string
+          business_hours?: Json | null
+          category: Database["public"]["Enums"]["business_category"]
+          city: string
+          community_id?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          name: string
+          owner_id?: string | null
+          phone?: string | null
+          rating?: number | null
+          review_count?: number | null
+          state: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string
+          business_hours?: Json | null
+          category?: Database["public"]["Enums"]["business_category"]
+          city?: string
+          community_id?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          name?: string
+          owner_id?: string | null
+          phone?: string | null
+          rating?: number | null
+          review_count?: number | null
+          state?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          author_id: string | null
+          content: string
+          created_at: string
+          id: string
+          parent_comment_id: string | null
+          post_id: string | null
+          updated_at: string
+          upvotes: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          post_id?: string | null
+          updated_at?: string
+          upvotes?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          post_id?: string | null
+          updated_at?: string
+          upvotes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communities: {
+        Row: {
+          city: string
+          created_at: string
+          description: string | null
+          id: string
+          location_coordinates: unknown | null
+          member_count: number | null
+          name: string
+          state: string
+          type: Database["public"]["Enums"]["community_type"]
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_coordinates?: unknown | null
+          member_count?: number | null
+          name: string
+          state: string
+          type?: Database["public"]["Enums"]["community_type"]
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_coordinates?: unknown | null
+          member_count?: number | null
+          name?: string
+          state?: string
+          type?: Database["public"]["Enums"]["community_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      event_attendees: {
+        Row: {
+          attendee_id: string | null
+          created_at: string
+          event_id: string | null
+          id: string
+          status: string | null
+        }
+        Insert: {
+          attendee_id?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          attendee_id?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendees_attendee_id_fkey"
+            columns: ["attendee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          address: string | null
+          community_id: string | null
+          created_at: string
+          current_attendees: number | null
+          description: string | null
+          end_date: string | null
+          event_type: Database["public"]["Enums"]["event_type"]
+          id: string
+          image_url: string | null
+          is_free: boolean | null
+          location: string | null
+          max_attendees: number | null
+          organizer_id: string | null
+          start_date: string
+          ticket_price: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          community_id?: string | null
+          created_at?: string
+          current_attendees?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_type: Database["public"]["Enums"]["event_type"]
+          id?: string
+          image_url?: string | null
+          is_free?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          organizer_id?: string | null
+          start_date: string
+          ticket_price?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          community_id?: string | null
+          created_at?: string
+          current_attendees?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_type?: Database["public"]["Enums"]["event_type"]
+          id?: string
+          image_url?: string | null
+          is_free?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          organizer_id?: string | null
+          start_date?: string
+          ticket_price?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace: {
+        Row: {
+          category: Database["public"]["Enums"]["marketplace_category"]
+          community_id: string | null
+          contact_info: Json | null
+          created_at: string
+          description: string
+          id: string
+          images: string[] | null
+          is_negotiable: boolean | null
+          location: string | null
+          price: number | null
+          seller_id: string | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["marketplace_category"]
+          community_id?: string | null
+          contact_info?: Json | null
+          created_at?: string
+          description: string
+          id?: string
+          images?: string[] | null
+          is_negotiable?: boolean | null
+          location?: string | null
+          price?: number | null
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["marketplace_category"]
+          community_id?: string | null
+          contact_info?: Json | null
+          created_at?: string
+          description?: string
+          id?: string
+          images?: string[] | null
+          is_negotiable?: boolean | null
+          location?: string | null
+          price?: number | null
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorships: {
+        Row: {
+          created_at: string
+          focus_areas: string[] | null
+          id: string
+          mentee_id: string | null
+          mentor_id: string | null
+          message: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          focus_areas?: string[] | null
+          id?: string
+          mentee_id?: string | null
+          mentor_id?: string | null
+          message?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          focus_areas?: string[] | null
+          id?: string
+          mentee_id?: string | null
+          mentor_id?: string | null
+          message?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorships_mentee_id_fkey"
+            columns: ["mentee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentorships_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string | null
+          comment_count: number | null
+          community_id: string | null
+          content: string
+          created_at: string
+          downvotes: number | null
+          id: string
+          is_pinned: boolean | null
+          post_type: Database["public"]["Enums"]["post_type"]
+          tags: string[] | null
+          title: string
+          updated_at: string
+          upvotes: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          comment_count?: number | null
+          community_id?: string | null
+          content: string
+          created_at?: string
+          downvotes?: number | null
+          id?: string
+          is_pinned?: boolean | null
+          post_type?: Database["public"]["Enums"]["post_type"]
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          upvotes?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          comment_count?: number | null
+          community_id?: string | null
+          content?: string
+          created_at?: string
+          downvotes?: number | null
+          id?: string
+          is_pinned?: boolean | null
+          post_type?: Database["public"]["Enums"]["post_type"]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          upvotes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          community_id: string | null
+          created_at: string
+          email: string
+          experience_years: number | null
+          first_name: string
+          hometown_india: string | null
+          id: string
+          interests: string[] | null
+          is_verified: boolean | null
+          languages: string[] | null
+          last_name: string
+          linkedin_url: string | null
+          profession: string | null
+          skills: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          community_id?: string | null
+          created_at?: string
+          email: string
+          experience_years?: number | null
+          first_name: string
+          hometown_india?: string | null
+          id?: string
+          interests?: string[] | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          last_name: string
+          linkedin_url?: string | null
+          profession?: string | null
+          skills?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          community_id?: string | null
+          created_at?: string
+          email?: string
+          experience_years?: number | null
+          first_name?: string
+          hometown_india?: string | null
+          id?: string
+          interests?: string[] | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          last_name?: string
+          linkedin_url?: string | null
+          profession?: string | null
+          skills?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resources: {
+        Row: {
+          author_id: string | null
+          category: string
+          community_id: string | null
+          content: string | null
+          created_at: string
+          description: string | null
+          external_url: string | null
+          helpful_count: number | null
+          id: string
+          is_featured: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          category: string
+          community_id?: string | null
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          community_id?: string | null
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resources_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +614,27 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      business_category:
+        | "restaurant"
+        | "grocery"
+        | "services"
+        | "healthcare"
+        | "education"
+        | "retail"
+        | "technology"
+        | "finance"
+        | "real_estate"
+        | "other"
+      community_type: "city" | "neighborhood" | "region"
+      event_type:
+        | "cultural"
+        | "professional"
+        | "social"
+        | "religious"
+        | "educational"
+      listing_status: "active" | "sold" | "expired"
+      marketplace_category: "goods" | "services" | "housing" | "jobs"
+      post_type: "discussion" | "question" | "announcement" | "resource"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +749,30 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      business_category: [
+        "restaurant",
+        "grocery",
+        "services",
+        "healthcare",
+        "education",
+        "retail",
+        "technology",
+        "finance",
+        "real_estate",
+        "other",
+      ],
+      community_type: ["city", "neighborhood", "region"],
+      event_type: [
+        "cultural",
+        "professional",
+        "social",
+        "religious",
+        "educational",
+      ],
+      listing_status: ["active", "sold", "expired"],
+      marketplace_category: ["goods", "services", "housing", "jobs"],
+      post_type: ["discussion", "question", "announcement", "resource"],
+    },
   },
 } as const
