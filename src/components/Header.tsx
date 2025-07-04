@@ -42,6 +42,9 @@ const Header = () => {
                     <Link to="/network" className="text-foreground hover:text-primary transition-colors font-medium">
                       Network
                     </Link>
+                    <Link to="/connections" className="text-foreground hover:text-primary transition-colors font-medium">
+                      Connections
+                    </Link>
                     <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
                       Dashboard
                     </Link>
