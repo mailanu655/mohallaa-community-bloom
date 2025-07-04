@@ -10,7 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { MessageSquare, Heart, Search, Filter, Plus, TrendingUp, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import CreatePostForm from "@/components/CreatePostForm";
+import CreatePostForm from "@/components/EnhancedCreatePostForm";
+import RichContentRenderer from "@/components/RichContentRenderer";
+import PostMediaGallery from "@/components/PostMediaGallery";
 import { useVoting } from "@/hooks/useVoting";
 import Header from "@/components/Header";
 
@@ -234,7 +236,7 @@ const PostsPage = () => {
                     New Post
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
                   <DialogHeader>
                     <DialogTitle>Create New Post</DialogTitle>
                   </DialogHeader>
@@ -270,9 +272,19 @@ const PostsPage = () => {
                               {post.title}
                             </Link>
                           </h3>
-                          <p className="text-muted-foreground line-clamp-3 leading-relaxed">
-                            {post.content}
-                          </p>
+                          <RichContentRenderer 
+                            content={post.content}
+                            richContent={post.rich_content}
+                            maxLength={200}
+                            className="text-muted-foreground line-clamp-3 leading-relaxed"
+                          />
+                          
+                          {post.media_urls && post.media_urls.length > 0 && (
+                            <PostMediaGallery 
+                              mediaUrls={post.media_urls} 
+                              className="mt-3"
+                            />
+                          )}
                           {post.tags && post.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {post.tags.map((tag, index) => (

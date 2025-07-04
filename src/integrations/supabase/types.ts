@@ -571,6 +571,36 @@ export type Database = {
         }
         Relationships: []
       }
+      post_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       post_tags: {
         Row: {
           created_at: string
@@ -649,7 +679,10 @@ export type Database = {
           downvotes: number | null
           id: string
           is_pinned: boolean | null
+          media_type: string | null
+          media_urls: string[] | null
           post_type: Database["public"]["Enums"]["post_type"]
+          rich_content: Json | null
           search_vector: unknown | null
           tags: string[] | null
           title: string
@@ -665,7 +698,10 @@ export type Database = {
           downvotes?: number | null
           id?: string
           is_pinned?: boolean | null
+          media_type?: string | null
+          media_urls?: string[] | null
           post_type?: Database["public"]["Enums"]["post_type"]
+          rich_content?: Json | null
           search_vector?: unknown | null
           tags?: string[] | null
           title: string
@@ -681,7 +717,10 @@ export type Database = {
           downvotes?: number | null
           id?: string
           is_pinned?: boolean | null
+          media_type?: string | null
+          media_urls?: string[] | null
           post_type?: Database["public"]["Enums"]["post_type"]
+          rich_content?: Json | null
           search_vector?: unknown | null
           tags?: string[] | null
           title?: string
@@ -897,7 +936,16 @@ export type Database = {
       listing_status: "active" | "sold" | "expired"
       marketplace_category: "goods" | "services" | "housing" | "jobs"
       mentorship_status: "pending" | "approved" | "declined" | "completed"
-      post_type: "discussion" | "question" | "announcement" | "resource"
+      post_type:
+        | "discussion"
+        | "question"
+        | "announcement"
+        | "resource"
+        | "event"
+        | "job"
+        | "housing"
+        | "marketplace"
+        | "recommendation"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1036,7 +1084,17 @@ export const Constants = {
       listing_status: ["active", "sold", "expired"],
       marketplace_category: ["goods", "services", "housing", "jobs"],
       mentorship_status: ["pending", "approved", "declined", "completed"],
-      post_type: ["discussion", "question", "announcement", "resource"],
+      post_type: [
+        "discussion",
+        "question",
+        "announcement",
+        "resource",
+        "event",
+        "job",
+        "housing",
+        "marketplace",
+        "recommendation",
+      ],
     },
   },
 } as const
