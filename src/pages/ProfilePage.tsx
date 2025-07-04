@@ -8,9 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Mail, Calendar, Heart, MessageSquare, ExternalLink, Globe, Briefcase, GraduationCap, Languages } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfileViews } from "@/hooks/useProfileViews";
+import ConnectButton from "@/components/ConnectButton";
 
 const ProfilePage = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const { trackProfileView } = useProfileViews();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [community, setCommunity] = useState(null);
@@ -19,8 +24,10 @@ const ProfilePage = () => {
   useEffect(() => {
     if (id) {
       fetchProfileData();
+      // Track profile view when component mounts
+      trackProfileView(id);
     }
-  }, [id]);
+  }, [id, trackProfileView]);
 
   const fetchProfileData = async () => {
     try {
@@ -198,9 +205,8 @@ const ProfilePage = () => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3">
-                  <Button variant="hero">Connect</Button>
+                  <ConnectButton userId={profile.id} />
                   <Button variant="outline">Send Message</Button>
-                  <Button variant="cultural">Follow</Button>
                 </div>
               </div>
             </div>

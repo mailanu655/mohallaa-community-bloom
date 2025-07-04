@@ -3,11 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, Users, TrendingUp, MessageSquare, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import ProfileCompletionWidget from "@/components/ProfileCompletionWidget";
+import ProfileAnalytics from "@/components/ProfileAnalytics";
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [communities, setCommunities] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -124,8 +129,12 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Your Communities */}
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Profile Completion Widget */}
+            <ProfileCompletionWidget />
+            
+            {/* Your Communities */}
             <Card className="border-0 bg-card/80 backdrop-blur-sm animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
@@ -230,46 +239,60 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Upcoming Events */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            <Card className="border-0 bg-card/80 backdrop-blur-sm animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-foreground">Upcoming Events</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <div key={event.id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-foreground">{event.title}</h4>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <CalendarDays className="w-4 h-4 mr-2" />
-                          {new Date(event.start_date).toLocaleDateString()}
-                        </div>
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {event.location}
-                        </div>
-                        {event.communities && (
-                          <div className="flex items-center">
-                            <Users className="w-4 h-4 mr-2" />
-                            {event.communities.name}
+            {/* Profile Analytics */}
+            <Tabs defaultValue="analytics" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="events">Events</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="analytics">
+                <ProfileAnalytics />
+              </TabsContent>
+              
+              <TabsContent value="events">
+                <Card className="border-0 bg-card/80 backdrop-blur-sm animate-fade-in">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold text-foreground">Upcoming Events</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {upcomingEvents.map((event) => (
+                      <div key={event.id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-foreground">{event.title}</h4>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            <div className="flex items-center">
+                              <CalendarDays className="w-4 h-4 mr-2" />
+                              {new Date(event.start_date).toLocaleDateString()}
+                            </div>
+                            <div className="flex items-center">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              {event.location}
+                            </div>
+                            {event.communities && (
+                              <div className="flex items-center">
+                                <Users className="w-4 h-4 mr-2" />
+                                {event.communities.name}
+                              </div>
+                            )}
                           </div>
-                        )}
+                          <div className="flex items-center justify-between">
+                            <Badge variant={event.is_free ? 'secondary' : 'outline'}>
+                              {event.is_free ? 'Free' : `$${event.ticket_price}`}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              Learn More
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <Badge variant={event.is_free ? 'secondary' : 'outline'}>
-                          {event.is_free ? 'Free' : `$${event.ticket_price}`}
-                        </Badge>
-                        <Button variant="outline" size="sm">
-                          Learn More
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
