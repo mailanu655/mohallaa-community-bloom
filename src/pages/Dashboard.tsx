@@ -76,8 +76,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-warm">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-warm pt-20 md:pt-0">
+      <div className="max-w-7xl mx-auto p-6 space-y-8 pb-20 md:pb-8">
         {/* Welcome Header */}
         <div className="text-center space-y-4 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground">
