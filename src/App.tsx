@@ -14,6 +14,7 @@ import PostsPage from "./pages/PostsPage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProfileEditPage from "./pages/ProfileEditPage";
+import NetworkPage from "./pages/NetworkPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,11 @@ const App = () => (
             <Route path="/profile/edit" element={
               <ProtectedRoute>
                 <ProfileEditPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/network" element={
+              <ProtectedRoute>
+                <NetworkPage />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

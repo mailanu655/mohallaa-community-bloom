@@ -38,9 +38,14 @@ const Header = () => {
                   Posts
                 </Link>
                 {user && (
-                  <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
-                    Dashboard
-                  </Link>
+                  <>
+                    <Link to="/network" className="text-foreground hover:text-primary transition-colors font-medium">
+                      Network
+                    </Link>
+                    <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
+                      Dashboard
+                    </Link>
+                  </>
                 )}
               </nav>
 
