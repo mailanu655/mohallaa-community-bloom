@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,15 +19,15 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#communities" className="text-foreground hover:text-primary transition-colors">
+            <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">
+              Dashboard
+            </Link>
+            <Link to="/communities" className="text-foreground hover:text-primary transition-colors">
               Communities
-            </a>
-            <a href="#features" className="text-foreground hover:text-primary transition-colors">
-              Features
-            </a>
-            <a href="#events" className="text-foreground hover:text-primary transition-colors">
-              Events
-            </a>
+            </Link>
+            <Link to="/posts" className="text-foreground hover:text-primary transition-colors">
+              Posts
+            </Link>
             <a href="#businesses" className="text-foreground hover:text-primary transition-colors">
               Directory
             </a>
