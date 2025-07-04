@@ -13,8 +13,8 @@ const CommunitiesPage = () => {
   const [filteredCommunities, setFilteredCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedState, setSelectedState] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
 
   useEffect(() => {
     fetchCommunities();
@@ -50,11 +50,11 @@ const CommunitiesPage = () => {
       );
     }
 
-    if (selectedState) {
+    if (selectedState && selectedState !== "all") {
       filtered = filtered.filter(community => community.state === selectedState);
     }
 
-    if (selectedType) {
+    if (selectedType && selectedType !== "all") {
       filtered = filtered.filter(community => community.type === selectedType);
     }
 
@@ -115,7 +115,7 @@ const CommunitiesPage = () => {
                   <SelectValue placeholder="Select State" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All States</SelectItem>
+                  <SelectItem value="all">All States</SelectItem>
                   {states.map(state => (
                     <SelectItem key={state} value={state}>{state}</SelectItem>
                   ))}
@@ -126,7 +126,7 @@ const CommunitiesPage = () => {
                   <SelectValue placeholder="Community Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   {types.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
@@ -136,8 +136,8 @@ const CommunitiesPage = () => {
                 variant="outline"
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedState("");
-                  setSelectedType("");
+                  setSelectedState("all");
+                  setSelectedType("all");
                 }}
                 className="flex items-center"
               >
@@ -224,8 +224,8 @@ const CommunitiesPage = () => {
                   variant="cultural"
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedState("");
-                    setSelectedType("");
+                    setSelectedState("all");
+                    setSelectedType("all");
                   }}
                 >
                   Show All Communities

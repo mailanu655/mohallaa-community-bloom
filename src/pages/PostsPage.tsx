@@ -17,8 +17,8 @@ const PostsPage = () => {
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCommunity, setSelectedCommunity] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedCommunity, setSelectedCommunity] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
 
   useEffect(() => {
@@ -69,12 +69,12 @@ const PostsPage = () => {
     }
 
     // Apply community filter
-    if (selectedCommunity) {
+    if (selectedCommunity && selectedCommunity !== "all") {
       filtered = filtered.filter(post => post.community_id === selectedCommunity);
     }
 
     // Apply type filter
-    if (selectedType) {
+    if (selectedType && selectedType !== "all") {
       filtered = filtered.filter(post => post.post_type === selectedType);
     }
 
@@ -146,7 +146,7 @@ const PostsPage = () => {
                   <SelectValue placeholder="All Communities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Communities</SelectItem>
+                  <SelectItem value="all">All Communities</SelectItem>
                   {communities.map(community => (
                     <SelectItem key={community.id} value={community.id}>{community.name}</SelectItem>
                   ))}
@@ -157,7 +157,7 @@ const PostsPage = () => {
                   <SelectValue placeholder="Post Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="discussion">Discussion</SelectItem>
                   <SelectItem value="question">Question</SelectItem>
                   <SelectItem value="announcement">Announcement</SelectItem>
@@ -206,8 +206,8 @@ const PostsPage = () => {
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedCommunity("");
-                    setSelectedType("");
+                    setSelectedCommunity("all");
+                    setSelectedType("all");
                     setSortBy("recent");
                   }}
                   className="flex items-center"
