@@ -27,6 +27,7 @@ export type Database = {
           phone: string | null
           rating: number | null
           review_count: number | null
+          search_vector: unknown | null
           state: string
           updated_at: string
           website: string | null
@@ -48,6 +49,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           review_count?: number | null
+          search_vector?: unknown | null
           state: string
           updated_at?: string
           website?: string | null
@@ -69,6 +71,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           review_count?: number | null
+          search_vector?: unknown | null
           state?: string
           updated_at?: string
           website?: string | null
@@ -92,7 +95,7 @@ export type Database = {
       }
       comments: {
         Row: {
-          author_id: string | null
+          author_id: string
           content: string
           created_at: string
           id: string
@@ -102,7 +105,7 @@ export type Database = {
           upvotes: number | null
         }
         Insert: {
-          author_id?: string | null
+          author_id: string
           content: string
           created_at?: string
           id?: string
@@ -112,7 +115,7 @@ export type Database = {
           upvotes?: number | null
         }
         Update: {
-          author_id?: string | null
+          author_id?: string
           content?: string
           created_at?: string
           id?: string
@@ -186,21 +189,21 @@ export type Database = {
       }
       event_attendees: {
         Row: {
-          attendee_id: string | null
+          attendee_id: string
           created_at: string
           event_id: string | null
           id: string
           status: string | null
         }
         Insert: {
-          attendee_id?: string | null
+          attendee_id: string
           created_at?: string
           event_id?: string | null
           id?: string
           status?: string | null
         }
         Update: {
-          attendee_id?: string | null
+          attendee_id?: string
           created_at?: string
           event_id?: string | null
           id?: string
@@ -310,8 +313,8 @@ export type Database = {
           is_negotiable: boolean | null
           location: string | null
           price: number | null
-          seller_id: string | null
-          status: Database["public"]["Enums"]["listing_status"] | null
+          seller_id: string
+          status: Database["public"]["Enums"]["listing_status"]
           title: string
           updated_at: string
         }
@@ -326,8 +329,8 @@ export type Database = {
           is_negotiable?: boolean | null
           location?: string | null
           price?: number | null
-          seller_id?: string | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["listing_status"]
           title: string
           updated_at?: string
         }
@@ -342,8 +345,8 @@ export type Database = {
           is_negotiable?: boolean | null
           location?: string | null
           price?: number | null
-          seller_id?: string | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["listing_status"]
           title?: string
           updated_at?: string
         }
@@ -369,8 +372,8 @@ export type Database = {
           created_at: string
           focus_areas: string[] | null
           id: string
-          mentee_id: string | null
-          mentor_id: string | null
+          mentee_id: string
+          mentor_id: string
           message: string | null
           status: Database["public"]["Enums"]["mentorship_status"]
           updated_at: string
@@ -379,8 +382,8 @@ export type Database = {
           created_at?: string
           focus_areas?: string[] | null
           id?: string
-          mentee_id?: string | null
-          mentor_id?: string | null
+          mentee_id: string
+          mentor_id: string
           message?: string | null
           status?: Database["public"]["Enums"]["mentorship_status"]
           updated_at?: string
@@ -389,8 +392,8 @@ export type Database = {
           created_at?: string
           focus_areas?: string[] | null
           id?: string
-          mentee_id?: string | null
-          mentor_id?: string | null
+          mentee_id?: string
+          mentor_id?: string
           message?: string | null
           status?: Database["public"]["Enums"]["mentorship_status"]
           updated_at?: string
@@ -412,9 +415,38 @@ export type Database = {
           },
         ]
       }
+      post_tags: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
-          author_id: string | null
+          author_id: string
           comment_count: number | null
           community_id: string | null
           content: string
@@ -423,13 +455,14 @@ export type Database = {
           id: string
           is_pinned: boolean | null
           post_type: Database["public"]["Enums"]["post_type"]
+          search_vector: unknown | null
           tags: string[] | null
           title: string
           updated_at: string
           upvotes: number | null
         }
         Insert: {
-          author_id?: string | null
+          author_id: string
           comment_count?: number | null
           community_id?: string | null
           content: string
@@ -438,13 +471,14 @@ export type Database = {
           id?: string
           is_pinned?: boolean | null
           post_type?: Database["public"]["Enums"]["post_type"]
+          search_vector?: unknown | null
           tags?: string[] | null
           title: string
           updated_at?: string
           upvotes?: number | null
         }
         Update: {
-          author_id?: string | null
+          author_id?: string
           comment_count?: number | null
           community_id?: string | null
           content?: string
@@ -453,6 +487,7 @@ export type Database = {
           id?: string
           is_pinned?: boolean | null
           post_type?: Database["public"]["Enums"]["post_type"]
+          search_vector?: unknown | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -543,9 +578,38 @@ export type Database = {
           },
         ]
       }
+      resource_tags: {
+        Row: {
+          created_at: string
+          id: string
+          resource_id: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resource_id: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resource_id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_tags_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
-          author_id: string | null
+          author_id: string
           category: string
           community_id: string | null
           content: string | null
@@ -555,12 +619,13 @@ export type Database = {
           helpful_count: number | null
           id: string
           is_featured: boolean | null
+          search_vector: unknown | null
           tags: string[] | null
           title: string
           updated_at: string
         }
         Insert: {
-          author_id?: string | null
+          author_id: string
           category: string
           community_id?: string | null
           content?: string | null
@@ -570,12 +635,13 @@ export type Database = {
           helpful_count?: number | null
           id?: string
           is_featured?: boolean | null
+          search_vector?: unknown | null
           tags?: string[] | null
           title: string
           updated_at?: string
         }
         Update: {
-          author_id?: string | null
+          author_id?: string
           category?: string
           community_id?: string | null
           content?: string | null
@@ -585,6 +651,7 @@ export type Database = {
           helpful_count?: number | null
           id?: string
           is_featured?: boolean | null
+          search_vector?: unknown | null
           tags?: string[] | null
           title?: string
           updated_at?: string
