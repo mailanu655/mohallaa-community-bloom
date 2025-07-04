@@ -744,11 +744,49 @@ export type Database = {
           },
         ]
       }
+      profile_views: {
+        Row: {
+          id: string
+          profile_id: string | null
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string
+          profile_id?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string
+          profile_id?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           community_id: string | null
+          contact_preferences: Json | null
           created_at: string
           email: string
           experience_years: number | null
@@ -761,13 +799,17 @@ export type Database = {
           last_name: string
           linkedin_url: string | null
           profession: string | null
+          profile_completion_score: number | null
           skills: string[] | null
+          social_media_links: Json | null
           updated_at: string
         }
         Insert: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           community_id?: string | null
+          contact_preferences?: Json | null
           created_at?: string
           email: string
           experience_years?: number | null
@@ -780,13 +822,17 @@ export type Database = {
           last_name: string
           linkedin_url?: string | null
           profession?: string | null
+          profile_completion_score?: number | null
           skills?: string[] | null
+          social_media_links?: Json | null
           updated_at?: string
         }
         Update: {
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           community_id?: string | null
+          contact_preferences?: Json | null
           created_at?: string
           email?: string
           experience_years?: number | null
@@ -799,7 +845,9 @@ export type Database = {
           last_name?: string
           linkedin_url?: string | null
           profession?: string | null
+          profile_completion_score?: number | null
           skills?: string[] | null
+          social_media_links?: Json | null
           updated_at?: string
         }
         Relationships: [
@@ -907,11 +955,60 @@ export type Database = {
           },
         ]
       }
+      user_connections: {
+        Row: {
+          addressee_id: string | null
+          created_at: string
+          id: string
+          message: string | null
+          requester_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          requester_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          requester_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_connections_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_connections_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_profile_completion: {
+        Args: { profile_id: string }
+        Returns: number
+      }
       can_moderate_community: {
         Args: { user_id: string; community_id: string }
         Returns: boolean
