@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { MessageSquare, Heart, Search, Filter, Plus, TrendingUp, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import CreatePostForm from "@/components/CreatePostForm";
+import { useVoting } from "@/hooks/useVoting";
+import Header from "@/components/Header";
 
 const PostsPage = () => {
   const [posts, setPosts] = useState([]);
@@ -20,6 +23,7 @@ const PostsPage = () => {
   const [selectedCommunity, setSelectedCommunity] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -54,6 +58,11 @@ const PostsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePostCreated = () => {
+    setIsCreateDialogOpen(false);
+    fetchData(); // Refresh posts
   };
 
   const filterAndSortPosts = () => {
@@ -113,7 +122,9 @@ const PostsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-warm">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-warm pt-20">{/* pt-20 for header spacing */}
       <div className="max-w-6xl mx-auto p-6 space-y-8">
         {/* Header */}
         <div className="text-center space-y-4 animate-fade-in">
@@ -216,7 +227,7 @@ const PostsPage = () => {
                   Clear Filters
                 </Button>
               </div>
-              <Dialog>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="hero" className="flex items-center">
                     <Plus className="w-4 h-4 mr-2" />
@@ -227,56 +238,10 @@ const PostsPage = () => {
                   <DialogHeader>
                     <DialogTitle>Create New Post</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-6 p-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Post Type</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select post type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="discussion">Discussion</SelectItem>
-                          <SelectItem value="question">Question</SelectItem>
-                          <SelectItem value="announcement">Announcement</SelectItem>
-                          <SelectItem value="resource">Resource</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Community</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select community" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {communities.map(community => (
-                            <SelectItem key={community.id} value={community.id}>
-                              {community.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Title</label>
-                      <Input placeholder="Enter post title..." />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Content</label>
-                      <Textarea
-                        placeholder="What would you like to share with the community?"
-                        rows={6}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Tags (optional)</label>
-                      <Input placeholder="Add tags separated by commas..." />
-                    </div>
-                    <div className="flex justify-end space-x-3">
-                      <Button variant="outline">Cancel</Button>
-                      <Button variant="cultural">Create Post</Button>
-                    </div>
-                  </div>
+                  <CreatePostForm 
+                    communities={communities} 
+                    onPostCreated={handlePostCreated}
+                  />
                 </DialogContent>
               </Dialog>
             </div>
@@ -344,10 +309,7 @@ const PostsPage = () => {
                         </div>
                         
                         <div className="flex items-center space-x-6">
-                          <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
-                            <Heart className="w-4 h-4" />
-                            <span className="text-sm">{post.upvotes || 0}</span>
-                          </button>
+                          <VoteButton postId={post.id} />
                           <Link 
                             to={`/post/${post.id}`}
                             className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors"
@@ -458,8 +420,28 @@ const PostsPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default PostsPage;
+// Vote Button Component
+const VoteButton: React.FC<{ postId: string }> = ({ postId }) => {
+  const { upvotes, downvotes, userVote, vote, isLoading } = useVoting(postId, 'post');
+
+  return (
+    <div className="flex items-center space-x-2">
+      <button 
+        onClick={() => vote('upvote')}
+        disabled={isLoading}
+        className={`flex items-center space-x-1 transition-colors ${
+          userVote === 'upvote' 
+            ? 'text-primary' 
+            : 'text-muted-foreground hover:text-primary'
+        }`}
+      >
+        <Heart className="w-4 h-4" />
+        <span className="text-sm">{upvotes}</span>
+      </button>
+    </div>
+  );
+};
