@@ -372,7 +372,7 @@ export type Database = {
           mentee_id: string | null
           mentor_id: string | null
           message: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["mentorship_status"]
           updated_at: string
         }
         Insert: {
@@ -382,7 +382,7 @@ export type Database = {
           mentee_id?: string | null
           mentor_id?: string | null
           message?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["mentorship_status"]
           updated_at?: string
         }
         Update: {
@@ -392,7 +392,7 @@ export type Database = {
           mentee_id?: string | null
           mentor_id?: string | null
           message?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["mentorship_status"]
           updated_at?: string
         }
         Relationships: [
@@ -634,6 +634,7 @@ export type Database = {
         | "educational"
       listing_status: "active" | "sold" | "expired"
       marketplace_category: "goods" | "services" | "housing" | "jobs"
+      mentorship_status: "pending" | "approved" | "declined" | "completed"
       post_type: "discussion" | "question" | "announcement" | "resource"
     }
     CompositeTypes: {
@@ -772,6 +773,7 @@ export const Constants = {
       ],
       listing_status: ["active", "sold", "expired"],
       marketplace_category: ["goods", "services", "housing", "jobs"],
+      mentorship_status: ["pending", "approved", "declined", "completed"],
       post_type: ["discussion", "question", "announcement", "resource"],
     },
   },
