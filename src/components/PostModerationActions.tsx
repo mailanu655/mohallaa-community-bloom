@@ -135,7 +135,7 @@ const PostModerationActions: React.FC<PostModerationActionsProps> = ({
         )}
         
         {canModerate && !isAuthor && (
-          <DropdownMenuItem className="text-orange-600 focus:text-orange-600">
+          <DropdownMenuItem className="text-accent focus:text-accent">
             <AlertTriangle className="w-4 h-4 mr-2" />
             Report Post
           </DropdownMenuItem>
