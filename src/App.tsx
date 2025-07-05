@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Layout from "@/components/Layout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -31,37 +32,45 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<Layout><HomePage /></Layout>} />
             <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
+              <Layout>
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              </Layout>
             } />
-            <Route path="/communities" element={<CommunitiesPage />} />
-            <Route path="/community/:id" element={<CommunityPage />} />
-            <Route path="/posts" element={<PostsPage />} />
-            <Route path="/post/:id" element={<PostPage />} />
-            <Route path="/marketplace" element={<MarketplacePage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/profile/:id" element={<ProfilePage />} />
+            <Route path="/communities" element={<Layout><CommunitiesPage /></Layout>} />
+            <Route path="/community/:id" element={<Layout><CommunityPage /></Layout>} />
+            <Route path="/posts" element={<Layout><PostsPage /></Layout>} />
+            <Route path="/post/:id" element={<Layout><PostPage /></Layout>} />
+            <Route path="/marketplace" element={<Layout><MarketplacePage /></Layout>} />
+            <Route path="/events" element={<Layout><EventsPage /></Layout>} />
+            <Route path="/profile/:id" element={<Layout><ProfilePage /></Layout>} />
             <Route path="/profile/edit" element={
-              <ProtectedRoute>
-                <ProfileEditPage />
-              </ProtectedRoute>
+              <Layout>
+                <ProtectedRoute>
+                  <ProfileEditPage />
+                </ProtectedRoute>
+              </Layout>
             } />
             <Route path="/network" element={
-              <ProtectedRoute>
-                <NetworkPage />
-              </ProtectedRoute>
+              <Layout>
+                <ProtectedRoute>
+                  <NetworkPage />
+                </ProtectedRoute>
+              </Layout>
             } />
             <Route path="/connections" element={
-              <ProtectedRoute>
-                <ConnectionsPage />
-              </ProtectedRoute>
+              <Layout>
+                <ProtectedRoute>
+                  <ConnectionsPage />
+                </ProtectedRoute>
+              </Layout>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
