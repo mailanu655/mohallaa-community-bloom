@@ -19,6 +19,7 @@ import NetworkPage from "./pages/NetworkPage";
 import ConnectionsPage from "./pages/ConnectionsPage";
 import HomePage from "./pages/HomePage";
 import MarketplacePage from "./pages/MarketplacePage";
+import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
 import EventsPage from "./pages/EventsPage";
 import NotFound from "./pages/NotFound";
 
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/posts" element={<Layout><PostsPage /></Layout>} />
             <Route path="/post/:id" element={<Layout><PostPage /></Layout>} />
             <Route path="/marketplace" element={<Layout><MarketplacePage /></Layout>} />
+            <Route path="/marketplace/create" element={<Layout><CreateMarketplaceItemPage /></Layout>} />
             <Route path="/events" element={<Layout><EventsPage /></Layout>} />
             <Route path="/profile/:id" element={<Layout><ProfilePage /></Layout>} />
             <Route path="/profile/edit" element={

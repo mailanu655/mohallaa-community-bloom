@@ -107,7 +107,7 @@ const MarketplacePage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">For Sale & Free</h1>
+          <h1 className="text-3xl font-bold text-foreground">Buy & Sell</h1>
           <p className="text-muted-foreground">
             Discover items for sale and free in your neighborhood
           </p>

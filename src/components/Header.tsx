@@ -35,7 +35,7 @@ const Header = () => {
                   Communities
                 </Link>
                 <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors font-medium">
-                  For Sale & Free
+                  Buy & Sell
                 </Link>
                 <Link to="/events" className="text-foreground hover:text-primary transition-colors font-medium">
                   Events
