@@ -23,8 +23,8 @@ const EventsPage = () => {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
-  const [timeFilter, setTimeFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [timeFilter, setTimeFilter] = useState('all');
 
   useEffect(() => {
     fetchEvents();
@@ -66,11 +66,11 @@ const EventsPage = () => {
       );
     }
 
-    if (typeFilter) {
+    if (typeFilter && typeFilter !== 'all') {
       filtered = filtered.filter(event => event.event_type === typeFilter);
     }
 
-    if (timeFilter) {
+    if (timeFilter && timeFilter !== 'all') {
       const now = new Date();
       filtered = filtered.filter(event => {
         const eventDate = parseISO(event.start_date);
@@ -160,7 +160,7 @@ const EventsPage = () => {
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 {eventTypes.map(type => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
@@ -174,7 +174,7 @@ const EventsPage = () => {
                 <SelectValue placeholder="When" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Time</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
                 <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="tomorrow">Tomorrow</SelectItem>
                 <SelectItem value="this-week">This Week</SelectItem>
@@ -186,8 +186,8 @@ const EventsPage = () => {
               variant="outline" 
               onClick={() => {
                 setSearchTerm('');
-                setTypeFilter('');
-                setTimeFilter('');
+                setTypeFilter('all');
+                setTimeFilter('all');
               }}
             >
               Clear
