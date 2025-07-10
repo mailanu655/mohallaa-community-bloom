@@ -108,41 +108,9 @@ const HomePage = () => {
       {/* Create Post Section */}
       <Card className="border border-border/50 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6">
-          {/* Header with tabs */}
+          {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-foreground">Scroll</h2>
-            <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1">
-              <button 
-                onClick={() => setActiveTab('newest')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'newest' 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                NEWEST
-              </button>
-              <button 
-                onClick={() => setActiveTab('trending')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'trending' 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                TRENDING
-              </button>
-              <button 
-                onClick={() => setActiveTab('following')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'following' 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                FOLLOWING
-              </button>
-            </div>
+            <h2 className="text-xl font-bold text-foreground">Write Article</h2>
           </div>
 
           {/* Post creation area */}
