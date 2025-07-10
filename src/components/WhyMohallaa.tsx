@@ -27,7 +27,7 @@ const WhyMohallaa = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-warm">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         {/* Problem Statement */}
         <div className="text-center mb-16">
