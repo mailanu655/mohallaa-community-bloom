@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Heart, Home, Users2, Sparkles } from "lucide-react";
 
 const WhyMohallaa = () => {
@@ -81,11 +82,11 @@ const WhyMohallaa = () => {
             Your neighborhood community is waiting for you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button variant="default" size="lg" className="bg-primary hover:bg-primary/90 shadow-warm">
-              Join Your Local Community
+            <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 shadow-warm">
+              <Link to="/communities">Join Your Local Community</Link>
             </Button>
-            <Button variant="outline" size="lg" className="hover:bg-primary hover:text-primary-foreground">
-              Browse Communities
+            <Button asChild variant="outline" size="lg" className="hover:bg-primary hover:text-primary-foreground">
+              <Link to="/communities">Browse Communities</Link>
             </Button>
           </div>
         </div>

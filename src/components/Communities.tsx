@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Users, MapPin } from "lucide-react";
 
 const Communities = () => {
@@ -82,8 +83,8 @@ const Communities = () => {
                 <p className="text-muted-foreground leading-relaxed mb-4">
                   {city.description}
                 </p>
-                <Button variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground">
-                  Join Community
+                <Button asChild variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground">
+                  <Link to="/communities">Join Community</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -91,8 +92,8 @@ const Communities = () => {
         </div>
 
         <div className="text-center">
-          <Button variant="default" size="lg" className="bg-primary hover:bg-primary/90 shadow-warm">
-            View All Communities
+          <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 shadow-warm">
+            <Link to="/communities">View All Communities</Link>
           </Button>
         </div>
       </div>
