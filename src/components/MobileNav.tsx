@@ -17,7 +17,7 @@ const MobileNav = () => {
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
-    { name: 'Groups', href: '/communities', icon: Users },
+    { name: 'Communities', href: '/communities', icon: Users },
     { name: 'For Sale & Free', href: '/marketplace', icon: ShoppingBag },
     { name: 'Events', href: '/events', icon: Calendar },
     { name: 'Network', href: '/network', icon: Users2, requireAuth: true },

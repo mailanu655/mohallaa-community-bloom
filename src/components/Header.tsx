@@ -32,7 +32,7 @@ const Header = () => {
             <div className="flex items-center space-x-6">
               <nav className="flex items-center space-x-6">
                 <Link to="/communities" className="text-foreground hover:text-primary transition-colors font-medium">
-                  Groups
+                  Communities
                 </Link>
                 <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors font-medium">
                   For Sale & Free
