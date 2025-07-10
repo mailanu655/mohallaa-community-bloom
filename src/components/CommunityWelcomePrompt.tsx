@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, X, Users, Sparkles } from "lucide-react";
+import { MessageSquare, X, Clock, Sparkles } from "lucide-react";
 
 interface CommunityWelcomePromptProps {
   communityName: string;
@@ -45,7 +45,7 @@ const CommunityWelcomePrompt = ({
                   size="sm"
                   className="flex items-center gap-2"
                 >
-                  <Users className="w-4 h-4" />
+                  <Clock className="w-4 h-4" />
                   Maybe Later
                 </Button>
               </div>
