@@ -9,13 +9,13 @@ import { MapPin, Mail, Calendar, Heart, MessageSquare, ExternalLink, Globe, Brie
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfileViews } from "@/hooks/useProfileViews";
+
 import ConnectButton from "@/components/ConnectButton";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { trackProfileView } = useProfileViews();
+  
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [community, setCommunity] = useState(null);
@@ -24,10 +24,8 @@ const ProfilePage = () => {
   useEffect(() => {
     if (id) {
       fetchProfileData();
-      // Track profile view when component mounts
-      trackProfileView(id);
     }
-  }, [id, trackProfileView]);
+  }, [id]);
 
   const fetchProfileData = async () => {
     try {
