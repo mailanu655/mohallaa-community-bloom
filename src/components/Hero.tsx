@@ -17,15 +17,19 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-6">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-          Welcome to{" "}
+          Your Indian Community in{" "}
           <span className="bg-gradient-hero bg-clip-text text-transparent">
-            Mohallaa
+            America
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed animate-fade-in">
-          Connect, grow, and thrive with the Indian diaspora community across America. 
-          Your neighborhood, your network, your home away from home.
+        <p className="text-xl md:text-2xl mb-4 text-white/90 max-w-3xl mx-auto leading-relaxed animate-fade-in">
+          Mohallaa connects Indians across America through location-based communities, 
+          cultural events, and local business networks.
+        </p>
+        
+        <p className="text-lg md:text-xl mb-8 text-white/80 max-w-2xl mx-auto leading-relaxed animate-fade-in">
+          Find your neighborhood. Build meaningful connections. Create home away from home.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-float-gentle">

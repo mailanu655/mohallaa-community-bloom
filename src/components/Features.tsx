@@ -5,23 +5,23 @@ const Features = () => {
   const features = [
     {
       icon: <Users className="w-12 h-12 text-primary" />,
-      title: "Community Networks",
-      description: "Connect with fellow Indians in your city and neighborhood. Build meaningful professional and personal relationships."
+      title: "Neighborhood Communities",
+      description: "Join hyper-local groups in your city and connect with Indians living nearby. Share recommendations, organize meetups, and build lasting friendships."
     },
     {
-      icon: <MapPin className="w-12 h-12 text-primary" />,
-      title: "Location-Based Groups",
-      description: "Join location-specific communities in cities with high Indian populations across America."
+      icon: <MapPin className="w-12 h-12 text-secondary" />,
+      title: "Local Marketplace",
+      description: "Buy and sell items within your community. From furniture to festival decorations, find what you need from trusted neighbors."
     },
     {
-      icon: <Calendar className="w-12 h-12 text-primary" />,
+      icon: <Calendar className="w-12 h-12 text-accent" />,
       title: "Cultural Events",
-      description: "Discover and organize Diwali celebrations, Holi festivals, cultural performances, and community gatherings."
+      description: "Never miss a celebration! Discover Diwali parties, Garba nights, cultural performances, and family-friendly events happening near you."
     },
     {
-      icon: <Search className="w-12 h-12 text-primary" />,
-      title: "Business Directory",
-      description: "Find Indian-owned businesses, from authentic restaurants to professional services, all verified by the community."
+      icon: <Search className="w-12 h-12 text-primary-glow" />,
+      title: "Community Posts",
+      description: "Ask questions, share experiences, seek recommendations, and get advice from people who understand your cultural context."
     }
   ];
 
@@ -30,14 +30,14 @@ const Features = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Everything You Need to{" "}
+            What You Can Do on{" "}
             <span className="bg-gradient-hero bg-clip-text text-transparent">
-              Stay Connected
+              Mohallaa
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            From professional networking to cultural celebrations, Mohallaa brings the warmth 
-            of Indian community to your digital doorstep.
+            Everything you need to connect, engage, and thrive within your local Indian community - 
+            all in one place.
           </p>
         </div>
 
