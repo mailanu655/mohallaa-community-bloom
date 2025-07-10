@@ -14,6 +14,7 @@ import PostModerationActions from "@/components/PostModerationActions";
 import RichContentRenderer from "@/components/RichContentRenderer";
 import PostMediaGallery from "@/components/PostMediaGallery";
 import CommunityJoinRequestDialog from "@/components/CommunityJoinRequestDialog";
+import CommunityWelcomePrompt from "@/components/CommunityWelcomePrompt";
 import { useCommunityJoinRequests } from "@/hooks/useCommunityJoinRequests";
 
 const CommunityPage = () => {
@@ -24,6 +25,7 @@ const CommunityPage = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
+  const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
   
   const {
     isMember,
@@ -43,6 +45,20 @@ const CommunityPage = () => {
     if (id) {
       fetchCommunityData();
     }
+  }, [id]);
+
+  // Listen for community join events
+  useEffect(() => {
+    const handleCommunityJoined = (event: CustomEvent) => {
+      if (event.detail.communityId === id) {
+        setShowWelcomePrompt(true);
+      }
+    };
+
+    window.addEventListener('communityJoined', handleCommunityJoined as EventListener);
+    return () => {
+      window.removeEventListener('communityJoined', handleCommunityJoined as EventListener);
+    };
   }, [id]);
 
   const fetchCommunityData = async () => {
@@ -239,6 +255,18 @@ const CommunityPage = () => {
 
           {/* Posts Tab */}
           <TabsContent value="posts" className="space-y-6 animate-fade-in">
+            {/* Welcome Prompt for new members */}
+            {showWelcomePrompt && isMember && (
+              <CommunityWelcomePrompt
+                communityName={community.name}
+                onDismiss={() => setShowWelcomePrompt(false)}
+                onCreatePost={() => {
+                  setShowWelcomePrompt(false);
+                  // TODO: Open create post dialog
+                }}
+              />
+            )}
+
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Community Discussions</h2>
               {isMember && <Button variant="cultural">New Post</Button>}

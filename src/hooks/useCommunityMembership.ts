@@ -120,6 +120,13 @@ export const useCommunityMembership = (communityId: string) => {
         title: "Welcome!",
         description: "You've successfully joined the community."
       });
+      
+      // Trigger welcome prompt
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('communityJoined', { 
+          detail: { communityId } 
+        }));
+      }
     } catch (error) {
       console.error('Error joining community:', error);
       toast({
