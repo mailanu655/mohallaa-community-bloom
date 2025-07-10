@@ -15,8 +15,6 @@ import PostsPage from "./pages/PostsPage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProfileEditPage from "./pages/ProfileEditPage";
-import NetworkPage from "./pages/NetworkPage";
-import ConnectionsPage from "./pages/ConnectionsPage";
 import HomePage from "./pages/HomePage";
 import MarketplacePage from "./pages/MarketplacePage";
 import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
@@ -54,20 +52,6 @@ const App = () => (
               <Layout>
                 <ProtectedRoute>
                   <ProfileEditPage />
-                </ProtectedRoute>
-              </Layout>
-            } />
-            <Route path="/network" element={
-              <Layout>
-                <ProtectedRoute>
-                  <NetworkPage />
-                </ProtectedRoute>
-              </Layout>
-            } />
-            <Route path="/connections" element={
-              <Layout>
-                <ProtectedRoute>
-                  <ConnectionsPage />
                 </ProtectedRoute>
               </Layout>
             } />

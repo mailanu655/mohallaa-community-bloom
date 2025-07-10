@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, Home, Users, MessageSquare, Calendar, User, Search, Users2, Link2, ShoppingBag } from 'lucide-react';
+import { Menu, X, Home, Users, MessageSquare, Calendar, User, Search, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -20,8 +20,6 @@ const MobileNav = () => {
     { name: 'Communities', href: '/communities', icon: Users },
     { name: 'Buy & Sell', href: '/marketplace', icon: ShoppingBag },
     { name: 'Events', href: '/events', icon: Calendar },
-    { name: 'Network', href: '/network', icon: Users2, requireAuth: true },
-    { name: 'Connections', href: '/connections', icon: Link2, requireAuth: true },
     { name: 'Dashboard', href: '/dashboard', icon: User, requireAuth: true },
   ];
 
