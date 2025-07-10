@@ -60,6 +60,23 @@ export const useCommunityMembership = (communityId: string) => {
 
     setIsLoading(true);
     try {
+      // Check if this is a private community
+      const { data: communityData } = await supabase
+        .from('communities')
+        .select('privacy_type, require_approval')
+        .eq('id', communityId)
+        .single();
+
+      if (communityData?.privacy_type === 'private') {
+        // For private communities, create a join request instead
+        toast({
+          title: "Private Community",
+          description: "This is a private community. Please submit a join request through the community page."
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // First, ensure the user has a profile
       const { data: existingProfile } = await supabase
         .from('profiles')

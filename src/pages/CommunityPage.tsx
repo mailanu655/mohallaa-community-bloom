@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign, UserPlus, UserMinus } from "lucide-react";
+import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign, UserPlus, UserMinus, Lock, Globe, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCommunityMembership } from "@/hooks/useCommunityMembership";
@@ -13,6 +13,8 @@ import CommunityMemberCard from "@/components/CommunityMemberCard";
 import PostModerationActions from "@/components/PostModerationActions";
 import RichContentRenderer from "@/components/RichContentRenderer";
 import PostMediaGallery from "@/components/PostMediaGallery";
+import CommunityJoinRequestDialog from "@/components/CommunityJoinRequestDialog";
+import { useCommunityJoinRequests } from "@/hooks/useCommunityJoinRequests";
 
 const CommunityPage = () => {
   const { id } = useParams();
@@ -21,6 +23,7 @@ const CommunityPage = () => {
   const [events, setEvents] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
   
   const {
     isMember,
@@ -33,6 +36,8 @@ const CommunityPage = () => {
     updateMemberRole,
     removeMember
   } = useCommunityMembership(id || '');
+  
+  const { userJoinRequest } = useCommunityJoinRequests(id || '');
 
   useEffect(() => {
     if (id) {
@@ -139,17 +144,23 @@ const CommunityPage = () => {
                       <h1 className="text-3xl md:text-4xl font-bold text-foreground">
                         {community.name}
                       </h1>
-                      <div className="flex items-center gap-4 text-muted-foreground">
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {community.city}, {community.state}
+                        <div className="flex items-center gap-4 text-muted-foreground">
+                          <div className="flex items-center">
+                            <MapPin className="w-4 h-4 mr-2" />
+                            {community.city}, {community.state}
+                          </div>
+                          <div className="flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            {community.member_count || 0} members
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">{community.type}</Badge>
+                            <Badge variant={community.privacy_type === 'private' ? 'destructive' : 'default'} className="flex items-center gap-1">
+                              {community.privacy_type === 'private' ? <Lock className="w-3 h-3" /> : <Globe className="w-3 h-3" />}
+                              {community.privacy_type === 'private' ? 'Private' : 'Public'}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center">
-                          <Users className="w-4 h-4 mr-2" />
-                          {community.member_count || 0} members
-                        </div>
-                        <Badge variant="secondary">{community.type}</Badge>
-                      </div>
                     </div>
                   </div>
                   {community.description && (
@@ -173,11 +184,43 @@ const CommunityPage = () => {
                     <Button 
                       variant="hero" 
                       size="lg" 
-                      onClick={joinCommunity}
-                      disabled={membershipLoading}
+                      onClick={() => {
+                        if (community.privacy_type === 'private') {
+                          setShowJoinRequestDialog(true);
+                        } else {
+                          joinCommunity();
+                        }
+                      }}
+                      disabled={membershipLoading || !!userJoinRequest}
                     >
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Join Community
+                      {userJoinRequest ? (
+                        userJoinRequest.status === 'pending' ? (
+                          <>
+                            <Clock className="w-4 h-4 mr-2" />
+                            Request Pending
+                          </>
+                        ) : userJoinRequest.status === 'denied' ? (
+                          <>
+                            <Shield className="w-4 h-4 mr-2" />
+                            Request Denied
+                          </>
+                        ) : (
+                          <>
+                            <Shield className="w-4 h-4 mr-2" />
+                            Request Again
+                          </>
+                        )
+                      ) : community.privacy_type === 'private' ? (
+                        <>
+                          <Shield className="w-4 h-4 mr-2" />
+                          Request to Join
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Join Community
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
@@ -201,99 +244,113 @@ const CommunityPage = () => {
               {isMember && <Button variant="cultural">New Post</Button>}
             </div>
             
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <Card key={post.id} className="border-0 bg-card/80 backdrop-blur-sm hover:shadow-cultural transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant={post.post_type === 'announcement' ? 'default' : 'secondary'}>
-                              {post.post_type}
-                            </Badge>
-                            {post.is_pinned && (
-                              <Badge variant="outline">Pinned</Badge>
-                            )}
-                          </div>
-                          <h3 className="text-xl font-semibold text-foreground hover:text-primary transition-colors">
-                            <Link to={`/post/${post.id}`} className="story-link">
-                              {post.title}
-                            </Link>
-                          </h3>
-                          <RichContentRenderer 
-                            content={post.content} 
-                            richContent={post.rich_content}
-                            maxLength={200}
-                            className="line-clamp-3"
-                          />
-                          <PostMediaGallery 
-                            mediaUrls={post.media_urls || []}
-                            className="mt-4"
-                          />
-                        </div>
-                        <PostModerationActions
-                          postId={post.id}
-                          isPinned={post.is_pinned || false}
-                          canModerate={canModerate}
-                          isAuthor={false} // We'd need to check this properly
-                          onUpdate={(postId, updates) => {
-                            setPosts(posts.map(p => 
-                              p.id === postId ? { ...p, ...updates } : p
-                            ));
-                          }}
-                          onDelete={(postId) => {
-                            setPosts(posts.filter(p => p.id !== postId));
-                          }}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center space-x-2">
-                            <Avatar className="w-8 h-8">
-                              <AvatarImage src={post.profiles?.avatar_url} />
-                              <AvatarFallback>
-                                {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-muted-foreground">
-                              {post.profiles?.first_name} {post.profiles?.last_name}
-                            </span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(post.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span className="flex items-center hover-scale cursor-pointer">
-                            <Heart className="w-4 h-4 mr-1" />
-                            {post.upvotes || 0}
-                          </span>
-                          <span className="flex items-center">
-                            <MessageSquare className="w-4 h-4 mr-1" />
-                            {post.comment_count || 0}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {posts.length === 0 && (
+            {!isMember && community.privacy_type === 'private' && (
               <Card className="border-0 bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-12 text-center">
-                  <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Be the first to start a discussion in this community!
+                <CardContent className="p-6 text-center">
+                  <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Private Community</h3>
+                  <p className="text-muted-foreground mb-4">
+                    This is a private community. You need to be a member to view posts and discussions.
                   </p>
-                  <Button variant="cultural">Create First Post</Button>
                 </CardContent>
               </Card>
+            )}
+            
+            {(isMember || community.privacy_type === 'public') && (
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <Card key={post.id} className="border-0 bg-card/80 backdrop-blur-sm hover:shadow-cultural transition-all duration-300">
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant={post.post_type === 'announcement' ? 'default' : 'secondary'}>
+                                {post.post_type}
+                              </Badge>
+                              {post.is_pinned && (
+                                <Badge variant="outline">Pinned</Badge>
+                              )}
+                            </div>
+                            <h3 className="text-xl font-semibold text-foreground hover:text-primary transition-colors">
+                              <Link to={`/post/${post.id}`} className="story-link">
+                                {post.title}
+                              </Link>
+                            </h3>
+                            <RichContentRenderer 
+                              content={post.content} 
+                              richContent={post.rich_content}
+                              maxLength={200}
+                              className="line-clamp-3"
+                            />
+                            <PostMediaGallery 
+                              mediaUrls={post.media_urls || []}
+                              className="mt-4"
+                            />
+                          </div>
+                          <PostModerationActions
+                            postId={post.id}
+                            isPinned={post.is_pinned || false}
+                            canModerate={canModerate}
+                            isAuthor={false} // We'd need to check this properly
+                            onUpdate={(postId, updates) => {
+                              setPosts(posts.map(p => 
+                                p.id === postId ? { ...p, ...updates } : p
+                              ));
+                            }}
+                            onDelete={(postId) => {
+                              setPosts(posts.filter(p => p.id !== postId));
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <Avatar className="w-8 h-8">
+                                <AvatarImage src={post.profiles?.avatar_url} />
+                                <AvatarFallback>
+                                  {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm text-muted-foreground">
+                                {post.profiles?.first_name} {post.profiles?.last_name}
+                              </span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(post.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span className="flex items-center hover-scale cursor-pointer">
+                              <Heart className="w-4 h-4 mr-1" />
+                              {post.upvotes || 0}
+                            </span>
+                            <span className="flex items-center">
+                              <MessageSquare className="w-4 h-4 mr-1" />
+                              {post.comment_count || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {posts.length === 0 && (
+                  <Card className="border-0 bg-card/80 backdrop-blur-sm">
+                    <CardContent className="p-12 text-center">
+                      <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
+                      <p className="text-muted-foreground mb-6">
+                        Be the first to start a discussion in this community!
+                      </p>
+                      <Button variant="cultural">Create First Post</Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             )}
           </TabsContent>
 
@@ -403,6 +460,13 @@ const CommunityPage = () => {
             )}
           </TabsContent>
         </Tabs>
+        
+        <CommunityJoinRequestDialog
+          isOpen={showJoinRequestDialog}
+          onClose={() => setShowJoinRequestDialog(false)}
+          communityId={id || ''}
+          communityName={community?.name || ''}
+        />
       </div>
     </div>
   );

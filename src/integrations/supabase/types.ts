@@ -194,6 +194,7 @@ export type Database = {
       }
       communities: {
         Row: {
+          auto_approve_members: boolean
           city: string
           created_at: string
           description: string | null
@@ -201,11 +202,14 @@ export type Database = {
           location_coordinates: unknown | null
           member_count: number | null
           name: string
+          privacy_type: string
+          require_approval: boolean
           state: string
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string
         }
         Insert: {
+          auto_approve_members?: boolean
           city: string
           created_at?: string
           description?: string | null
@@ -213,11 +217,14 @@ export type Database = {
           location_coordinates?: unknown | null
           member_count?: number | null
           name: string
+          privacy_type?: string
+          require_approval?: boolean
           state: string
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string
         }
         Update: {
+          auto_approve_members?: boolean
           city?: string
           created_at?: string
           description?: string | null
@@ -225,11 +232,132 @@ export type Database = {
           location_coordinates?: unknown | null
           member_count?: number | null
           name?: string
+          privacy_type?: string
+          require_approval?: boolean
           state?: string
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string
         }
         Relationships: []
+      }
+      community_invitations: {
+        Row: {
+          community_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          invited_by: string
+          invited_email: string | null
+          invited_user_id: string | null
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invited_by: string
+          invited_email?: string | null
+          invited_user_id?: string | null
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string
+          invited_email?: string | null
+          invited_user_id?: string | null
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_invitations_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_invitations_invited_user_id_fkey"
+            columns: ["invited_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_join_requests: {
+        Row: {
+          community_id: string
+          created_at: string
+          id: string
+          message: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_join_requests_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_join_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_members: {
         Row: {
