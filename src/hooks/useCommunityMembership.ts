@@ -60,6 +60,31 @@ export const useCommunityMembership = (communityId: string) => {
 
     setIsLoading(true);
     try {
+      // First, ensure the user has a profile
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        // Create a basic profile for the user
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email || '',
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || ''
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          throw new Error('Failed to create user profile');
+        }
+      }
+
+      // Now join the community
       const { data, error } = await supabase
         .from('community_members')
         .insert({
