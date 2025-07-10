@@ -15,6 +15,7 @@ import RichContentRenderer from "@/components/RichContentRenderer";
 import PostMediaGallery from "@/components/PostMediaGallery";
 import CommunityJoinRequestDialog from "@/components/CommunityJoinRequestDialog";
 import CommunityWelcomePrompt from "@/components/CommunityWelcomePrompt";
+import CreatePostDialog from "@/components/CreatePostDialog";
 import { useCommunityJoinRequests } from "@/hooks/useCommunityJoinRequests";
 
 const CommunityPage = () => {
@@ -26,6 +27,7 @@ const CommunityPage = () => {
   const [loading, setLoading] = useState(true);
   const [showJoinRequestDialog, setShowJoinRequestDialog] = useState(false);
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
+  const [showCreatePostDialog, setShowCreatePostDialog] = useState(false);
   
   const {
     isMember,
@@ -262,14 +264,21 @@ const CommunityPage = () => {
                 onDismiss={() => setShowWelcomePrompt(false)}
                 onCreatePost={() => {
                   setShowWelcomePrompt(false);
-                  // TODO: Open create post dialog
+                  setShowCreatePostDialog(true);
                 }}
               />
             )}
 
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Community Discussions</h2>
-              {isMember && <Button variant="cultural">New Post</Button>}
+              {isMember && (
+                <Button 
+                  variant="cultural" 
+                  onClick={() => setShowCreatePostDialog(true)}
+                >
+                  New Post
+                </Button>
+              )}
             </div>
             
             {!isMember && community.privacy_type === 'private' && (
@@ -494,6 +503,13 @@ const CommunityPage = () => {
           onClose={() => setShowJoinRequestDialog(false)}
           communityId={id || ''}
           communityName={community?.name || ''}
+        />
+        
+        <CreatePostDialog
+          isOpen={showCreatePostDialog}
+          onClose={() => setShowCreatePostDialog(false)}
+          communityId={id || ''}
+          onPostCreated={fetchCommunityData}
         />
       </div>
     </div>
