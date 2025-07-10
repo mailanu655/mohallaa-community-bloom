@@ -316,7 +316,7 @@ const EnhancedCreatePostForm: React.FC<EnhancedCreatePostFormProps> = ({
                 <SelectValue placeholder="Select community (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">General Discussion</SelectItem>
+                <SelectItem value="general">General Discussion</SelectItem>
                 {communities.map(community => (
                   <SelectItem key={community.id} value={community.id}>
                     {community.name}

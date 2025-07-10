@@ -25,8 +25,8 @@ const MarketplacePage = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [priceFilter, setPriceFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
 
   useEffect(() => {
     fetchMarketplaceItems();
@@ -67,7 +67,7 @@ const MarketplacePage = () => {
       );
     }
 
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all') {
       filtered = filtered.filter(item => item.category === categoryFilter);
     }
 
@@ -139,7 +139,7 @@ const MarketplacePage = () => {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map(cat => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
@@ -153,7 +153,7 @@ const MarketplacePage = () => {
                 <SelectValue placeholder="Price" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Prices</SelectItem>
+                <SelectItem value="all">All Prices</SelectItem>
                 <SelectItem value="free">Free</SelectItem>
                 <SelectItem value="paid">For Sale</SelectItem>
               </SelectContent>
@@ -163,8 +163,8 @@ const MarketplacePage = () => {
               variant="outline" 
               onClick={() => {
                 setSearchTerm('');
-                setCategoryFilter('');
-                setPriceFilter('');
+                setCategoryFilter('all');
+                setPriceFilter('all');
               }}
             >
               Clear

@@ -43,8 +43,8 @@ const NetworkPage = () => {
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [professionFilter, setProfessionFilter] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
+  const [professionFilter, setProfessionFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
   const [connectionStatuses, setConnectionStatuses] = useState<Record<string, any>>({});
 
   useEffect(() => {
@@ -101,13 +101,13 @@ const NetworkPage = () => {
       );
     }
 
-    if (professionFilter) {
+    if (professionFilter && professionFilter !== 'all') {
       filtered = filtered.filter(user => 
         user.profession?.toLowerCase().includes(professionFilter.toLowerCase())
       );
     }
 
-    if (locationFilter) {
+    if (locationFilter && locationFilter !== 'all') {
       filtered = filtered.filter(user => 
         user.hometown_india?.toLowerCase().includes(locationFilter.toLowerCase())
       );
@@ -223,7 +223,7 @@ const NetworkPage = () => {
                   <SelectValue placeholder="Filter by profession" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Professions</SelectItem>
+                  <SelectItem value="all">All Professions</SelectItem>
                   {uniqueProfessions.map(profession => (
                     <SelectItem key={profession} value={profession!}>
                       {profession}
@@ -237,7 +237,7 @@ const NetworkPage = () => {
                   <SelectValue placeholder="Filter by location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Locations</SelectItem>
+                  <SelectItem value="all">All Locations</SelectItem>
                   {uniqueLocations.map(location => (
                     <SelectItem key={location} value={location!}>
                       {location}
@@ -250,8 +250,8 @@ const NetworkPage = () => {
                 variant="outline" 
                 onClick={() => {
                   setSearchTerm('');
-                  setProfessionFilter('');
-                  setLocationFilter('');
+                  setProfessionFilter('all');
+                  setLocationFilter('all');
                 }}
               >
                 Clear Filters
