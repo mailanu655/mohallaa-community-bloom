@@ -19,6 +19,10 @@ import HomePage from "./pages/HomePage";
 import MarketplacePage from "./pages/MarketplacePage";
 import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
 import EventsPage from "./pages/EventsPage";
+import BusinessesPage from "./pages/BusinessesPage";
+import BusinessPage from "./pages/BusinessPage";
+import RegisterBusinessPage from "./pages/RegisterBusinessPage";
+import BookServicePage from "./pages/BookServicePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +52,10 @@ const App = () => (
             <Route path="/marketplace" element={<Layout><MarketplacePage /></Layout>} />
             <Route path="/marketplace/create" element={<Layout><CreateMarketplaceItemPage /></Layout>} />
             <Route path="/events" element={<Layout><EventsPage /></Layout>} />
+            <Route path="/businesses" element={<Layout><BusinessesPage /></Layout>} />
+            <Route path="/business/:id" element={<Layout><BusinessPage /></Layout>} />
+            <Route path="/register-business" element={<Layout><ProtectedRoute><RegisterBusinessPage /></ProtectedRoute></Layout>} />
+            <Route path="/book-service/:serviceId" element={<Layout><ProtectedRoute><BookServicePage /></ProtectedRoute></Layout>} />
             <Route path="/profile/:id" element={<Layout><ProfilePage /></Layout>} />
             <Route path="/profile/edit" element={
               <Layout>
