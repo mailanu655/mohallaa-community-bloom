@@ -11,7 +11,12 @@ import {
   Calendar,
   ShoppingBag,
   Users,
-  TrendingUp
+  TrendingUp,
+  Image,
+  Video,
+  BarChart3,
+  FileText,
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +28,7 @@ const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [marketplaceItems, setMarketplaceItems] = useState([]);
+  const [activeTab, setActiveTab] = useState('newest');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -99,45 +105,101 @@ const HomePage = () => {
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border border-border/50">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <MessageSquare className="w-6 h-6 text-orange-600" />
+      {/* Create Post Section */}
+      <Card className="border border-border/50 bg-card/80 backdrop-blur-sm">
+        <CardContent className="p-6">
+          {/* Header with tabs */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-foreground">Scroll</h2>
+            <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1">
+              <button 
+                onClick={() => setActiveTab('newest')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'newest' 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                NEWEST
+              </button>
+              <button 
+                onClick={() => setActiveTab('trending')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'trending' 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                TRENDING
+              </button>
+              <button 
+                onClick={() => setActiveTab('following')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === 'following' 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                FOLLOWING
+              </button>
             </div>
-            <div className="text-3xl font-bold text-foreground">{posts.length}</div>
-            <div className="text-sm text-muted-foreground">Recent Posts</div>
-          </CardContent>
-        </Card>
-        <Card className="border border-border/50">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Calendar className="w-6 h-6 text-orange-600" />
+          </div>
+
+          {/* Post creation area */}
+          <div className="flex items-start space-x-4 mb-4">
+            <Avatar className="w-12 h-12 bg-primary/10 text-primary font-semibold">
+              <AvatarImage src={user?.user_metadata?.avatar_url} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted"
+                asChild
+              >
+                <Link to="/posts/create">
+                  Ask a question to the community?
+                </Link>
+              </Button>
             </div>
-            <div className="text-3xl font-bold text-foreground">{events.length}</div>
-            <div className="text-sm text-muted-foreground">Upcoming Events</div>
-          </CardContent>
-        </Card>
-        <Card className="border border-border/50">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <ShoppingBag className="w-6 h-6 text-orange-600" />
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Image className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Video className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <BarChart3 className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <FileText className="w-5 h-5" />
+              </Button>
             </div>
-            <div className="text-3xl font-bold text-foreground">{marketplaceItems.length}</div>
-            <div className="text-sm text-muted-foreground">For Sale</div>
-          </CardContent>
-        </Card>
-        <Card className="border border-border/50">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Users className="w-6 h-6 text-orange-600" />
+            
+            <div className="flex items-center space-x-3">
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/posts/create">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Write Article
+                </Link>
+              </Button>
+              <Button variant="default" size="sm" className="bg-primary hover:bg-primary/90" asChild>
+                <Link to="/posts/create">
+                  Post
+                </Link>
+              </Button>
             </div>
-            <div className="text-3xl font-bold text-foreground">12</div>
-            <div className="text-sm text-muted-foreground">Communities</div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Feed */}
