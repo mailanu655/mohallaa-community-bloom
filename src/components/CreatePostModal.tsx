@@ -27,21 +27,21 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
   const quickActions = [
     {
       icon: ShoppingBag,
-      title: 'Sell or give away',
-      subtitle: 'List items for sale or free',
+      title: 'Share & Exchange',
+      subtitle: 'List Indian goods, share recipes, or exchange items',
       link: '/marketplace/create'
     },
     {
       icon: Calendar,
-      title: 'Create an event',
-      subtitle: 'Organize community events',
+      title: 'Cultural Events',
+      subtitle: 'Organize festivals, meetups, and celebrations',
       link: '/events/create'
     },
     {
       icon: BarChart3,
-      title: 'Poll your neighbors',
-      subtitle: 'Get community opinions',
-      link: '/posts/create?type=poll'
+      title: 'Community Voice',
+      subtitle: 'Ask for local recommendations and advice',
+      link: '/posts/create?type=question'
     }
   ];
 
@@ -88,7 +88,7 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
             {/* Post Input */}
             <div className="mb-6">
               <Textarea
-                placeholder="What's on your mind, neighbor?"
+                placeholder="Share with your local Indian community..."
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
                 className="min-h-[120px] border-0 p-0 text-base placeholder:text-muted-foreground resize-none focus-visible:ring-0 bg-transparent"

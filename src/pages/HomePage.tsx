@@ -123,7 +123,7 @@ const HomePage = () => {
               className="flex-1 justify-start text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted h-12 text-base"
               onClick={() => setCreatePostModalOpen(true)}
             >
-              What's on your mind, neighbor?
+              Share with your local Indian community...
             </Button>
           </div>
         </CardContent>
