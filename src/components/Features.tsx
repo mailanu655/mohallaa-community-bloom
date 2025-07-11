@@ -91,11 +91,36 @@ const Features = () => {
               </div>
               
               <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                <div className="relative">
-                  <div className="bg-gradient-cultural rounded-2xl p-8 h-80 flex items-center justify-center">
-                    <div className="text-8xl opacity-20">{feature.image}</div>
+                <div className="relative group">
+                  <div className="bg-gradient-cultural rounded-2xl p-8 h-80 flex items-center justify-center overflow-hidden relative">
+                    {/* Animated background pattern */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute top-4 left-4 w-16 h-16 bg-primary/20 rounded-full animate-pulse"></div>
+                      <div className="absolute top-12 right-8 w-8 h-8 bg-secondary/30 rounded-full animate-bounce"></div>
+                      <div className="absolute bottom-8 left-12 w-12 h-12 bg-accent/25 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                      <div className="absolute bottom-4 right-4 w-6 h-6 bg-primary/20 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+                    </div>
+                    
+                    {/* Main content */}
+                    <div className="relative z-10 text-center">
+                      <div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        {feature.image}
+                      </div>
+                      <div className="text-sm font-medium text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {feature.title}
+                      </div>
+                    </div>
+                    
+                    {/* Floating elements */}
+                    <div className="absolute top-6 right-6 w-3 h-3 bg-white/50 rounded-full animate-ping"></div>
+                    <div className="absolute bottom-6 left-6 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl"></div>
+                  
+                  {/* Interactive border */}
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-primary/30 transition-colors duration-300"></div>
+                  
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 group-hover:from-primary/10 group-hover:to-secondary/10 transition-all duration-300"></div>
                 </div>
               </div>
             </div>
