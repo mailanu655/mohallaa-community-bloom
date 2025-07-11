@@ -119,8 +119,73 @@ const Features = () => {
                   {/* Interactive border */}
                   <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-primary/30 transition-colors duration-300"></div>
                   
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 group-hover:from-primary/10 group-hover:to-secondary/10 transition-all duration-300"></div>
+                  {/* Professional showcase mockup */}
+                  <div className="absolute inset-0 rounded-2xl bg-white/90 p-6 opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-sm">
+                    <div className="h-full flex flex-col justify-center space-y-4">
+                      {index === 0 && (
+                        <>
+                          <div className="flex items-center space-x-3 mb-2">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">G</div>
+                            <div>
+                              <div className="text-sm font-semibold text-foreground">Google</div>
+                              <div className="text-xs text-muted-foreground">Software Engineer</div>
+                            </div>
+                            <div className="ml-auto w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3 mb-2">
+                            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">M</div>
+                            <div>
+                              <div className="text-sm font-semibold text-foreground">Microsoft</div>
+                              <div className="text-xs text-muted-foreground">Product Manager</div>
+                            </div>
+                            <div className="ml-auto w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-primary font-medium">+247 verified professionals</div>
+                        </>
+                      )}
+                      {index === 1 && (
+                        <>
+                          <div className="text-sm font-semibold text-foreground mb-2">Latest Posts</div>
+                          <div className="space-y-2">
+                            <div className="p-2 bg-primary/10 rounded text-xs">
+                              "Best Indian restaurants in Seattle? 🍛"
+                            </div>
+                            <div className="p-2 bg-secondary/10 rounded text-xs">
+                              "H1B visa attorney recommendations needed"
+                            </div>
+                            <div className="p-2 bg-accent/10 rounded text-xs">
+                              "Cricket team forming in Austin! 🏏"
+                            </div>
+                          </div>
+                          <div className="text-xs text-primary font-medium">+1.2K active discussions</div>
+                        </>
+                      )}
+                      {index === 2 && (
+                        <>
+                          <div className="text-sm font-semibold text-foreground mb-2">Upcoming Events</div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center p-2 bg-yellow-50 rounded">
+                              <div className="text-xs">Diwali Celebration</div>
+                              <div className="text-xs text-yellow-600">Oct 12</div>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
+                              <div className="text-xs">Tech Meetup</div>
+                              <div className="text-xs text-blue-600">Oct 15</div>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                              <div className="text-xs">Garba Night</div>
+                              <div className="text-xs text-green-600">Oct 20</div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-primary font-medium">+23 events this month</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
