@@ -95,37 +95,6 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in">
-          <Card className="hover:shadow-cultural transition-all duration-300 border-0 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-4 text-center">
-              <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{communities.length}</div>
-              <div className="text-sm text-muted-foreground">Communities</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-cultural transition-all duration-300 border-0 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-4 text-center">
-              <MessageSquare className="w-8 h-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{recentPosts.length}</div>
-              <div className="text-sm text-muted-foreground">Recent Posts</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-cultural transition-all duration-300 border-0 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-4 text-center">
-              <CalendarDays className="w-8 h-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">{upcomingEvents.length}</div>
-              <div className="text-sm text-muted-foreground">Upcoming Events</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-cultural transition-all duration-300 border-0 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-4 text-center">
-              <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">24</div>
-              <div className="text-sm text-muted-foreground">Active Today</div>
-            </CardContent>
-          </Card>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
