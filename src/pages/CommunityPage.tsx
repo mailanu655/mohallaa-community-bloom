@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign, UserPlus, UserMinus, Lock, Globe, Shield } from "lucide-react";
+import EventRSVPButton from "@/components/EventRSVPButton";
+import EventAttendeesList from "@/components/EventAttendeesList";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCommunityMembership } from "@/hooks/useCommunityMembership";
@@ -434,13 +436,18 @@ const CommunityPage = () => {
                         )}
                       </div>
                       
+                      {/* Event Attendees */}
+                      <EventAttendeesList eventId={event.id} maxDisplayed={3} />
+                      
                       <div className="flex items-center justify-between pt-2">
                         <Badge variant={event.is_free ? 'secondary' : 'outline'}>
                           {event.is_free ? 'Free Event' : 'Paid Event'}
                         </Badge>
-                        <Button variant="cultural" size="sm">
-                          Join Event
-                        </Button>
+                        <EventRSVPButton 
+                          eventId={event.id}
+                          variant="default"
+                          size="sm"
+                        />
                       </div>
                     </div>
                   </CardContent>
