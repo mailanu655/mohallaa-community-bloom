@@ -110,14 +110,61 @@ const EventsPage = () => {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-muted rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-muted rounded-lg"></div>
-            ))}
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-pulse">
+          <div className="space-y-2">
+            <div className="h-8 bg-muted/20 rounded w-32"></div>
+            <div className="h-4 bg-muted/20 rounded w-64"></div>
           </div>
+          <div className="h-10 bg-muted/20 rounded w-32"></div>
+        </div>
+
+        {/* Filters Skeleton */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="h-10 bg-muted/20 rounded flex-1"></div>
+              <div className="h-10 bg-muted/20 rounded w-48"></div>
+              <div className="h-10 bg-muted/20 rounded w-40"></div>
+              <div className="h-10 bg-muted/20 rounded w-20"></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Events Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 bg-muted/20 rounded w-3/4"></div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-5 bg-muted/20 rounded w-16"></div>
+                      <div className="h-5 bg-muted/20 rounded w-20"></div>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="h-16 bg-muted/20 rounded w-full"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted/20 rounded w-full"></div>
+                  <div className="h-4 bg-muted/20 rounded w-2/3"></div>
+                  <div className="h-4 bg-muted/20 rounded w-1/2"></div>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-6 bg-muted/20 rounded-full w-6"></div>
+                    <div className="h-4 bg-muted/20 rounded w-20"></div>
+                  </div>
+                  <div className="h-4 bg-muted/20 rounded w-16"></div>
+                </div>
+                <div className="h-8 bg-muted/20 rounded w-full"></div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );

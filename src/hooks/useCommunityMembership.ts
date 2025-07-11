@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useAsyncOperation } from '@/hooks/useAsyncOperation';
 
 export interface CommunityMembership {
   id: string;
@@ -22,66 +22,99 @@ export interface JoinRequest {
 
 export const useCommunityMembership = (communityId: string) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [membership, setMembership] = useState<CommunityMembership | null>(null);
   const [joinRequest, setJoinRequest] = useState<JoinRequest | null>(null);
   const [loading, setLoading] = useState(true);
-  const [joining, setJoining] = useState(false);
+  
+  // Standardized async operations with consistent error handling
+  const joinOperation = useAsyncOperation({
+    successMessage: "Successfully joined the community!",
+    errorMessage: "Failed to join community. Please try again."
+  });
+  
+  const leaveOperation = useAsyncOperation({
+    successMessage: "You've left the community.",
+    errorMessage: "Failed to leave community. Please try again."
+  });
+  
+  const cancelRequestOperation = useAsyncOperation({
+    successMessage: "Your join request has been cancelled.",
+    errorMessage: "Failed to cancel request. Please try again."
+  });
+  
+  const roleUpdateOperation = useAsyncOperation({
+    successMessage: "Member role has been updated successfully.",
+    errorMessage: "Failed to update member role. Please try again."
+  });
+  
+  const removeMemberOperation = useAsyncOperation({
+    successMessage: "Member has been removed from the community.",
+    errorMessage: "Failed to remove member. Please try again."
+  });
 
-  // Check existing membership and join request
-  useEffect(() => {
+  // Optimized membership status check
+  const checkMembershipStatus = useCallback(async () => {
     if (!user || !communityId) {
       setLoading(false);
       return;
     }
 
-    const checkMembershipStatus = async () => {
-      try {
-        // Check if user is already a member
-        const { data: memberData } = await supabase
+    try {
+      // Optimize: Check both membership and join request in parallel
+      const [
+        { data: memberData, error: memberError },
+        { data: requestData, error: requestError }
+      ] = await Promise.all([
+        supabase
           .from('community_members')
           .select('*')
           .eq('community_id', communityId)
           .eq('user_id', user.id)
-          .maybeSingle();
+          .maybeSingle(),
+        supabase
+          .from('community_join_requests')
+          .select('*')
+          .eq('community_id', communityId)
+          .eq('user_id', user.id)
+          .eq('status', 'pending')
+          .maybeSingle()
+      ]);
 
+      if (memberError) {
+        console.error('Error fetching membership:', memberError);
+      } else {
         setMembership(memberData);
-
-        // If not a member, check for pending join request
-        if (!memberData) {
-          const { data: requestData } = await supabase
-            .from('community_join_requests')
-            .select('*')
-            .eq('community_id', communityId)
-            .eq('user_id', user.id)
-            .eq('status', 'pending')
-            .maybeSingle();
-
-          setJoinRequest(requestData);
-        }
-      } catch (error) {
-        console.error('Error checking membership status:', error);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    checkMembershipStatus();
+      // Only set join request if user is not a member
+      if (requestError) {
+        console.error('Error fetching join request:', requestError);
+      } else if (!memberData) {
+        setJoinRequest(requestData);
+      }
+    } catch (error) {
+      console.error('Error checking membership status:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [user, communityId]);
 
-  const joinCommunity = async (message?: string) => {
+  useEffect(() => {
+    checkMembershipStatus();
+  }, [checkMembershipStatus]);
+
+  const joinCommunity = useCallback(async (message?: string) => {
     if (!user || !communityId) return;
 
-    setJoining(true);
-    try {
+    return joinOperation.execute(async () => {
       // Get community details to check if approval is required
-      const { data: community } = await supabase
+      const { data: community, error: communityError } = await supabase
         .from('communities')
         .select('require_approval, auto_approve_members')
         .eq('id', communityId)
         .single();
 
-      if (!community) {
+      if (communityError || !community) {
         throw new Error('Community not found');
       }
 
@@ -97,11 +130,6 @@ export const useCommunityMembership = (communityId: string) => {
 
         if (error) throw error;
 
-        toast({
-          title: "Welcome!",
-          description: "You've successfully joined the community.",
-        });
-
         // Refresh membership status
         const { data: newMembership } = await supabase
           .from('community_members')
@@ -111,6 +139,11 @@ export const useCommunityMembership = (communityId: string) => {
           .single();
 
         setMembership(newMembership);
+        
+        // Dispatch custom event for components to listen to
+        window.dispatchEvent(new CustomEvent('communityJoined', { 
+          detail: { communityId } 
+        }));
       } else {
         // Create join request for approval
         const { error } = await supabase
@@ -124,11 +157,6 @@ export const useCommunityMembership = (communityId: string) => {
 
         if (error) throw error;
 
-        toast({
-          title: "Request Sent",
-          description: "Your join request has been sent for approval.",
-        });
-
         // Refresh join request status
         const { data: newRequest } = await supabase
           .from('community_join_requests')
@@ -140,22 +168,13 @@ export const useCommunityMembership = (communityId: string) => {
 
         setJoinRequest(newRequest);
       }
-    } catch (error) {
-      console.error('Error joining community:', error);
-      toast({
-        title: "Error",
-        description: "Failed to join community. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setJoining(false);
-    }
-  };
+    });
+  }, [user, communityId, joinOperation]);
 
-  const leaveCommunity = async () => {
+  const leaveCommunity = useCallback(async () => {
     if (!user || !membership) return;
 
-    try {
+    return leaveOperation.execute(async () => {
       const { error } = await supabase
         .from('community_members')
         .delete()
@@ -163,54 +182,28 @@ export const useCommunityMembership = (communityId: string) => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-
-      toast({
-        title: "Left Community",
-        description: "You've left the community.",
-      });
-
       setMembership(null);
-    } catch (error) {
-      console.error('Error leaving community:', error);
-      toast({
-        title: "Error",
-        description: "Failed to leave community. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+    });
+  }, [user, membership, communityId, leaveOperation]);
 
-  const cancelJoinRequest = async () => {
+  const cancelJoinRequest = useCallback(async () => {
     if (!user || !joinRequest) return;
 
-    try {
+    return cancelRequestOperation.execute(async () => {
       const { error } = await supabase
         .from('community_join_requests')
         .delete()
         .eq('id', joinRequest.id);
 
       if (error) throw error;
-
-      toast({
-        title: "Request Cancelled",
-        description: "Your join request has been cancelled.",
-      });
-
       setJoinRequest(null);
-    } catch (error) {
-      console.error('Error cancelling join request:', error);
-      toast({
-        title: "Error",
-        description: "Failed to cancel request. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+    });
+  }, [user, joinRequest, cancelRequestOperation]);
 
-  const updateMemberRole = async (userId: string, newRole: string) => {
+  const updateMemberRole = useCallback(async (userId: string, newRole: string) => {
     if (!user || !membership) return;
 
-    try {
+    return roleUpdateOperation.execute(async () => {
       const { error } = await supabase
         .from('community_members')
         .update({ role: newRole })
@@ -218,25 +211,13 @@ export const useCommunityMembership = (communityId: string) => {
         .eq('user_id', userId);
 
       if (error) throw error;
+    });
+  }, [user, membership, communityId, roleUpdateOperation]);
 
-      toast({
-        title: "Role Updated",
-        description: "Member role has been updated successfully.",
-      });
-    } catch (error) {
-      console.error('Error updating member role:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update member role. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const removeMember = async (userId: string) => {
+  const removeMember = useCallback(async (userId: string) => {
     if (!user || !membership) return;
 
-    try {
+    return removeMemberOperation.execute(async () => {
       const { error } = await supabase
         .from('community_members')
         .delete()
@@ -244,40 +225,39 @@ export const useCommunityMembership = (communityId: string) => {
         .eq('user_id', userId);
 
       if (error) throw error;
+    });
+  }, [user, membership, communityId, removeMemberOperation]);
 
-      toast({
-        title: "Member Removed",
-        description: "Member has been removed from the community.",
-      });
-    } catch (error) {
-      console.error('Error removing member:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove member. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
+  // Computed values
   const canModerate = membership?.role === 'owner' || membership?.role === 'admin' || membership?.role === 'moderator';
   const canManageRoles = membership?.role === 'owner' || membership?.role === 'admin';
   const userRole = membership?.role || 'none';
 
   return {
+    // State
     membership,
     joinRequest,
     loading,
-    joining,
     isMember: !!membership,
     hasPendingRequest: !!joinRequest,
     canModerate,
     canManageRoles,
     userRole,
+    
+    // Loading states for individual operations
     isLoading: loading,
+    joining: joinOperation.loading,
+    leaving: leaveOperation.loading,
+    cancelingRequest: cancelRequestOperation.loading,
+    updatingRole: roleUpdateOperation.loading,
+    removingMember: removeMemberOperation.loading,
+    
+    // Actions
     joinCommunity,
     leaveCommunity,
     cancelJoinRequest,
     updateMemberRole,
-    removeMember
+    removeMember,
+    refreshMembership: checkMembershipStatus
   };
 };

@@ -68,14 +68,50 @@ const CommunitiesPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-warm">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-card/20 rounded w-64"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(9)].map((_, i) => (
-                <div key={i} className="h-64 bg-card/20 rounded-lg"></div>
-              ))}
-            </div>
+        <div className="max-w-7xl mx-auto p-6 space-y-8">
+          {/* Header Skeleton */}
+          <div className="text-center space-y-4 animate-pulse">
+            <div className="h-12 bg-card/20 rounded w-96 mx-auto"></div>
+            <div className="h-6 bg-card/20 rounded w-2/3 mx-auto"></div>
+          </div>
+
+          {/* Search and Filters Skeleton */}
+          <Card className="border-0 bg-card/20 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-10 bg-muted/20 rounded"></div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Communities Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(9)].map((_, i) => (
+              <Card key={i} className="border-0 bg-card/20 backdrop-blur-sm animate-pulse">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="h-6 bg-muted/20 rounded w-3/4"></div>
+                      <div className="h-4 bg-muted/20 rounded w-1/2"></div>
+                    </div>
+                    <div className="h-6 bg-muted/20 rounded w-16"></div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="h-4 bg-muted/20 rounded w-2/3"></div>
+                    <div className="h-4 bg-muted/20 rounded w-1/2"></div>
+                  </div>
+                  <div className="h-12 bg-muted/20 rounded w-full"></div>
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="h-8 bg-muted/20 rounded w-24"></div>
+                    <div className="h-8 bg-muted/20 rounded w-16"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>

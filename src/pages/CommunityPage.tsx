@@ -67,51 +67,80 @@ const CommunityPage = () => {
 
   const fetchCommunityData = async () => {
     try {
-      // Fetch community details
-      const { data: communityData } = await supabase
-        .from('communities')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Optimized: Fetch all data with a single Promise.all call
+      const [
+        { data: communityData, error: communityError },
+        { data: postsData, error: postsError },
+        { data: eventsData, error: eventsError },
+        { data: membersData, error: membersError }
+      ] = await Promise.all([
+        // Fetch community details
+        supabase
+          .from('communities')
+          .select('*')
+          .eq('id', id)
+          .single(),
+        
+        // Fetch community posts with author profiles
+        supabase
+          .from('posts')
+          .select(`
+            *,
+            profiles!inner(first_name, last_name, avatar_url)
+          `)
+          .eq('community_id', id)
+          .order('created_at', { ascending: false })
+          .limit(10),
+        
+        // Fetch upcoming community events with organizer profiles
+        supabase
+          .from('events')
+          .select(`
+            *,
+            profiles!inner(first_name, last_name, avatar_url)
+          `)
+          .eq('community_id', id)
+          .gte('start_date', new Date().toISOString())
+          .order('start_date', { ascending: true })
+          .limit(10),
+        
+        // Fetch community members with their profiles
+        supabase
+          .from('community_members')
+          .select(`
+            *,
+            profiles!inner(*)
+          `)
+          .eq('community_id', id)
+          .order('joined_at', { ascending: false })
+          .limit(20)
+      ]);
 
-      // Fetch community posts
-      const { data: postsData } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles!inner(first_name, last_name, avatar_url)
-        `)
-        .eq('community_id', id)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      // Handle individual errors without failing the entire operation
+      if (communityError) {
+        console.error('Error fetching community:', communityError);
+        setCommunity(null);
+      } else {
+        setCommunity(communityData);
+      }
 
-      // Fetch community events
-      const { data: eventsData } = await supabase
-        .from('events')
-        .select(`
-          *,
-          profiles!inner(first_name, last_name)
-        `)
-        .eq('community_id', id)
-        .gte('start_date', new Date().toISOString())
-        .order('start_date', { ascending: true })
-        .limit(10);
+      if (postsError) {
+        console.error('Error fetching posts:', postsError);
+      } else {
+        setPosts(postsData || []);
+      }
 
-      // Fetch community members with their profiles
-      const { data: membersData } = await supabase
-        .from('community_members')
-        .select(`
-          *,
-          profiles!inner(*)
-        `)
-        .eq('community_id', id)
-        .order('joined_at', { ascending: false })
-        .limit(20);
+      if (eventsError) {
+        console.error('Error fetching events:', eventsError);
+      } else {
+        setEvents(eventsData || []);
+      }
 
-      setCommunity(communityData);
-      setPosts(postsData || []);
-      setEvents(eventsData || []);
-      setMembers(membersData || []);
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+      } else {
+        setMembers(membersData || []);
+      }
     } catch (error) {
       console.error('Error fetching community data:', error);
     } finally {
@@ -122,10 +151,37 @@ const CommunityPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-warm">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="animate-pulse space-y-8">
-            <div className="h-32 bg-card/20 rounded-lg"></div>
-            <div className="h-96 bg-card/20 rounded-lg"></div>
+        <div className="max-w-7xl mx-auto p-6 space-y-8">
+          {/* Header Skeleton */}
+          <Card className="border-0 bg-card/20 backdrop-blur-sm animate-pulse">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                  <div className="space-y-4 flex-1">
+                    <div className="space-y-2">
+                      <div className="h-8 bg-muted/20 rounded w-2/3"></div>
+                      <div className="flex items-center gap-4">
+                        <div className="h-4 bg-muted/20 rounded w-32"></div>
+                        <div className="h-4 bg-muted/20 rounded w-24"></div>
+                        <div className="h-6 bg-muted/20 rounded w-16"></div>
+                      </div>
+                    </div>
+                    <div className="h-16 bg-muted/20 rounded w-full"></div>
+                  </div>
+                  <div className="h-10 bg-muted/20 rounded w-32"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Tabs Skeleton */}
+          <div className="space-y-6">
+            <div className="h-10 bg-card/20 rounded"></div>
+            <div className="grid grid-cols-1 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-32 bg-card/20 rounded-lg"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
