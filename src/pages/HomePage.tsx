@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
+import CreatePostModal from '@/components/CreatePostModal';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ const HomePage = () => {
   const [marketplaceItems, setMarketplaceItems] = useState([]);
   const [activeTab, setActiveTab] = useState('newest');
   const [loading, setLoading] = useState(true);
+  const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
 
   useEffect(() => {
     fetchFeedData();
@@ -105,16 +107,10 @@ const HomePage = () => {
         </p>
       </div>
 
-      {/* Create Post Section */}
+      {/* Create Post Button */}
       <Card className="border border-border/50 bg-card/80 backdrop-blur-sm">
-        <CardContent className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            
-          </div>
-
-          {/* Post creation area */}
-          <div className="flex items-start space-x-4 mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-4">
             <Avatar className="w-12 h-12 bg-primary/10 text-primary font-semibold">
               <AvatarImage src={user?.user_metadata?.avatar_url} />
               <AvatarFallback className="bg-primary/10 text-primary font-semibold">
@@ -122,49 +118,13 @@ const HomePage = () => {
               </AvatarFallback>
             </Avatar>
             
-            <div className="flex-1">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted"
-                asChild
-              >
-                <Link to="/posts/create">
-                  Ask a question to the community?
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Image className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Video className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <BarChart3 className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <FileText className="w-5 h-5" />
-              </Button>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/posts/create">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Write Article
-                </Link>
-              </Button>
-              <Button variant="default" size="sm" className="bg-primary hover:bg-primary/90" asChild>
-                <Link to="/posts/create">
-                  Post
-                </Link>
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              className="flex-1 justify-start text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted h-12 text-base"
+              onClick={() => setCreatePostModalOpen(true)}
+            >
+              What's on your mind, neighbor?
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -345,6 +305,12 @@ const HomePage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Create Post Modal */}
+      <CreatePostModal 
+        open={createPostModalOpen} 
+        onOpenChange={setCreatePostModalOpen}
+      />
     </div>
   );
 };
