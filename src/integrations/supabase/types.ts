@@ -269,14 +269,18 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_indian_diaspora_focused: boolean | null
           location_coordinates: unknown | null
           member_count: number | null
           name: string
+          neighborhood_name: string | null
           privacy_type: string
+          radius_miles: number | null
           require_approval: boolean
           state: string
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string
+          zip_code: string | null
         }
         Insert: {
           auto_approve_members?: boolean
@@ -284,14 +288,18 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_indian_diaspora_focused?: boolean | null
           location_coordinates?: unknown | null
           member_count?: number | null
           name: string
+          neighborhood_name?: string | null
           privacy_type?: string
+          radius_miles?: number | null
           require_approval?: boolean
           state: string
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string
+          zip_code?: string | null
         }
         Update: {
           auto_approve_members?: boolean
@@ -299,14 +307,18 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_indian_diaspora_focused?: boolean | null
           location_coordinates?: unknown | null
           member_count?: number | null
           name?: string
+          neighborhood_name?: string | null
           privacy_type?: string
+          radius_miles?: number | null
           require_approval?: boolean
           state?: string
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string
+          zip_code?: string | null
         }
         Relationships: []
       }
@@ -578,6 +590,77 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      local_recommendations: {
+        Row: {
+          address: string | null
+          author_id: string
+          business_name: string | null
+          category: string
+          community_id: string | null
+          created_at: string
+          description: string
+          halal_options: boolean | null
+          helpful_count: number | null
+          id: string
+          indian_friendly: boolean | null
+          phone: string | null
+          price_range: string | null
+          rating: number | null
+          title: string
+          updated_at: string
+          vegetarian_options: boolean | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          author_id: string
+          business_name?: string | null
+          category: string
+          community_id?: string | null
+          created_at?: string
+          description: string
+          halal_options?: boolean | null
+          helpful_count?: number | null
+          id?: string
+          indian_friendly?: boolean | null
+          phone?: string | null
+          price_range?: string | null
+          rating?: number | null
+          title: string
+          updated_at?: string
+          vegetarian_options?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          author_id?: string
+          business_name?: string | null
+          category?: string
+          community_id?: string | null
+          created_at?: string
+          description?: string
+          halal_options?: boolean | null
+          helpful_count?: number | null
+          id?: string
+          indian_friendly?: boolean | null
+          phone?: string | null
+          price_range?: string | null
+          rating?: number | null
+          title?: string
+          updated_at?: string
+          vegetarian_options?: boolean | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_recommendations_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
             referencedColumns: ["id"]
           },
         ]
@@ -991,6 +1074,7 @@ export type Database = {
           community_id: string | null
           contact_preferences: Json | null
           created_at: string
+          current_address: string | null
           email: string
           experience_years: number | null
           first_name: string
@@ -1001,11 +1085,15 @@ export type Database = {
           languages: string[] | null
           last_name: string
           linkedin_url: string | null
+          origin_state_india: string | null
+          preferred_languages: string[] | null
           profession: string | null
           profile_completion_score: number | null
           skills: string[] | null
           social_media_links: Json | null
           updated_at: string
+          years_in_area: number | null
+          zip_code: string | null
         }
         Insert: {
           availability_status?: string | null
@@ -1014,6 +1102,7 @@ export type Database = {
           community_id?: string | null
           contact_preferences?: Json | null
           created_at?: string
+          current_address?: string | null
           email: string
           experience_years?: number | null
           first_name: string
@@ -1024,11 +1113,15 @@ export type Database = {
           languages?: string[] | null
           last_name: string
           linkedin_url?: string | null
+          origin_state_india?: string | null
+          preferred_languages?: string[] | null
           profession?: string | null
           profile_completion_score?: number | null
           skills?: string[] | null
           social_media_links?: Json | null
           updated_at?: string
+          years_in_area?: number | null
+          zip_code?: string | null
         }
         Update: {
           availability_status?: string | null
@@ -1037,6 +1130,7 @@ export type Database = {
           community_id?: string | null
           contact_preferences?: Json | null
           created_at?: string
+          current_address?: string | null
           email?: string
           experience_years?: number | null
           first_name?: string
@@ -1047,11 +1141,15 @@ export type Database = {
           languages?: string[] | null
           last_name?: string
           linkedin_url?: string | null
+          origin_state_india?: string | null
+          preferred_languages?: string[] | null
           profession?: string | null
           profile_completion_score?: number | null
           skills?: string[] | null
           social_media_links?: Json | null
           updated_at?: string
+          years_in_area?: number | null
+          zip_code?: string | null
         }
         Relationships: [
           {
@@ -1151,6 +1249,71 @@ export type Database = {
           },
           {
             foreignKeyName: "resources_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      safety_alerts: {
+        Row: {
+          alert_type: string
+          author_id: string
+          community_id: string | null
+          created_at: string
+          description: string
+          expires_at: string | null
+          id: string
+          is_resolved: boolean | null
+          latitude: number | null
+          location_details: string | null
+          longitude: number | null
+          radius_affected_miles: number | null
+          resolved_at: string | null
+          severity: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          alert_type?: string
+          author_id: string
+          community_id?: string | null
+          created_at?: string
+          description: string
+          expires_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          latitude?: number | null
+          location_details?: string | null
+          longitude?: number | null
+          radius_affected_miles?: number | null
+          resolved_at?: string | null
+          severity?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          alert_type?: string
+          author_id?: string
+          community_id?: string | null
+          created_at?: string
+          description?: string
+          expires_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          latitude?: number | null
+          location_details?: string | null
+          longitude?: number | null
+          radius_affected_miles?: number | null
+          resolved_at?: string | null
+          severity?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safety_alerts_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
@@ -1303,6 +1466,7 @@ export type Database = {
         | "housing"
         | "marketplace"
         | "recommendation"
+        | "safety_alert"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1463,6 +1627,7 @@ export const Constants = {
         "housing",
         "marketplace",
         "recommendation",
+        "safety_alert",
       ],
     },
   },
