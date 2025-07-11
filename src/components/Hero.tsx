@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -34,12 +34,6 @@ const Hero = () => {
                 <Link to="/communities" className="flex items-center">
                   Join Your Community
                   <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6 group">
-                <Link to="#" className="flex items-center">
-                  <Play className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-                  Watch Demo
                 </Link>
               </Button>
             </div>
