@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { ApiErrorHandler } from '@/utils/errorHandler';
+import { useRealTimeSubscription } from '@/hooks/useRealTimeSubscription';
 
 interface Notification {
   id: string;
@@ -21,58 +23,12 @@ export const useNotifications = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!user) return;
+  const updateUnreadCount = useCallback((notifs?: Notification[]) => {
+    const currentNotifs = notifs || notifications;
+    setUnreadCount(currentNotifs.filter(n => !n.read).length);
+  }, [notifications]);
 
-    fetchNotifications();
-    
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
-          
-          // Show toast for new notification
-          toast({
-            title: newNotification.title,
-            description: newNotification.message,
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          const updated = payload.new as Notification;
-          setNotifications(prev => 
-            prev.map(n => n.id === updated.id ? updated : n)
-          );
-          updateUnreadCount();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -88,16 +44,44 @@ export const useNotifications = () => {
       setNotifications(data || []);
       updateUnreadCount(data || []);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      ApiErrorHandler.showToast(error, 'fetchNotifications');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, updateUnreadCount]);
 
-  const updateUnreadCount = (notifs?: Notification[]) => {
-    const currentNotifs = notifs || notifications;
-    setUnreadCount(currentNotifs.filter(n => !n.read).length);
-  };
+  // Set up real-time subscription
+  useRealTimeSubscription({
+    table: 'notifications',
+    filter: user ? `user_id=eq.${user.id}` : undefined,
+    onInsert: (payload) => {
+      const newNotification = payload.new as Notification;
+      setNotifications(prev => [newNotification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+      
+      // Show toast for new notification
+      toast({
+        title: newNotification.title,
+        description: newNotification.message,
+      });
+    },
+    onUpdate: (payload) => {
+      const updated = payload.new as Notification;
+      setNotifications(prev => 
+        prev.map(n => n.id === updated.id ? updated : n)
+      );
+      updateUnreadCount();
+    },
+    onError: (error) => {
+      console.error('Notification subscription error:', error);
+    }
+  });
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user, fetchNotifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -108,7 +92,7 @@ export const useNotifications = () => {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      ApiErrorHandler.showToast(error, 'markAsRead');
     }
   };
 
@@ -126,7 +110,7 @@ export const useNotifications = () => {
       
       setUnreadCount(0);
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      ApiErrorHandler.showToast(error, 'markAllAsRead');
     }
   };
 
