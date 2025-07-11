@@ -1,35 +1,66 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Star } from "lucide-react";
+import { Users, Heart, Calendar, MessageSquare, MapPin, Briefcase } from "lucide-react";
 
 const Testimonials = () => {
-  const testimonials = [
+  const communityHighlights = [
     {
-      name: "Priya Sharma",
-      role: "Software Engineer, San Francisco",
-      content: "Mohallaa helped me find my community when I moved to the Bay Area. I've made lifelong friends and found the best Indian grocery stores through the platform.",
-      avatar: "P",
-      rating: 5
+      title: "Bay Area Diwali Celebration",
+      description: "500+ community members came together for the largest Diwali celebration in Silicon Valley",
+      icon: <Calendar className="w-6 h-6 text-yellow-500" />,
+      metric: "500+",
+      label: "Attendees",
+      color: "bg-yellow-50 border-yellow-200"
     },
     {
-      name: "Rahul Patel",
-      role: "Product Manager, Seattle",
-      content: "The professional networking aspect is incredible. I've connected with other Indian professionals in tech and even found my current job through a community member's referral.",
-      avatar: "R",
-      rating: 5
+      title: "Professional Network Growth",
+      description: "Indian professionals connecting across tech, healthcare, and finance sectors",
+      icon: <Briefcase className="w-6 h-6 text-blue-500" />,
+      metric: "2,500+",
+      label: "Professionals",
+      color: "bg-blue-50 border-blue-200"
     },
     {
-      name: "Anita Kumar",
-      role: "Doctor, Houston",
-      content: "As a working mom, Mohallaa has been a lifesaver. From finding babysitters to organizing playdates, the community support has been amazing.",
-      avatar: "A",
-      rating: 5
+      title: "Local Recommendations Shared",
+      description: "Community members sharing the best Indian restaurants, grocery stores, and services",
+      icon: <MessageSquare className="w-6 h-6 text-green-500" />,
+      metric: "10,000+",
+      label: "Recommendations",
+      color: "bg-green-50 border-green-200"
     },
     {
-      name: "Vikram Singh",
-      role: "Entrepreneur, New York",
-      content: "I started my Indian catering business through connections I made on Mohallaa. The local marketplace feature helped me reach my target customers easily.",
-      avatar: "V",
-      rating: 5
+      title: "Newcomer Welcome Program",
+      description: "New immigrants getting help with housing, schools, and local connections",
+      icon: <Heart className="w-6 h-6 text-red-500" />,
+      metric: "1,200+",
+      label: "Families Helped",
+      color: "bg-red-50 border-red-200"
+    }
+  ];
+
+  const communityMoments = [
+    {
+      city: "San Francisco",
+      event: "Tech Meetup",
+      participants: "120+ engineers",
+      achievement: "3 job offers made"
+    },
+    {
+      city: "New York",
+      event: "Garba Night",
+      participants: "800+ dancers",
+      achievement: "Raised $5K for charity"
+    },
+    {
+      city: "Seattle",
+      event: "Food Festival",
+      participants: "300+ families",
+      achievement: "15 local vendors featured"
+    },
+    {
+      city: "Houston",
+      event: "Career Fair",
+      participants: "200+ professionals",
+      achievement: "50+ connections made"
     }
   ];
 
@@ -38,59 +69,85 @@ const Testimonials = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            What our <span className="bg-gradient-hero bg-clip-text text-transparent">community</span> says
+            Our <span className="bg-gradient-hero bg-clip-text text-transparent">community</span> in action
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Stories from Indians across America who've found their home away from home through Mohallaa.
+            Real stories of connection, support, and growth happening in Indian communities across America.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="hover:shadow-elegant transition-all duration-300 bg-white border-border/50">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+        {/* Community Highlights */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {communityHighlights.map((highlight, index) => (
+            <Card key={index} className={`hover:shadow-lg transition-all duration-300 ${highlight.color}`}>
+              <CardContent className="p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    {highlight.icon}
+                  </div>
                 </div>
                 
-                <p className="text-muted-foreground mb-6 leading-relaxed text-sm">
-                  "{testimonial.content}"
+                <div className="text-3xl font-bold text-foreground mb-1">{highlight.metric}</div>
+                <div className="text-sm font-medium text-muted-foreground mb-3">{highlight.label}</div>
+                
+                <h4 className="font-semibold text-foreground mb-2 text-sm">{highlight.title}</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {highlight.description}
                 </p>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground text-sm">{testimonial.name}</div>
-                    <div className="text-xs text-muted-foreground">{testimonial.role}</div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Stats Section */}
-        <div className="mt-16 text-center">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        {/* Recent Community Moments */}
+        <div>
+          <h3 className="text-2xl font-bold text-center mb-8">Recent Community Moments</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {communityMoments.map((moment, index) => (
+              <div key={index} className="bg-white rounded-lg p-4 border border-border/50 hover:shadow-md transition-shadow">
+                <div className="flex items-center space-x-2 mb-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span className="font-semibold text-sm text-foreground">{moment.city}</span>
+                </div>
+                <div className="text-lg font-bold text-foreground mb-1">{moment.event}</div>
+                <div className="text-sm text-muted-foreground mb-2">{moment.participants}</div>
+                <div className="text-xs text-primary font-medium">{moment.achievement}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Community Impact */}
+        <div className="mt-16 text-center bg-gradient-cultural rounded-2xl p-8">
+          <h3 className="text-2xl font-bold text-foreground mb-6">Community Impact This Month</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <div className="text-3xl font-bold text-primary mb-2">4.9/5</div>
-              <div className="text-sm text-muted-foreground">Average Rating</div>
+              <div className="flex items-center justify-center mb-2">
+                <Users className="w-6 h-6 text-primary mr-2" />
+                <span className="text-2xl font-bold text-foreground">847</span>
+              </div>
+              <div className="text-sm text-muted-foreground">New Connections</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-secondary mb-2">95%</div>
-              <div className="text-sm text-muted-foreground">User Satisfaction</div>
+              <div className="flex items-center justify-center mb-2">
+                <Calendar className="w-6 h-6 text-secondary mr-2" />
+                <span className="text-2xl font-bold text-foreground">23</span>
+              </div>
+              <div className="text-sm text-muted-foreground">Events Organized</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-accent mb-2">85%</div>
-              <div className="text-sm text-muted-foreground">Made New Friends</div>
+              <div className="flex items-center justify-center mb-2">
+                <MessageSquare className="w-6 h-6 text-accent mr-2" />
+                <span className="text-2xl font-bold text-foreground">1.2K</span>
+              </div>
+              <div className="text-sm text-muted-foreground">Posts Shared</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-primary-glow mb-2">70%</div>
-              <div className="text-sm text-muted-foreground">Career Growth</div>
+              <div className="flex items-center justify-center mb-2">
+                <Heart className="w-6 h-6 text-red-500 mr-2" />
+                <span className="text-2xl font-bold text-foreground">156</span>
+              </div>
+              <div className="text-sm text-muted-foreground">Families Helped</div>
             </div>
           </div>
         </div>
