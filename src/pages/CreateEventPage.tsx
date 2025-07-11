@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, MapPin, Users, DollarSign } from 'lucide-react';
+import { Calendar, MapPin, Users, DollarSign, Monitor, MapPinIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,7 @@ const CreateEventPage = () => {
     title: '',
     description: '',
     event_type: 'cultural' as const,
+    is_virtual: false,
     start_date: '',
     end_date: '',
     location: '',
@@ -48,6 +49,7 @@ const CreateEventPage = () => {
         title: formData.title,
         description: formData.description,
         event_type: formData.event_type,
+        is_virtual: formData.is_virtual,
         start_date: formData.start_date,
         end_date: formData.end_date || null,
         location: formData.location,
@@ -123,6 +125,30 @@ const CreateEventPage = () => {
               />
             </div>
 
+            {/* Event Format */}
+            <div className="space-y-2">
+              <Label htmlFor="event_format">Event Format</Label>
+              <Select value={formData.is_virtual ? 'virtual' : 'in-person'} onValueChange={(value) => handleInputChange('is_virtual', value === 'virtual')}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="in-person">
+                    <div className="flex items-center gap-2">
+                      <MapPinIcon className="w-4 h-4" />
+                      In-Person Event
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="virtual">
+                    <div className="flex items-center gap-2">
+                      <Monitor className="w-4 h-4" />
+                      Virtual Event
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Event Type */}
             <div className="space-y-2">
               <Label htmlFor="event_type">Event Type</Label>
@@ -164,29 +190,44 @@ const CreateEventPage = () => {
             </div>
 
             {/* Location */}
-            <div className="space-y-4">
+            {formData.is_virtual ? (
               <div className="space-y-2">
                 <Label htmlFor="location" className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  Venue Name
+                  <Monitor className="w-4 h-4" />
+                  Meeting Platform
                 </Label>
                 <Input
                   id="location"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="e.g., Community Center, Temple, Park"
+                  placeholder="e.g., Zoom, Google Meet, Teams"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Full Address</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Street address, city, state, zip code"
-                />
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Venue Name
+                  </Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    placeholder="e.g., Community Center, Temple, Park"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Full Address</Label>
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    placeholder="Street address, city, state, zip code"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Capacity */}
             <div className="space-y-2">

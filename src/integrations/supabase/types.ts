@@ -531,6 +531,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_free: boolean | null
+          is_virtual: boolean
           location: string | null
           max_attendees: number | null
           organizer_id: string | null
@@ -550,6 +551,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_free?: boolean | null
+          is_virtual?: boolean
           location?: string | null
           max_attendees?: number | null
           organizer_id?: string | null
@@ -569,6 +571,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_free?: boolean | null
+          is_virtual?: boolean
           location?: string | null
           max_attendees?: number | null
           organizer_id?: string | null
