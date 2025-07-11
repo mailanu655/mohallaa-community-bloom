@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Users, Search, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import CommunityJoinButton from "@/components/CommunityJoinButton";
 
 const CommunitiesPage = () => {
   const [communities, setCommunities] = useState([]);
@@ -198,9 +199,10 @@ const CommunitiesPage = () => {
                       </Link>
                     </Button>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Join
-                  </Button>
+                  <CommunityJoinButton 
+                    communityId={community.id}
+                    requiresApproval={community.require_approval}
+                  />
                 </div>
               </CardContent>
             </Card>
