@@ -1,345 +1,134 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BarChart3, TrendingUp, Users, MessageSquare, Calendar, Eye } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { TrendingUp, TrendingDown, Users, MessageSquare, Calendar, Activity, Crown } from "lucide-react";
 
 interface CommunityAnalyticsProps {
   communityId: string;
-  canView: boolean;
+  isModerator: boolean;
 }
 
-const CommunityAnalytics = ({ communityId, canView }: CommunityAnalyticsProps) => {
-  const [analytics, setAnalytics] = useState({
-    totalMembers: 0,
-    newMembersThisMonth: 0,
-    totalPosts: 0,
-    postsThisMonth: 0,
-    totalEvents: 0,
-    upcomingEvents: 0,
-    engagement: {
-      totalComments: 0,
-      totalVotes: 0,
-      avgPostsPerMember: 0
-    },
-    memberGrowth: [],
-    postActivity: [],
-    topContributors: []
-  });
-  const [loading, setLoading] = useState(true);
+export default function CommunityAnalytics({ communityId, isModerator }: CommunityAnalyticsProps) {
+  // Mock data - in real app, fetch from supabase
+  const analyticsData = [
+    { date: '2024-01-01', newMembers: 12, activeMembers: 45, posts: 8, events: 2 },
+    { date: '2024-01-02', newMembers: 15, activeMembers: 52, posts: 12, events: 1 },
+    { date: '2024-01-03', newMembers: 8, activeMembers: 38, posts: 6, events: 3 },
+    { date: '2024-01-04', newMembers: 18, activeMembers: 61, posts: 15, events: 2 },
+    { date: '2024-01-05', newMembers: 14, activeMembers: 47, posts: 9, events: 1 },
+    { date: '2024-01-06', newMembers: 16, activeMembers: 55, posts: 11, events: 4 },
+    { date: '2024-01-07', newMembers: 11, activeMembers: 43, posts: 7, events: 2 },
+  ];
 
-  useEffect(() => {
-    if (canView && communityId) {
-      fetchAnalytics();
-    }
-  }, [communityId, canView]);
+  const totalNewMembers = analyticsData.reduce((sum, day) => sum + day.newMembers, 0);
+  const totalPosts = analyticsData.reduce((sum, day) => sum + day.posts, 0);
+  const totalEvents = analyticsData.reduce((sum, day) => sum + day.events, 0);
+  const avgActiveMembers = Math.round(analyticsData.reduce((sum, day) => sum + day.activeMembers, 0) / analyticsData.length);
 
-  const fetchAnalytics = async () => {
-    try {
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      // Fetch basic counts
-      const [
-        { count: totalMembers },
-        { count: newMembersThisMonth },
-        { count: totalPosts },
-        { count: postsThisMonth },
-        { count: totalEvents },
-        { count: upcomingEvents },
-        { count: totalComments },
-        { data: topContributors }
-      ] = await Promise.all([
-        // Total members
-        supabase
-          .from('community_members')
-          .select('*', { count: 'exact', head: true })
-          .eq('community_id', communityId),
-
-        // New members this month
-        supabase
-          .from('community_members')
-          .select('*', { count: 'exact', head: true })
-          .eq('community_id', communityId)
-          .gte('joined_at', firstDayOfMonth.toISOString()),
-
-        // Total posts
-        supabase
-          .from('posts')
-          .select('*', { count: 'exact', head: true })
-          .eq('community_id', communityId),
-
-        // Posts this month
-        supabase
-          .from('posts')
-          .select('*', { count: 'exact', head: true })
-          .eq('community_id', communityId)
-          .gte('created_at', firstDayOfMonth.toISOString()),
-
-        // Total events
-        supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .eq('community_id', communityId),
-
-        // Upcoming events
-        supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .eq('community_id', communityId)
-          .gte('start_date', now.toISOString()),
-
-        // Total comments
-        supabase
-          .from('comments')
-          .select('*', { count: 'exact', head: true })
-          .in('post_id', 
-            (await supabase
-              .from('posts')
-              .select('id')
-              .eq('community_id', communityId)
-            ).data?.map(p => p.id) || []
-          ),
-
-        // Top contributors
-        supabase
-          .from('posts')
-          .select(`
-            author_id,
-            profiles!inner(first_name, last_name, avatar_url)
-          `)
-          .eq('community_id', communityId)
-          .gte('created_at', firstDayOfMonth.toISOString())
-      ]);
-
-      // Process top contributors
-      const contributorMap = new Map();
-      topContributors?.forEach((post: any) => {
-        const authorId = post.author_id;
-        if (contributorMap.has(authorId)) {
-          contributorMap.set(authorId, {
-            ...contributorMap.get(authorId),
-            postCount: contributorMap.get(authorId).postCount + 1
-          });
-        } else {
-          contributorMap.set(authorId, {
-            ...post.profiles,
-            authorId,
-            postCount: 1
-          });
-        }
-      });
-
-      const sortedContributors = Array.from(contributorMap.values())
-        .sort((a, b) => b.postCount - a.postCount)
-        .slice(0, 5);
-
-      setAnalytics({
-        totalMembers: totalMembers || 0,
-        newMembersThisMonth: newMembersThisMonth || 0,
-        totalPosts: totalPosts || 0,
-        postsThisMonth: postsThisMonth || 0,
-        totalEvents: totalEvents || 0,
-        upcomingEvents: upcomingEvents || 0,
-        engagement: {
-          totalComments: totalComments || 0,
-          totalVotes: 0, // Would need separate query
-          avgPostsPerMember: totalMembers ? Number(((totalPosts || 0) / totalMembers).toFixed(1)) : 0
-        },
-        memberGrowth: [], // Would need time-series data
-        postActivity: [], // Would need time-series data
-        topContributors: sortedContributors
-      });
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!canView) {
+  if (!isModerator) {
     return (
       <Card>
-        <CardContent className="p-6 text-center">
-          <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Admin Access Required</h3>
-          <p className="text-muted-foreground">You need admin privileges to view community analytics.</p>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <BarChart className="w-5 h-5 mr-2" />
+            Community Analytics
+          </CardTitle>
+          <CardDescription>
+            Advanced analytics available for community moderators
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center py-8">
+          <Badge className="mt-4 bg-gradient-primary text-white">
+            <Crown className="w-3 h-3 mr-1" />
+            Moderator Feature
+          </Badge>
         </CardContent>
       </Card>
     );
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-8 bg-muted rounded mb-2"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Community Analytics</h2>
-        <p className="text-muted-foreground">Insights and metrics for your community</p>
-      </div>
-
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Members</p>
-                <p className="text-2xl font-bold">{analytics.totalMembers}</p>
+                <p className="text-sm font-medium text-muted-foreground">New Members</p>
+                <p className="text-2xl font-bold">{totalNewMembers}</p>
               </div>
-              <Users className="w-8 h-8 text-primary" />
+              <Users className="w-8 h-8 text-primary/60" />
             </div>
-            <div className="mt-2">
-              <Badge variant="secondary" className="text-xs">
-                +{analytics.newMembersThisMonth} this month
-              </Badge>
+            <div className="flex items-center mt-2 text-sm">
+              <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
+              <span className="text-green-600">+22%</span>
+              <span className="text-muted-foreground ml-1">vs last week</span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Posts</p>
-                <p className="text-2xl font-bold">{analytics.totalPosts}</p>
+                <p className="text-sm font-medium text-muted-foreground">Active Members</p>
+                <p className="text-2xl font-bold">{avgActiveMembers}</p>
               </div>
-              <MessageSquare className="w-8 h-8 text-green-600" />
-            </div>
-            <div className="mt-2">
-              <Badge variant="secondary" className="text-xs">
-                +{analytics.postsThisMonth} this month
-              </Badge>
+              <Activity className="w-8 h-8 text-primary/60" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Events</p>
-                <p className="text-2xl font-bold">{analytics.totalEvents}</p>
+                <p className="text-sm font-medium text-muted-foreground">Posts Created</p>
+                <p className="text-2xl font-bold">{totalPosts}</p>
               </div>
-              <Calendar className="w-8 h-8 text-blue-600" />
-            </div>
-            <div className="mt-2">
-              <Badge variant="secondary" className="text-xs">
-                {analytics.upcomingEvents} upcoming
-              </Badge>
+              <MessageSquare className="w-8 h-8 text-primary/60" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Engagement</p>
-                <p className="text-2xl font-bold">{analytics.engagement.avgPostsPerMember}</p>
+                <p className="text-sm font-medium text-muted-foreground">Events Created</p>
+                <p className="text-2xl font-bold">{totalEvents}</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-orange-600" />
-            </div>
-            <div className="mt-2">
-              <Badge variant="secondary" className="text-xs">
-                Avg posts/member
-              </Badge>
+              <Calendar className="w-8 h-8 text-primary/60" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Detailed Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Contributors */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              Top Contributors This Month
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {analytics.topContributors.length > 0 ? (
-              <div className="space-y-4">
-                {analytics.topContributors.map((contributor: any, index) => (
-                  <div key={contributor.authorId} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <p className="font-medium">
-                          {contributor.first_name} {contributor.last_name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {contributor.postCount} post{contributor.postCount !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant="outline">
-                      {contributor.postCount}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No posts this month yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Activity Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              Activity Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm font-medium">Total Comments</span>
-                <Badge variant="secondary">{analytics.engagement.totalComments}</Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm font-medium">Posts Per Member</span>
-                <Badge variant="secondary">{analytics.engagement.avgPostsPerMember}</Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm font-medium">Growth Rate</span>
-                <Badge variant="secondary">
-                  {analytics.totalMembers > 0 
-                    ? `${Math.round((analytics.newMembersThisMonth / analytics.totalMembers) * 100)}%`
-                    : '0%'
-                  }
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Charts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Community Growth</CardTitle>
+          <CardDescription>Daily new members and activity</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={analyticsData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={(value) => new Date(value).toLocaleDateString()}
+              />
+              <YAxis />
+              <Tooltip 
+                labelFormatter={(value) => new Date(value).toLocaleDateString()}
+              />
+              <Bar dataKey="newMembers" fill="hsl(var(--primary))" name="New Members" />
+              <Bar dataKey="activeMembers" fill="hsl(var(--secondary))" name="Active Members" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default CommunityAnalytics;
+}

@@ -601,7 +601,7 @@ const CommunityPage = () => {
             <TabsContent value="analytics" className="space-y-6 animate-fade-in">
               <CommunityAnalytics
                 communityId={community.id}
-                canView={canManageRoles}
+                isModerator={canManageRoles}
               />
             </TabsContent>
           )}

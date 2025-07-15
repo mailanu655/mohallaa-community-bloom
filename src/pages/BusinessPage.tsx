@@ -16,12 +16,16 @@ import {
   DollarSign,
   Plus,
   Edit,
-  Trash2
+  Trash2,
+  Crown,
+  BarChart3,
+  CreditCard
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { BusinessAnalytics } from '@/components/BusinessAnalytics';
 
 const BusinessPage = () => {
   const { id } = useParams();
@@ -161,6 +165,10 @@ const BusinessPage = () => {
                 </div>
                 {isOwner && (
                   <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => navigate(`/business/${id}/subscription`)}>
+                      <Crown className="w-4 h-4 mr-2" />
+                      {business.subscription_tier && business.subscription_tier !== 'basic' ? 'Manage Subscription' : 'Upgrade'}
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => navigate(`/business/${id}/manage`)}>
                       <Edit className="w-4 h-4 mr-2" />
                       Manage
@@ -168,6 +176,16 @@ const BusinessPage = () => {
                   </div>
                 )}
               </div>
+
+              {/* Subscription Status */}
+              {business.subscription_tier && business.subscription_tier !== 'basic' && (
+                <div className="mb-4">
+                  <Badge className="bg-gradient-primary text-white">
+                    <Crown className="w-3 h-3 mr-1" />
+                    {business.subscription_tier.charAt(0).toUpperCase() + business.subscription_tier.slice(1)} Business
+                  </Badge>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
@@ -221,6 +239,7 @@ const BusinessPage = () => {
         <TabsList>
           <TabsTrigger value="services">Services</TabsTrigger>
           {isOwner && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
+          {isOwner && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="services">
@@ -347,6 +366,15 @@ const BusinessPage = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+        )}
+
+        {isOwner && (
+          <TabsContent value="analytics">
+            <BusinessAnalytics 
+              businessId={id}
+              isPremium={business.subscription_tier === 'premium' || business.subscription_tier === 'enterprise'}
+            />
           </TabsContent>
         )}
       </Tabs>

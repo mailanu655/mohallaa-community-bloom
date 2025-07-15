@@ -249,6 +249,100 @@ export type Database = {
           },
         ]
       }
+      business_analytics: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          customer_inquiries: number | null
+          date: string
+          id: string
+          profile_views: number | null
+          rating_average: number | null
+          revenue: number | null
+          service_bookings: number | null
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          customer_inquiries?: number | null
+          date?: string
+          id?: string
+          profile_views?: number | null
+          rating_average?: number | null
+          revenue?: number | null
+          service_bookings?: number | null
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          customer_inquiries?: number | null
+          date?: string
+          id?: string
+          profile_views?: number | null
+          rating_average?: number | null
+          revenue?: number | null
+          service_bookings?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_analytics_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_subscriptions: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          end_date: string | null
+          id: string
+          payment_method: string | null
+          price: number
+          start_date: string
+          status: string
+          stripe_subscription_id: string | null
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          payment_method?: string | null
+          price?: number
+          start_date?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          payment_method?: string | null
+          price?: number
+          start_date?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           address: string
@@ -259,6 +353,7 @@ export type Database = {
           created_at: string
           description: string | null
           email: string | null
+          enhanced_features: Json | null
           id: string
           image_url: string | null
           is_featured: boolean | null
@@ -269,6 +364,10 @@ export type Database = {
           review_count: number | null
           search_vector: unknown | null
           state: string
+          subscription_end_date: string | null
+          subscription_price: number | null
+          subscription_status: string | null
+          subscription_tier: string | null
           updated_at: string
           website: string | null
         }
@@ -281,6 +380,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           email?: string | null
+          enhanced_features?: Json | null
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
@@ -291,6 +391,10 @@ export type Database = {
           review_count?: number | null
           search_vector?: unknown | null
           state: string
+          subscription_end_date?: string | null
+          subscription_price?: number | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -303,6 +407,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           email?: string | null
+          enhanced_features?: Json | null
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
@@ -313,6 +418,10 @@ export type Database = {
           review_count?: number | null
           search_vector?: unknown | null
           state?: string
+          subscription_end_date?: string | null
+          subscription_price?: number | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -498,6 +607,50 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: []
+      }
+      community_analytics: {
+        Row: {
+          active_members: number | null
+          community_id: string | null
+          created_at: string
+          date: string
+          engagement_score: number | null
+          events_created: number | null
+          id: string
+          new_members: number | null
+          posts_created: number | null
+        }
+        Insert: {
+          active_members?: number | null
+          community_id?: string | null
+          created_at?: string
+          date?: string
+          engagement_score?: number | null
+          events_created?: number | null
+          id?: string
+          new_members?: number | null
+          posts_created?: number | null
+        }
+        Update: {
+          active_members?: number | null
+          community_id?: string | null
+          created_at?: string
+          date?: string
+          engagement_score?: number | null
+          events_created?: number | null
+          id?: string
+          new_members?: number | null
+          posts_created?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_analytics_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_invitations: {
         Row: {
@@ -1601,6 +1754,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      business_has_premium_features: {
+        Args: { business_uuid: string }
+        Returns: boolean
+      }
       calculate_profile_completion: {
         Args: { profile_id: string }
         Returns: number
