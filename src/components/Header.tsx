@@ -6,6 +6,7 @@ import SearchBar from "./SearchBar";
 import LiveChat from "./LiveChat";
 import MobileNav from "./MobileNav";
 import AuthGuardLink from "./AuthGuardLink";
+import { LayoutDashboard } from "lucide-react";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -51,8 +52,8 @@ const Header = () => {
                   Advertise
                 </AuthGuardLink>
                 {user && (
-                  <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
-                    Dashboard
+                  <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium flex items-center">
+                    <LayoutDashboard className="w-5 h-5" />
                   </Link>
                 )}
               </nav>
