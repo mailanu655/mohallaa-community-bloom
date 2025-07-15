@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Users, Search, Filter } from "lucide-react";
+import { MapPin, Users, Search, Filter, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import CommunityJoinButton from "@/components/CommunityJoinButton";
@@ -132,6 +132,14 @@ const CommunitiesPage = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Connect with Indian communities across America. Find your local network and build meaningful relationships.
           </p>
+          <div className="pt-4">
+            <Button variant="cultural" asChild>
+              <Link to="/communities/create">
+                <Users className="w-4 h-4 mr-2" />
+                Create Community
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Search and Filters */}

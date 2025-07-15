@@ -20,6 +20,7 @@ import MarketplacePage from "./pages/MarketplacePage";
 import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
 import EventsPage from "./pages/EventsPage";
 import CreateEventPage from "./pages/CreateEventPage";
+import CreateCommunityPage from "./pages/CreateCommunityPage";
 import BusinessesPage from "./pages/BusinessesPage";
 import BusinessPage from "./pages/BusinessPage";
 import RegisterBusinessPage from "./pages/RegisterBusinessPage";
@@ -47,6 +48,7 @@ const App = () => (
               </Layout>
             } />
             <Route path="/communities" element={<Layout><CommunitiesPage /></Layout>} />
+            <Route path="/communities/create" element={<Layout><ProtectedRoute><CreateCommunityPage /></ProtectedRoute></Layout>} />
             <Route path="/community/:id" element={<Layout><CommunityPage /></Layout>} />
             <Route path="/posts" element={<Layout><PostsPage /></Layout>} />
             <Route path="/post/:id" element={<Layout><PostPage /></Layout>} />
