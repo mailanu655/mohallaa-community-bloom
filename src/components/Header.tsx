@@ -6,10 +6,45 @@ import SearchBar from "./SearchBar";
 import LiveChat from "./LiveChat";
 import MobileNav from "./MobileNav";
 import AuthGuardLink from "./AuthGuardLink";
-import { LayoutDashboard } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, avatar_url')
+        .eq('id', user.id)
+        .single();
+      
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const getUserInitial = () => {
+    if (profile?.first_name) {
+      return profile.first_name.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <>
@@ -53,7 +88,12 @@ const Header = () => {
                 </AuthGuardLink>
                 {user && (
                   <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium flex items-center">
-                    <LayoutDashboard className="w-5 h-5" />
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarFallback className="text-sm font-bold">
+                        {getUserInitial()}
+                      </AvatarFallback>
+                    </Avatar>
                   </Link>
                 )}
               </nav>
