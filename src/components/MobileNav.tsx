@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import NotificationCenter from './NotificationCenter';
 import SearchBar from './SearchBar';
+import AuthGuardLink from './AuthGuardLink';
 
 const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,10 +18,10 @@ const MobileNav = () => {
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
-    { name: 'Communities', href: '/communities', icon: Users },
-    { name: 'Buy & Sell', href: '/marketplace', icon: ShoppingBag },
-    { name: 'Businesses', href: '/businesses', icon: Building2 },
-    { name: 'Events', href: '/events', icon: Calendar },
+    { name: 'Communities', href: '/communities', icon: Users, requireAuth: true },
+    { name: 'Buy & Sell', href: '/marketplace', icon: ShoppingBag, requireAuth: true },
+    { name: 'Businesses', href: '/businesses', icon: Building2, requireAuth: true },
+    { name: 'Events', href: '/events', icon: Calendar, requireAuth: true },
     { name: 'Dashboard', href: '/dashboard', icon: User, requireAuth: true },
   ];
 
@@ -64,12 +65,11 @@ const MobileNav = () => {
                   <nav className="flex-1 p-4">
                     <div className="space-y-2">
                       {navigation.map((item) => {
-                        if (item.requireAuth && !user) return null;
-                        
                         return (
-                          <Link
+                          <AuthGuardLink
                             key={item.name}
                             to={item.href}
+                            requireAuth={item.requireAuth}
                             onClick={() => setIsOpen(false)}
                             className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                               isActive(item.href)
@@ -79,7 +79,7 @@ const MobileNav = () => {
                           >
                             <item.icon className="w-5 h-5" />
                             <span>{item.name}</span>
-                          </Link>
+                          </AuthGuardLink>
                         );
                       })}
                     </div>
@@ -157,12 +157,11 @@ const MobileNav = () => {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/90 backdrop-blur-sm border-t border-border">
         <div className="flex items-center justify-around py-2">
           {navigation.slice(0, 4).map((item) => {
-            if (item.requireAuth && !user) return null;
-            
             return (
-              <Link
+              <AuthGuardLink
                 key={item.name}
                 to={item.href}
+                requireAuth={item.requireAuth}
                 className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-colors ${
                   isActive(item.href)
                     ? 'text-primary'
@@ -181,7 +180,7 @@ const MobileNav = () => {
                   )}
                 </div>
                 <span className="text-xs">{item.name}</span>
-              </Link>
+              </AuthGuardLink>
             );
           })}
           

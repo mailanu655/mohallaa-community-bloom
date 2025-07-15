@@ -5,6 +5,7 @@ import NotificationCenter from "./NotificationCenter";
 import SearchBar from "./SearchBar";
 import LiveChat from "./LiveChat";
 import MobileNav from "./MobileNav";
+import AuthGuardLink from "./AuthGuardLink";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -31,18 +32,18 @@ const Header = () => {
             {/* Navigation & Auth */}
             <div className="flex items-center space-x-6">
               <nav className="flex items-center space-x-6">
-                <Link to="/communities" className="text-foreground hover:text-primary transition-colors font-medium">
+                <AuthGuardLink to="/communities" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Communities
-                </Link>
-                <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors font-medium">
+                </AuthGuardLink>
+                <AuthGuardLink to="/marketplace" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Buy & Sell
-                </Link>
-                <Link to="/businesses" className="text-foreground hover:text-primary transition-colors font-medium">
+                </AuthGuardLink>
+                <AuthGuardLink to="/businesses" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Businesses
-                </Link>
-                <Link to="/events" className="text-foreground hover:text-primary transition-colors font-medium">
+                </AuthGuardLink>
+                <AuthGuardLink to="/events" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Events
-                </Link>
+                </AuthGuardLink>
                 {user && (
                   <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
                     Dashboard
