@@ -32,6 +32,9 @@ const Header = () => {
             {/* Navigation & Auth */}
             <div className="flex items-center space-x-6">
               <nav className="flex items-center space-x-6">
+                <Link to="/home" className="text-foreground hover:text-primary transition-colors font-medium">
+                  Home
+                </Link>
                 <AuthGuardLink to="/communities" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Communities
                 </AuthGuardLink>

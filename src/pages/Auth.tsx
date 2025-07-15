@@ -47,7 +47,7 @@ const Auth = () => {
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
-        navigate('/dashboard');
+        navigate('/home');
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -90,7 +90,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/home`
         }
       });
       

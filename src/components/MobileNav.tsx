@@ -17,7 +17,7 @@ const MobileNav = () => {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Home', href: '/', icon: Home },
+    { name: 'Home', href: '/home', icon: Home },
     { name: 'Communities', href: '/communities', icon: Users, requireAuth: true },
     { name: 'Buy & Sell', href: '/marketplace', icon: ShoppingBag, requireAuth: true },
     { name: 'Businesses', href: '/businesses', icon: Building2, requireAuth: true },
