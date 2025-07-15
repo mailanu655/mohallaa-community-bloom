@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign, UserPlus, UserMinus, Lock, Globe, Shield } from "lucide-react";
+import { MapPin, Users, Calendar, MessageSquare, Heart, Clock, DollarSign, UserPlus, UserMinus, Lock, Globe, Shield, Settings, BarChart3, ScrollText } from "lucide-react";
 import EventRSVPButton from "@/components/EventRSVPButton";
 import EventAttendeesList from "@/components/EventAttendeesList";
 import { Link } from "react-router-dom";
@@ -18,6 +18,10 @@ import PostMediaGallery from "@/components/PostMediaGallery";
 import CommunityJoinRequestDialog from "@/components/CommunityJoinRequestDialog";
 import CommunityWelcomePrompt from "@/components/CommunityWelcomePrompt";
 import CreatePostDialog from "@/components/CreatePostDialog";
+import CommunitySettingsDialog from "@/components/CommunitySettingsDialog";
+import CommunityMemberManagement from "@/components/CommunityMemberManagement";
+import CommunityAnalytics from "@/components/CommunityAnalytics";
+import CommunityRules from "@/components/CommunityRules";
 import { useCommunityJoinRequests } from "@/hooks/useCommunityJoinRequests";
 
 const CommunityPage = () => {
@@ -246,6 +250,13 @@ const CommunityPage = () => {
                   )}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
+                  {canManageRoles && (
+                    <CommunitySettingsDialog
+                      community={community}
+                      canManage={canManageRoles}
+                      onUpdate={(updates) => setCommunity({ ...community, ...updates })}
+                    />
+                  )}
                   {isMember ? (
                     <Button 
                       variant="outline" 
@@ -307,10 +318,13 @@ const CommunityPage = () => {
 
         {/* Community Content */}
         <Tabs defaultValue="posts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-card/80 backdrop-blur-sm">
-            <TabsTrigger value="posts">Posts & Discussions</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6 bg-card/80 backdrop-blur-sm">
+            <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="rules">Rules</TabsTrigger>
+            {canManageRoles && <TabsTrigger value="manage">Manage</TabsTrigger>}
+            {canManageRoles && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
           </TabsList>
 
           {/* Posts Tab */}
@@ -559,6 +573,34 @@ const CommunityPage = () => {
               </Card>
             )}
           </TabsContent>
+
+          {/* Rules Tab */}
+          <TabsContent value="rules" className="space-y-6 animate-fade-in">
+            <CommunityRules 
+              rules={community.rules}
+              communityName={community.name}
+            />
+          </TabsContent>
+
+          {/* Management Tab - Admin Only */}
+          {canManageRoles && (
+            <TabsContent value="manage" className="space-y-6 animate-fade-in">
+              <CommunityMemberManagement
+                communityId={community.id}
+                canManage={canManageRoles}
+              />
+            </TabsContent>
+          )}
+
+          {/* Analytics Tab - Admin Only */}
+          {canManageRoles && (
+            <TabsContent value="analytics" className="space-y-6 animate-fade-in">
+              <CommunityAnalytics
+                communityId={community.id}
+                canView={canManageRoles}
+              />
+            </TabsContent>
+          )}
         </Tabs>
         
         <CommunityJoinRequestDialog

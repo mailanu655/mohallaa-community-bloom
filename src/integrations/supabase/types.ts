@@ -266,17 +266,21 @@ export type Database = {
         Row: {
           auto_approve_members: boolean
           city: string
+          cover_image_url: string | null
           created_at: string
           description: string | null
+          event_count: number | null
           id: string
           is_indian_diaspora_focused: boolean | null
           location_coordinates: unknown | null
           member_count: number | null
           name: string
           neighborhood_name: string | null
+          post_count: number | null
           privacy_type: string
           radius_miles: number | null
           require_approval: boolean
+          rules: string | null
           state: string
           type: Database["public"]["Enums"]["community_type"]
           updated_at: string
@@ -285,17 +289,21 @@ export type Database = {
         Insert: {
           auto_approve_members?: boolean
           city: string
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          event_count?: number | null
           id?: string
           is_indian_diaspora_focused?: boolean | null
           location_coordinates?: unknown | null
           member_count?: number | null
           name: string
           neighborhood_name?: string | null
+          post_count?: number | null
           privacy_type?: string
           radius_miles?: number | null
           require_approval?: boolean
+          rules?: string | null
           state: string
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string
@@ -304,17 +312,21 @@ export type Database = {
         Update: {
           auto_approve_members?: boolean
           city?: string
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          event_count?: number | null
           id?: string
           is_indian_diaspora_focused?: boolean | null
           location_coordinates?: unknown | null
           member_count?: number | null
           name?: string
           neighborhood_name?: string | null
+          post_count?: number | null
           privacy_type?: string
           radius_miles?: number | null
           require_approval?: boolean
+          rules?: string | null
           state?: string
           type?: Database["public"]["Enums"]["community_type"]
           updated_at?: string
