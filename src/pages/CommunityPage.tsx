@@ -22,6 +22,7 @@ import CommunitySettingsDialog from "@/components/CommunitySettingsDialog";
 import CommunityMemberManagement from "@/components/CommunityMemberManagement";
 import CommunityAnalytics from "@/components/CommunityAnalytics";
 import CommunityRules from "@/components/CommunityRules";
+import { SponsoredPost } from "@/components/SponsoredPost";
 import { useCommunityJoinRequests } from "@/hooks/useCommunityJoinRequests";
 
 const CommunityPage = () => {
@@ -367,6 +368,9 @@ const CommunityPage = () => {
             
             {(isMember || community.privacy_type === 'public') && (
               <div className="space-y-4">
+                {/* Sponsored Post */}
+                <SponsoredPost communityId={id} />
+                
                 {posts.map((post) => (
                   <Card key={post.id} className="border-0 bg-card/80 backdrop-blur-sm hover:shadow-cultural transition-all duration-300">
                     <CardContent className="p-6">

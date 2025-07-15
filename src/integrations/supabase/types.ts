@@ -14,6 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_clicks: {
+        Row: {
+          ad_id: string | null
+          clicked_at: string
+          id: string
+          placement_page: string
+          viewer_id: string | null
+        }
+        Insert: {
+          ad_id?: string | null
+          clicked_at?: string
+          id?: string
+          placement_page: string
+          viewer_id?: string | null
+        }
+        Update: {
+          ad_id?: string | null
+          clicked_at?: string
+          id?: string
+          placement_page?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_clicks_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_clicks_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_impressions: {
+        Row: {
+          ad_id: string | null
+          created_at: string
+          id: string
+          placement_page: string
+          viewer_id: string | null
+        }
+        Insert: {
+          ad_id?: string | null
+          created_at?: string
+          id?: string
+          placement_page: string
+          viewer_id?: string | null
+        }
+        Update: {
+          ad_id?: string | null
+          created_at?: string
+          id?: string
+          placement_page?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_impressions_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_impressions_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisements: {
+        Row: {
+          ad_type: string
+          advertiser_id: string | null
+          budget_daily: number | null
+          budget_total: number | null
+          clicks: number | null
+          cost_per_click: number | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          image_url: string | null
+          impressions: number | null
+          placement_type: string
+          spend_total: number | null
+          start_date: string | null
+          status: string
+          target_community_id: string | null
+          target_location: string | null
+          target_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ad_type: string
+          advertiser_id?: string | null
+          budget_daily?: number | null
+          budget_total?: number | null
+          clicks?: number | null
+          cost_per_click?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number | null
+          placement_type: string
+          spend_total?: number | null
+          start_date?: string | null
+          status?: string
+          target_community_id?: string | null
+          target_location?: string | null
+          target_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ad_type?: string
+          advertiser_id?: string | null
+          budget_daily?: number | null
+          budget_total?: number | null
+          clicks?: number | null
+          cost_per_click?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number | null
+          placement_type?: string
+          spend_total?: number | null
+          start_date?: string | null
+          status?: string
+          target_community_id?: string | null
+          target_location?: string | null
+          target_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisements_target_community_id_fkey"
+            columns: ["target_community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -1447,6 +1612,14 @@ export type Database = {
       get_user_community_role: {
         Args: { user_id: string; community_id: string }
         Returns: string
+      }
+      update_ad_click: {
+        Args: { ad_uuid: string; click_cost: number }
+        Returns: undefined
+      }
+      update_ad_impression: {
+        Args: { ad_uuid: string }
+        Returns: undefined
       }
     }
     Enums: {

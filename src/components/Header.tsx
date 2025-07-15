@@ -47,6 +47,9 @@ const Header = () => {
                 <AuthGuardLink to="/events" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Events
                 </AuthGuardLink>
+                <AuthGuardLink to="/ads-dashboard" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
+                  Advertise
+                </AuthGuardLink>
                 {user && (
                   <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
                     Dashboard
