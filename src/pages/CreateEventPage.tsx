@@ -86,9 +86,9 @@ const CreateEventPage = () => {
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-foreground">Create Cultural Event</h1>
+        <h1 className="text-3xl font-bold text-foreground">Create Event</h1>
         <p className="text-muted-foreground">
-          Organize festivals, meetups, and celebrations for your Indian community
+          Organize events, meetups, and celebrations for your community
         </p>
       </div>
 
