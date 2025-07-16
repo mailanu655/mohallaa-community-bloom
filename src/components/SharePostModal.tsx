@@ -95,7 +95,7 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 bg-background rounded-2xl relative">
+      <DialogContent className="max-w-md p-0 bg-background rounded-2xl relative" aria-describedby="share-post-description">
         <DialogClose className="absolute right-4 top-4 z-10 w-8 h-8 rounded-full bg-slate-800 text-white hover:bg-slate-700 flex items-center justify-center transition-colors">
           <X className="h-4 w-4" />
         </DialogClose>
@@ -103,6 +103,8 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="text-xl font-semibold">Share this post</DialogTitle>
         </DialogHeader>
+
+        <div id="share-post-description" className="sr-only">Share this post on social media or copy the link</div>
 
         <div className="px-6 pb-6">
           {/* Post Preview */}
