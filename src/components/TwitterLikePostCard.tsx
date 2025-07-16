@@ -93,14 +93,14 @@ const TwitterLikePostCard = ({
   return (
     <>
       <article
-        className="border-b border-border/60 p-5 hover:bg-muted/40 transition-all duration-200 cursor-pointer hover:shadow-sm"
+        className="border-b border-border/30 p-5 hover:bg-muted/40 transition-all duration-300 cursor-pointer hover:shadow-premium hover-lift glass-effect animate-slide-up"
         onClick={() => onPostClick?.(post.id)}
       >
         <div className="flex space-x-3">
           {/* Avatar */}
-          <Avatar className="w-10 h-10 flex-shrink-0">
+          <Avatar className="w-10 h-10 flex-shrink-0 hover:scale-105 transition-all duration-300 hover:shadow-elegant">
             <AvatarImage src={post.profiles?.avatar_url} />
-            <AvatarFallback className="bg-primary/10 text-primary text-sm">
+            <AvatarFallback className="bg-primary/10 text-primary text-sm hover:bg-primary/20 transition-colors">
               {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
             </AvatarFallback>
           </Avatar>
@@ -109,7 +109,7 @@ const TwitterLikePostCard = ({
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-center space-x-2 mb-1">
-              <span className="font-semibold text-foreground hover:underline cursor-pointer">
+              <span className="font-display font-semibold text-foreground hover:underline cursor-pointer hover:text-primary transition-colors">
                 {post.profiles?.first_name} {post.profiles?.last_name}
               </span>
               <span className="text-muted-foreground/70">·</span>
@@ -151,13 +151,13 @@ const TwitterLikePostCard = ({
 
             {/* Title */}
             {post.title && (
-              <h3 className="font-semibold text-foreground mb-2 leading-tight text-lg">
+              <h3 className="font-display font-semibold text-foreground mb-2 leading-tight text-lg hover:text-primary transition-colors group-hover:transform group-hover:translate-x-1">
                 {post.title}
               </h3>
             )}
 
             {/* Content */}
-            <div className="text-foreground/90 mb-3 leading-relaxed">
+            <div className="text-foreground/90 mb-3 leading-relaxed font-body">
               <RichContentRenderer content={post.content} />
             </div>
 
@@ -190,31 +190,31 @@ const TwitterLikePostCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleComment}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-primary/5 group transition-all"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-primary/5 group transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <MessageCircle className="w-4 h-4 group-hover:fill-primary/20" />
-                <span className="text-sm font-medium">{post.comment_count || 0}</span>
+                <span className="text-sm font-medium font-display">{post.comment_count || 0}</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`flex items-center space-x-2 group transition-all ${
+                className={`flex items-center space-x-2 group transition-all duration-200 hover:scale-105 active:scale-95 ${
                   isLiked 
-                    ? 'text-red-600' 
+                    ? 'text-red-600 animate-bounce-subtle' 
                     : 'text-muted-foreground hover:text-red-600 hover:bg-red-50/50'
                 }`}
               >
-                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : 'group-hover:fill-red-600/20'}`} />
-                <span className="text-sm font-medium">{likeCount}</span>
+                <Heart className={`w-4 h-4 transition-all duration-200 ${isLiked ? 'fill-current scale-110' : 'group-hover:fill-red-600/20'}`} />
+                <span className="text-sm font-medium font-display">{likeCount}</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleShare}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-secondary hover:bg-secondary/5 group transition-all"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-secondary hover:bg-secondary/5 group transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <Share className="w-4 h-4 group-hover:fill-secondary/20" />
               </Button>
@@ -223,19 +223,19 @@ const TwitterLikePostCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleSave}
-                className={`flex items-center space-x-2 group transition-all ${
+                className={`flex items-center space-x-2 group transition-all duration-200 hover:scale-105 active:scale-95 ${
                   isSaved 
-                    ? 'text-primary' 
+                    ? 'text-primary animate-pulse-glow' 
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                 }`}
               >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : 'group-hover:fill-primary/20'}`} />
+                <Bookmark className={`w-4 h-4 transition-all duration-200 ${isSaved ? 'fill-current scale-110' : 'group-hover:fill-primary/20'}`} />
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mohallaa Design System - Cultural warmth meets modern community */
+/* Mohallaa Design System - Premium Community Platform */
 
 @layer base {
   :root {
@@ -40,19 +40,29 @@
     --input: 210 20% 92%;
     --ring: 195 85% 41%;
 
-    /* Professional gradients */
+    /* Premium gradients */
     --gradient-hero: linear-gradient(135deg, hsl(195 85% 41%) 0%, hsl(160 35% 45%) 50%, hsl(240 65% 55%) 100%);
     --gradient-warm: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(195 15% 96%) 100%);
     --gradient-cultural: linear-gradient(45deg, hsl(195 85% 41% / 0.08) 0%, hsl(160 35% 45% / 0.08) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(195 85% 41% / 0.1) 0%, hsl(160 35% 45% / 0.05) 100%);
 
-    /* Professional shadows */
+    /* Enhanced shadows for depth */
     --shadow-warm: 0 10px 40px -10px hsl(195 85% 41% / 0.2);
     --shadow-cultural: 0 20px 60px -15px hsl(195 85% 41% / 0.25);
     --shadow-elegant: 0 4px 20px -2px hsl(195 85% 41% / 0.12);
+    --shadow-premium: 0 8px 30px -5px hsl(195 85% 41% / 0.15);
+    --shadow-subtle: 0 2px 10px -2px hsl(195 85% 41% / 0.08);
+    --shadow-floating: 0 12px 40px -8px hsl(195 85% 41% / 0.2);
 
-    /* Animations */
+    /* Premium animations */
     --transition-cultural: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s ease-out;
+    --transition-premium: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Typography scale */
+    --font-display: 'Poppins', system-ui, -apple-system, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
     --radius: 0.5rem;
 
@@ -119,13 +129,79 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
   }
 }
 
-/* Custom Animation Classes */
+/* Premium Animation Classes */
 @layer utilities {
   .animate-fade-in {
     animation: fadeIn 0.8s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .hover-lift {
+    transition: var(--transition-premium);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-floating);
+  }
+  
+  .glass-effect {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(195 85% 41% / 0.1);
+  }
+  
+  .premium-glow {
+    position: relative;
+  }
+  
+  .premium-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(45deg, hsl(195 85% 41% / 0.2), hsl(160 35% 45% / 0.2));
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
   }
   
   @keyframes fadeIn {
@@ -136,6 +212,28 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 }
