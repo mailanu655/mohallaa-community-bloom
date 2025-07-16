@@ -24,16 +24,18 @@ interface Category {
 interface EnhancedCreatePostFormProps {
   communities: Array<{ id: string; name: string }>;
   onPostCreated: () => void;
+  initialContent?: string;
 }
 
 const EnhancedCreatePostForm: React.FC<EnhancedCreatePostFormProps> = ({ 
   communities, 
-  onPostCreated 
+  onPostCreated,
+  initialContent = ''
 }) => {
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
-    richContent: '',
+    content: initialContent,
+    richContent: initialContent,
     postType: 'discussion',
     communityId: '',
     categoryId: '',
@@ -52,6 +54,17 @@ const EnhancedCreatePostForm: React.FC<EnhancedCreatePostFormProps> = ({
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Update form data when initialContent changes
+  useEffect(() => {
+    if (initialContent) {
+      setFormData(prev => ({
+        ...prev,
+        content: initialContent,
+        richContent: initialContent
+      }));
+    }
+  }, [initialContent]);
 
   const fetchCategories = async () => {
     try {
