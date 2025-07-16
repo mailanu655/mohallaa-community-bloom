@@ -38,21 +38,6 @@ const Hero = () => {
               </Button>
             </div>
 
-            {/* Community Stats */}
-            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-border/50">
-              <div>
-                <div className="text-2xl font-bold text-foreground">50,000+</div>
-                <div className="text-sm text-muted-foreground">Members</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">150+</div>
-                <div className="text-sm text-muted-foreground">Cities</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">10,000+</div>
-                <div className="text-sm text-muted-foreground">Events</div>
-              </div>
-            </div>
           </div>
 
           {/* Right Content - Community Grid */}
