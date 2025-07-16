@@ -12,20 +12,11 @@ import {
   Clock,
   Users,
   Star,
-  MoreHorizontal,
-  Copy,
-  Twitter,
-  Facebook
+  MoreHorizontal
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import SharePostModal from './SharePostModal';
 
 interface PostCardProps {
   post: {
@@ -60,52 +51,11 @@ const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false,
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(post.upvotes || 0);
-  const { toast } = useToast();
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-  };
-
-  const handleShare = async (method?: string) => {
-    const shareUrl = `${window.location.origin}/post/${post.id}`;
-    const shareTitle = post.title || 'Check out this post';
-    const shareText = `${shareTitle}\n\n${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}`;
-
-    if (method === 'copy' || !navigator.share) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link copied!",
-          description: "Post link has been copied to your clipboard.",
-        });
-      } catch (error) {
-        console.error('Failed to copy:', error);
-        toast({
-          title: "Copy failed",
-          description: "Please try again or use manual copy.",
-          variant: "destructive",
-        });
-      }
-    } else if (method === 'native' && navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Share failed:', error);
-        }
-      }
-    } else if (method === 'twitter') {
-      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-      window.open(tweetUrl, '_blank');
-    } else if (method === 'facebook') {
-      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-      window.open(facebookUrl, '_blank');
-    }
   };
 
   const getPostTypeColor = (type: string) => {
@@ -236,34 +186,13 @@ const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false,
                 <span className="text-sm font-medium">{post.comment_count || 0}</span>
               </button>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors">
-                    <Share2 className="w-5 h-5" />
-                    <span className="text-sm font-medium">Share</span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuItem onClick={() => handleShare('copy')}>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy link
-                  </DropdownMenuItem>
-                  {navigator.share && (
-                    <DropdownMenuItem onClick={() => handleShare('native')}>
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Share via...
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => handleShare('twitter')}>
-                    <Twitter className="w-4 h-4 mr-2" />
-                    Share on Twitter
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleShare('facebook')}>
-                    <Facebook className="w-4 h-4 mr-2" />
-                    Share on Facebook
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <button 
+                onClick={() => setShareModalOpen(true)}
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Share2 className="w-5 h-5" />
+                <span className="text-sm font-medium">Share</span>
+              </button>
             </div>
             
             <button 
@@ -277,6 +206,13 @@ const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false,
           </div>
         </div>
       </CardContent>
+      
+      {/* Share Modal */}
+      <SharePostModal 
+        post={post}
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+      />
     </Card>
   );
 };
