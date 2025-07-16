@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import CreatePostModal from '@/components/CreatePostModal';
 import FeedSortTabs from '@/components/FeedSortTabs';
 import EnhancedPostCard from '@/components/EnhancedPostCard';
+import PostDetailModal from '@/components/PostDetailModal';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -32,6 +33,8 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
   const [alertsCount, setAlertsCount] = useState(3);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [postDetailModalOpen, setPostDetailModalOpen] = useState(false);
 
   useEffect(() => {
     fetchFeedData();
@@ -114,6 +117,16 @@ const HomePage = () => {
     }
   };
 
+  const handlePostClick = (postId: string) => {
+    setSelectedPostId(postId);
+    setPostDetailModalOpen(true);
+  };
+
+  const handleClosePostModal = () => {
+    setPostDetailModalOpen(false);
+    setSelectedPostId(null);
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -186,6 +199,7 @@ const HomePage = () => {
                 post={post}
                 isHighlighted={feedSort === 'for-you' && index < 2}
                 showConnection={feedSort === 'for-you' && Math.random() > 0.7}
+                onPostClick={handlePostClick}
               />
             ))}
 
@@ -323,6 +337,13 @@ const HomePage = () => {
       <CreatePostModal 
         open={createPostModalOpen} 
         onOpenChange={setCreatePostModalOpen}
+      />
+
+      {/* Post Detail Modal */}
+      <PostDetailModal 
+        postId={selectedPostId}
+        open={postDetailModalOpen}
+        onClose={handleClosePostModal}
       />
     </div>
   );

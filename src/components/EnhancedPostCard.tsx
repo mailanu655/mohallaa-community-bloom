@@ -43,9 +43,10 @@ interface PostCardProps {
   };
   isHighlighted?: boolean;
   showConnection?: boolean;
+  onPostClick?: (postId: string) => void;
 }
 
-const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false }: PostCardProps) => {
+const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false, onPostClick }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(post.upvotes || 0);
@@ -141,12 +142,12 @@ const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false 
           {/* Post Content */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-foreground leading-tight">
-              <Link 
-                to={`/post/${post.id}`} 
-                className="hover:text-primary transition-colors"
+              <button 
+                onClick={() => onPostClick?.(post.id)}
+                className="hover:text-primary transition-colors text-left"
               >
                 {post.title}
-              </Link>
+              </button>
             </h3>
             
             <p className="text-muted-foreground leading-relaxed line-clamp-3">
@@ -175,13 +176,13 @@ const EnhancedPostCard = ({ post, isHighlighted = false, showConnection = false 
                 <span className="text-sm font-medium">{likeCount}</span>
               </button>
               
-              <Link 
-                to={`/post/${post.id}`}
+              <button 
+                onClick={() => onPostClick?.(post.id)}
                 className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <MessageSquare className="w-5 h-5" />
                 <span className="text-sm font-medium">{post.comment_count || 0}</span>
-              </Link>
+              </button>
               
               <button className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors">
                 <Share2 className="w-5 h-5" />
