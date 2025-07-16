@@ -31,7 +31,7 @@ export const CreateAdPage: React.FC = () => {
     ad_type: 'banner',
     placement_type: 'marketplace',
     target_location: '',
-    target_community_id: '',
+    target_community_id: 'all',
     budget_total: '',
     budget_daily: '',
     cost_per_click: '0.50',
@@ -94,7 +94,7 @@ export const CreateAdPage: React.FC = () => {
         ad_type: formData.ad_type,
         placement_type: formData.placement_type,
         target_location: formData.target_location || null,
-        target_community_id: formData.target_community_id || null,
+        target_community_id: formData.target_community_id === 'all' ? null : formData.target_community_id,
         budget_total: parseFloat(formData.budget_total),
         budget_daily: formData.budget_daily ? parseFloat(formData.budget_daily) : null,
         cost_per_click: parseFloat(formData.cost_per_click),
@@ -246,7 +246,7 @@ export const CreateAdPage: React.FC = () => {
                     <SelectValue placeholder="All communities" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All communities</SelectItem>
+                    <SelectItem value="all">All communities</SelectItem>
                     {communities.map((community: any) => (
                       <SelectItem key={community.id} value={community.id}>
                         {community.name} - {community.city}, {community.state}
