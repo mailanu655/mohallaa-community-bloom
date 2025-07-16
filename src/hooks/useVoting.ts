@@ -24,6 +24,7 @@ export const useVoting = (itemId: string, itemType: 'post' | 'comment') => {
   }, [itemId, user]);
 
   const fetchVotes = async () => {
+    console.log('Fetching votes for:', { itemId, itemType, user: user?.id });
     try {
       if (itemType === 'post') {
         // Get post vote counts
@@ -80,6 +81,7 @@ export const useVoting = (itemId: string, itemType: 'post' | 'comment') => {
   };
 
   const vote = async (voteType: 'upvote' | 'downvote') => {
+    console.log('Vote function called:', { voteType, user: user?.id, itemId });
     if (!user) {
       toast({
         title: "Authentication required",
