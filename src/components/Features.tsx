@@ -5,24 +5,21 @@ import { Users, MessageSquare, Calendar, ShoppingBag, Building2, Heart, ArrowRig
 const Features = () => {
   const mainFeatures = [
     {
-      icon: <Users className="w-8 h-8 text-primary" />,
+      icon: Users,
       title: "Connect with your community",
       description: "Find and connect with Indians in your neighborhood. Build meaningful relationships with people who share your cultural background and professional interests.",
-      image: "👥",
       link: "/communities"
     },
     {
-      icon: <MessageSquare className="w-8 h-8 text-secondary" />,
+      icon: MessageSquare,
       title: "Share your experiences",
       description: "Post questions, share recommendations, and get advice from community members. From the best Indian restaurants to career guidance.",
-      image: "💬",
       link: "/posts"
     },
     {
-      icon: <Calendar className="w-8 h-8 text-accent" />,
+      icon: Calendar,
       title: "Join cultural events",
       description: "Discover and attend Diwali celebrations, Garba nights, professional meetups, and family gatherings in your city.",
-      image: "🎉",
       link: "/events"
     }
   ];
@@ -71,9 +68,10 @@ const Features = () => {
             >
               <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
                 <div className="mb-6">
-                  <div className="flex items-center space-x-3 mb-4">
-                    {feature.icon}
-                    <span className="text-4xl">{feature.image}</span>
+                  <div className="flex items-center mb-6">
+                    <div className="w-16 h-16 bg-gradient-cultural rounded-2xl flex items-center justify-center shadow-warm mr-4">
+                      <feature.icon className="w-8 h-8 text-white" />
+                    </div>
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {feature.title}
@@ -103,10 +101,10 @@ const Features = () => {
                     
                     {/* Main content */}
                     <div className="relative z-10 text-center">
-                      <div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                        {feature.image}
+                      <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-elegant">
+                        <feature.icon className="w-12 h-12 text-white" />
                       </div>
-                      <div className="text-sm font-medium text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="text-sm font-medium text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         {feature.title}
                       </div>
                     </div>
