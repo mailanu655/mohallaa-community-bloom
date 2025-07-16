@@ -29,6 +29,7 @@ import PostDetailModal from '@/components/PostDetailModal';
 import SafetyAlertsModal from '@/components/SafetyAlertsModal';
 import { useSafetyAlerts } from '@/hooks/useSafetyAlerts';
 import { useRealTimeSafetyAlerts } from '@/hooks/useRealTimeSafetyAlerts';
+import { useTrending } from '@/hooks/useTrending';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
 
@@ -49,6 +50,9 @@ const HomePage = () => {
   // Safety alerts hooks
   const { getActiveAlertsCount } = useSafetyAlerts();
   useRealTimeSafetyAlerts();
+  
+  // Trending topics hook
+  const { trending, loading: trendingLoading } = useTrending();
 
   useEffect(() => {
     fetchFeedData();
@@ -366,21 +370,34 @@ const HomePage = () => {
                 <CardTitle className="text-lg font-bold">What's happening</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Trending in your area</p>
-                  <p className="font-medium">#LocalEvents</p>
-                  <p className="text-xs text-muted-foreground">2,847 posts</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Community</p>
-                  <p className="font-medium">#IndianCommunity</p>
-                  <p className="text-xs text-muted-foreground">1,234 posts</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Food & Dining</p>
-                  <p className="font-medium">#LocalRestaurants</p>
-                  <p className="text-xs text-muted-foreground">956 posts</p>
-                </div>
+                {trendingLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-3 bg-muted rounded animate-pulse" />
+                        <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
+                        <div className="h-3 bg-muted rounded animate-pulse w-1/3" />
+                      </div>
+                    ))}
+                  </div>
+                ) : trending.length > 0 ? (
+                  trending.map((topic, index) => (
+                    <div key={topic.hashtag} className="space-y-1">
+                      <p className="text-sm text-muted-foreground">{topic.category}</p>
+                      <p className="font-medium">{topic.hashtag}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {topic.count} {topic.count === 1 ? 'post' : 'posts'}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">No trending topics yet</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Start posting with hashtags to see what's trending!
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
