@@ -97,8 +97,8 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
-        <DialogClose className="absolute right-4 top-4 z-10 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 p-2 hover:bg-background transition-colors shadow-sm">
-          <X className="h-4 w-4 text-muted-foreground" />
+        <DialogClose className="absolute right-3 top-3 z-10 rounded-full w-8 h-8 bg-muted/20 hover:bg-muted/40 border-0 flex items-center justify-center transition-all duration-200 hover:scale-110">
+          <X className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
         </DialogClose>
 
         {loading ? (
