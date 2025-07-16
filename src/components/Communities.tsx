@@ -44,7 +44,7 @@ const Communities = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -64,7 +64,7 @@ const Communities = () => {
           {cities.map((city, index) => (
             <Card 
               key={index} 
-              className="hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 bg-gradient-cultural border border-border/50"
+              className="hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 bg-white border border-border/50"
             >
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">

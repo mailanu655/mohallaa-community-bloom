@@ -55,7 +55,7 @@ const WhyMohallaa = () => {
           {reasons.map((reason, index) => (
             <Card 
               key={index} 
-              className="text-center hover:shadow-cultural transition-all duration-300 hover:-translate-y-2 border-0 bg-card/80 backdrop-blur-sm"
+              className="text-center hover:shadow-cultural transition-all duration-300 hover:-translate-y-2 border-0 bg-white"
             >
               <CardContent className="p-6">
                 <div className="flex justify-center mb-4 animate-float-gentle">
@@ -73,7 +73,7 @@ const WhyMohallaa = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center bg-gradient-cultural rounded-2xl p-8 border border-border/50">
+        <div className="text-center bg-white rounded-2xl p-8 border border-border/50">
           <h3 className="text-2xl font-bold text-foreground mb-4">
             Ready to find your community?
           </h3>

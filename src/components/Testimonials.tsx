@@ -9,7 +9,7 @@ const Testimonials = () => {
       icon: <Calendar className="w-6 h-6 text-yellow-500" />,
       metric: "500+",
       label: "Attendees",
-      color: "bg-yellow-50 border-yellow-200"
+      color: "bg-white border-border/50"
     },
     {
       title: "Professional Network Growth",
@@ -17,7 +17,7 @@ const Testimonials = () => {
       icon: <Briefcase className="w-6 h-6 text-blue-500" />,
       metric: "2,500+",
       label: "Professionals",
-      color: "bg-blue-50 border-blue-200"
+      color: "bg-white border-border/50"
     },
     {
       title: "Local Recommendations Shared",
@@ -25,7 +25,7 @@ const Testimonials = () => {
       icon: <MessageSquare className="w-6 h-6 text-green-500" />,
       metric: "10,000+",
       label: "Recommendations",
-      color: "bg-green-50 border-green-200"
+      color: "bg-white border-border/50"
     },
     {
       title: "Newcomer Welcome Program",
@@ -33,7 +33,7 @@ const Testimonials = () => {
       icon: <Heart className="w-6 h-6 text-red-500" />,
       metric: "1,200+",
       label: "Families Helped",
-      color: "bg-red-50 border-red-200"
+      color: "bg-white border-border/50"
     }
   ];
 
@@ -65,7 +65,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -118,7 +118,7 @@ const Testimonials = () => {
         </div>
 
         {/* Community Impact */}
-        <div className="mt-16 text-center bg-gradient-cultural rounded-2xl p-8">
+        <div className="mt-16 text-center bg-white rounded-2xl p-8 border border-border/50">
           <h3 className="text-2xl font-bold text-foreground mb-6">Community Impact This Month</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
