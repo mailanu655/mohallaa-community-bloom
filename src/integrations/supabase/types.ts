@@ -230,6 +230,13 @@ export type Database = {
             foreignKeyName: "appointments_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -284,6 +291,13 @@ export type Database = {
           service_bookings?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "business_analytics_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "business_analytics_business_id_fkey"
             columns: ["business_id"]
@@ -353,6 +367,216 @@ export type Database = {
             foreignKeyName: "business_deals_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_deals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_events: {
+        Row: {
+          business_id: string
+          created_at: string
+          current_attendees: number | null
+          description: string | null
+          end_date: string | null
+          event_date: string
+          id: string
+          is_free: boolean | null
+          location: string | null
+          max_attendees: number | null
+          price: number | null
+          title: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          current_attendees?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          id?: string
+          is_free?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          price?: number | null
+          title: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          current_attendees?: number | null
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          id?: string
+          is_free?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          price?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_favorites: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_favorites_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_favorites_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_messages: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          replied_at: string | null
+          sender_id: string
+          subject: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          replied_at?: string | null
+          sender_id: string
+          subject?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          replied_at?: string | null
+          sender_id?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_messages_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_messages_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_photos: {
+        Row: {
+          business_id: string
+          caption: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          is_featured: boolean | null
+          photo_url: string
+        }
+        Insert: {
+          business_id: string
+          caption?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          photo_url: string
+        }
+        Update: {
+          business_id?: string
+          caption?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_photos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_photos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -360,6 +584,7 @@ export type Database = {
       }
       business_posts: {
         Row: {
+          allows_comments: boolean | null
           author_id: string
           business_id: string
           content: string
@@ -367,15 +592,18 @@ export type Database = {
           engagement_count: number | null
           id: string
           is_promoted: boolean | null
+          post_status: string | null
           post_type: string
           promotion_budget: number | null
           promotion_end_date: string | null
+          scheduled_for: string | null
           target_communities: string[] | null
           title: string
           updated_at: string
           view_count: number | null
         }
         Insert: {
+          allows_comments?: boolean | null
           author_id: string
           business_id: string
           content: string
@@ -383,15 +611,18 @@ export type Database = {
           engagement_count?: number | null
           id?: string
           is_promoted?: boolean | null
+          post_status?: string | null
           post_type?: string
           promotion_budget?: number | null
           promotion_end_date?: string | null
+          scheduled_for?: string | null
           target_communities?: string[] | null
           title: string
           updated_at?: string
           view_count?: number | null
         }
         Update: {
+          allows_comments?: boolean | null
           author_id?: string
           business_id?: string
           content?: string
@@ -399,9 +630,11 @@ export type Database = {
           engagement_count?: number | null
           id?: string
           is_promoted?: boolean | null
+          post_status?: string | null
           post_type?: string
           promotion_budget?: number | null
           promotion_end_date?: string | null
+          scheduled_for?: string | null
           target_communities?: string[] | null
           title?: string
           updated_at?: string
@@ -413,6 +646,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
             referencedColumns: ["id"]
           },
           {
@@ -433,9 +673,12 @@ export type Database = {
           id: string
           is_recommended: boolean | null
           rating: number
+          recommendation_type: string | null
           reviewer_id: string
+          service_used: string | null
           title: string | null
           updated_at: string
+          would_recommend_again: boolean | null
         }
         Insert: {
           business_id: string
@@ -445,9 +688,12 @@ export type Database = {
           id?: string
           is_recommended?: boolean | null
           rating: number
+          recommendation_type?: string | null
           reviewer_id: string
+          service_used?: string | null
           title?: string | null
           updated_at?: string
+          would_recommend_again?: boolean | null
         }
         Update: {
           business_id?: string
@@ -457,11 +703,21 @@ export type Database = {
           id?: string
           is_recommended?: boolean | null
           rating?: number
+          recommendation_type?: string | null
           reviewer_id?: string
+          service_used?: string | null
           title?: string | null
           updated_at?: string
+          would_recommend_again?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "business_reviews_business_id_fkey"
             columns: ["business_id"]
@@ -523,6 +779,13 @@ export type Database = {
             foreignKeyName: "business_subscriptions_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -573,6 +836,13 @@ export type Database = {
             foreignKeyName: "business_verifications_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verifications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -589,6 +859,7 @@ export type Database = {
         Row: {
           address: string
           business_hours: Json | null
+          categories: string[] | null
           category: Database["public"]["Enums"]["business_category"]
           city: string
           community_id: string | null
@@ -600,12 +871,14 @@ export type Database = {
           image_url: string | null
           is_featured: boolean | null
           is_verified: boolean | null
+          license_number: string | null
           name: string
           owner_id: string | null
           phone: string | null
           rating: number | null
           review_count: number | null
           search_vector: unknown | null
+          service_radius_miles: number | null
           state: string
           subscription_end_date: string | null
           subscription_price: number | null
@@ -617,6 +890,7 @@ export type Database = {
         Insert: {
           address: string
           business_hours?: Json | null
+          categories?: string[] | null
           category: Database["public"]["Enums"]["business_category"]
           city: string
           community_id?: string | null
@@ -628,12 +902,14 @@ export type Database = {
           image_url?: string | null
           is_featured?: boolean | null
           is_verified?: boolean | null
+          license_number?: string | null
           name: string
           owner_id?: string | null
           phone?: string | null
           rating?: number | null
           review_count?: number | null
           search_vector?: unknown | null
+          service_radius_miles?: number | null
           state: string
           subscription_end_date?: string | null
           subscription_price?: number | null
@@ -645,6 +921,7 @@ export type Database = {
         Update: {
           address?: string
           business_hours?: Json | null
+          categories?: string[] | null
           category?: Database["public"]["Enums"]["business_category"]
           city?: string
           community_id?: string | null
@@ -656,12 +933,14 @@ export type Database = {
           image_url?: string | null
           is_featured?: boolean | null
           is_verified?: boolean | null
+          license_number?: string | null
           name?: string
           owner_id?: string | null
           phone?: string | null
           rating?: number | null
           review_count?: number | null
           search_vector?: unknown | null
+          service_radius_miles?: number | null
           state?: string
           subscription_end_date?: string | null
           subscription_price?: number | null
@@ -1465,6 +1744,48 @@ export type Database = {
         }
         Relationships: []
       }
+      post_engagements: {
+        Row: {
+          comment_text: string | null
+          created_at: string
+          engagement_type: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          comment_text?: string | null
+          created_at?: string
+          engagement_type: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          comment_text?: string | null
+          created_at?: string
+          engagement_type?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_engagements_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "business_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_engagements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_tags: {
         Row: {
           created_at: string
@@ -1944,6 +2265,13 @@ export type Database = {
             foreignKeyName: "services_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "business_dashboard_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -1996,7 +2324,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      business_dashboard_stats: {
+        Row: {
+          active_deals: number | null
+          favorites_count: number | null
+          id: string | null
+          name: string | null
+          rating: number | null
+          review_count: number | null
+          total_posts: number | null
+          unread_messages: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       business_has_premium_features: {
