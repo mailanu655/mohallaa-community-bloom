@@ -317,46 +317,62 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* Location Permission Prompt for Nearby */}
+            {/* Enhanced Location Permission Prompt for Nearby */}
             {feedSort === 'nearby' && permissionStatus === 'prompt' && (
-              <div className="bg-muted/50 border border-border rounded-lg p-4 m-4">
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-muted-foreground" />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-foreground">Enable Location Access</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Allow location access to see posts from your area
-                    </p>
+              <div className="bg-gradient-subtle border border-border rounded-lg p-4 m-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-primary" />
                   </div>
-                  <Button 
-                    onClick={requestLocation} 
-                    disabled={locationLoading}
-                    size="sm"
-                  >
-                    {locationLoading ? 'Getting Location...' : 'Allow Location'}
-                  </Button>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground mb-1">Find Your Community</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      We'll show you posts from people in your area (within ~5 miles). Your precise location is never shared with others.
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>Private & Secure</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span>Approximate Area Only</span>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={requestLocation} 
+                      disabled={locationLoading}
+                      size="sm"
+                      className="w-full sm:w-auto"
+                    >
+                      {locationLoading ? 'Getting Location...' : 'Enable Location'}
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Location Denied Message */}
+            {/* Enhanced Location Denied Message */}
             {feedSort === 'nearby' && permissionStatus === 'denied' && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 m-4">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-amber-800">Location Access Denied</h3>
-                    <p className="text-sm text-amber-700">
+              <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 m-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-destructive mb-1">Location Access Needed</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
                       To see nearby posts, please enable location access in your browser settings or try again.
                     </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button 
+                        onClick={requestLocation} 
+                        disabled={locationLoading}
+                        size="sm"
+                        variant="outline"
+                      >
+                        Try Again
+                      </Button>
+                    </div>
                   </div>
-                  <Button 
-                    onClick={requestLocation} 
-                    variant="outline"
-                    size="sm"
-                  >
-                    Try Again
-                  </Button>
                 </div>
               </div>
             )}

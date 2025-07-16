@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { ApiErrorHandler } from '@/utils/errorHandler';
+import GeocodingService from '@/utils/geocoding';
+import LocationCacheService from '@/utils/locationCache';
 
 export interface LocationData {
   latitude: number;
@@ -8,6 +11,7 @@ export interface LocationData {
   city?: string;
   state?: string;
   accuracy?: number;
+  fromCache?: boolean;
 }
 
 export const useLocation = () => {
@@ -17,9 +21,14 @@ export const useLocation = () => {
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const { user } = useAuth();
 
-  const requestLocation = async () => {
+  const requestLocation = async (): Promise<boolean> => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by this browser.');
+      const error = ApiErrorHandler.handleLocationError({
+        code: 0,
+        message: 'Geolocation is not supported by this browser.'
+      });
+      setError(error.message);
+      setPermissionStatus('denied');
       return false;
     }
 
@@ -27,10 +36,21 @@ export const useLocation = () => {
     setError(null);
 
     try {
+      // Get current position with enhanced timeout handling
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject({ code: 3, message: 'Timeout: Location request took too long' });
+        }, 12000); // 12 second timeout
+
         navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
+          (pos) => {
+            clearTimeout(timeoutId);
+            resolve(pos);
+          },
+          (err) => {
+            clearTimeout(timeoutId);
+            reject(err);
+          },
           {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -43,21 +63,28 @@ export const useLocation = () => {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         accuracy: position.coords.accuracy,
+        fromCache: false
       };
 
-      // Reverse geocode to get city/state
+      // Enhanced reverse geocoding with caching and error handling
       try {
-        const response = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${locationData.latitude}&longitude=${locationData.longitude}&localityLanguage=en`
+        const geocodeResult = await GeocodingService.reverseGeocode(
+          locationData.latitude,
+          locationData.longitude
         );
-        const data = await response.json();
-        
-        if (data.city && data.principalSubdivision) {
-          locationData.city = data.city;
-          locationData.state = data.principalSubdivision;
+
+        if (geocodeResult.success) {
+          locationData.city = geocodeResult.city;
+          locationData.state = geocodeResult.state;
+          locationData.fromCache = geocodeResult.fromCache;
+        } else {
+          // Geocoding failed but location still works
+          console.warn('Geocoding failed, but location coordinates are available');
         }
       } catch (geocodeError) {
-        console.warn('Geocoding failed:', geocodeError);
+        // Don't fail the entire location request for geocoding errors
+        console.warn('Geocoding service unavailable:', geocodeError);
+        ApiErrorHandler.showLocationToast({ message: 'geocoding failed' });
       }
 
       setLocation(locationData);
@@ -65,28 +92,39 @@ export const useLocation = () => {
 
       // Update user's location preferences if logged in
       if (user) {
-        await supabase
-          .from('profiles')
-          .update({
-            current_latitude: locationData.latitude,
-            current_longitude: locationData.longitude,
-            current_city: locationData.city,
-            current_state: locationData.state,
-          })
-          .eq('id', user.id);
+        try {
+          await supabase
+            .from('profiles')
+            .update({
+              current_latitude: locationData.latitude,
+              current_longitude: locationData.longitude,
+              current_city: locationData.city,
+              current_state: locationData.state,
+            })
+            .eq('id', user.id);
+        } catch (dbError) {
+          console.warn('Failed to save location to profile:', dbError);
+        }
       }
 
       setLoading(false);
       return true;
     } catch (err: any) {
-      setError(err.message || 'Failed to get location');
+      const locationError = ApiErrorHandler.handleLocationError(err);
+      setError(locationError.message);
       setPermissionStatus('denied');
       setLoading(false);
+      
+      // Don't show toast for permission denied to avoid double messaging
+      if (locationError.type !== 'permission') {
+        ApiErrorHandler.showLocationToast(err);
+      }
+      
       return false;
     }
   };
 
-  const loadSavedLocation = async () => {
+  const loadSavedLocation = async (): Promise<void> => {
     if (!user) return;
 
     try {
@@ -94,7 +132,7 @@ export const useLocation = () => {
         .from('profiles')
         .select('current_latitude, current_longitude, current_city, current_state')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -104,11 +142,19 @@ export const useLocation = () => {
           longitude: data.current_longitude,
           city: data.current_city,
           state: data.current_state,
+          fromCache: true
         });
       }
     } catch (err) {
       console.error('Failed to load saved location:', err);
     }
+  };
+
+  const clearLocationCache = (): void => {
+    LocationCacheService.clear();
+    setLocation(null);
+    setPermissionStatus('prompt');
+    setError(null);
   };
 
   useEffect(() => {
@@ -124,5 +170,6 @@ export const useLocation = () => {
     permissionStatus,
     requestLocation,
     loadSavedLocation,
+    clearLocationCache,
   };
 };
