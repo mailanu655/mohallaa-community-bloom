@@ -99,7 +99,7 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
         <DialogHeader className="p-6 pb-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold">Share this post</DialogTitle>
-            <DialogClose className="w-8 h-8 rounded-full bg-slate-800 text-white hover:bg-slate-700 flex items-center justify-center transition-colors">
+            <DialogClose className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-800 text-white hover:bg-slate-700 flex items-center justify-center transition-colors">
               <X className="h-4 w-4" />
             </DialogClose>
           </div>
