@@ -35,6 +35,7 @@ import { usePersonalizedFeed } from '@/hooks/usePersonalizedFeed';
 import { useUserInteractions } from '@/hooks/useUserInteractions';
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyPosts } from '@/hooks/useNearbyPosts';
+import { requestService } from '@/utils/requestService';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -148,61 +149,13 @@ const HomePage = () => {
 
   const fetchFeedData = async (pageNum = 1, reset = false) => {
     try {
-      let postsQuery = supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles!inner(first_name, last_name, avatar_url),
-          communities(name, city, state)
-        `);
-
-      // Apply sorting based on feed type (for-you and nearby are handled separately)
-      switch (feedSort) {
-        case 'latest':
-          postsQuery = postsQuery.order('created_at', { ascending: false });
-          break;
-        case 'trending':
-          postsQuery = postsQuery
-            .order('comment_count', { ascending: false })
-            .order('upvotes', { ascending: false });
-          break;
-        default:
-          postsQuery = postsQuery.order('created_at', { ascending: false });
-      }
-
-      const POSTS_PER_PAGE = 15;
-      const { data: postsData } = await postsQuery
-        .range((pageNum - 1) * POSTS_PER_PAGE, pageNum * POSTS_PER_PAGE - 1);
-
-      // Fetch upcoming events
-      const { data: eventsData } = await supabase
-        .from('events')
-        .select(`
-          *,
-          communities(name, city, state),
-          profiles!inner(first_name, last_name)
-        `)
-        .gte('start_date', new Date().toISOString())
-        .order('start_date', { ascending: true })
-        .limit(5);
-
-      // Fetch recent marketplace items
-      const { data: marketplaceData } = await supabase
-        .from('marketplace')
-        .select(`
-          *,
-          profiles!inner(first_name, last_name, avatar_url)
-        `)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(6);
-
-      // Fetch trending businesses
-      const { data: businessData } = await supabase
-        .from('businesses')
-        .select('id, name, rating, review_count, category, image_url')
-        .order('rating', { ascending: false })
-        .limit(5);
+      // Use the new request service for all API calls
+      const [postsData, eventsData, marketplaceData, businessData] = await Promise.all([
+        requestService.getPosts(pageNum, 15, feedSort),
+        requestService.getEvents(5),
+        requestService.getMarketplaceItems(6),
+        requestService.getBusinesses(5)
+      ]);
 
       const newPosts = postsData || [];
       setHasMore(newPosts.length === 15);

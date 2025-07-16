@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LocationData } from './useLocation';
+import { requestService } from '@/utils/requestService';
+import { ApiErrorHandler } from '@/utils/errorHandler';
 
 export interface NearbyPost {
   id: string;
@@ -41,31 +43,22 @@ export const useNearbyPosts = (location: LocationData | null, radiusMiles: numbe
     setError(null);
 
     try {
-      // First try to get posts with exact coordinates
-      const { data: nearbyData, error: nearbyError } = await supabase
-        .rpc('get_nearby_posts', {
-          user_lat: location.latitude,
-          user_lng: location.longitude,
-          radius_miles: radiusMiles,
-          limit_count: 20,
-          offset_count: 0,
-        });
-
-      if (nearbyError) throw nearbyError;
+      // First try to get posts with exact coordinates using the new request service
+      const nearbyData = await requestService.getNearbyPosts(
+        location.latitude,
+        location.longitude,
+        radiusMiles
+      );
 
       let allPosts = (nearbyData || []) as NearbyPost[];
 
       // If we have city/state and not many nearby posts, add city/state posts
       if (location.city && location.state && allPosts.length < 10) {
-        const { data: cityData, error: cityError } = await supabase
-          .rpc('get_posts_by_location', {
-            user_city: location.city,
-            user_state: location.state,
-            limit_count: 20 - allPosts.length,
-            offset_count: 0,
-          });
-
-        if (cityError) throw cityError;
+        const cityData = await requestService.getPostsByLocation(
+          location.city,
+          location.state,
+          20 - allPosts.length
+        );
 
         // Filter out duplicates and add city posts
         const cityPosts = (cityData || []).filter(
@@ -100,8 +93,9 @@ export const useNearbyPosts = (location: LocationData | null, radiusMiles: numbe
 
       setPosts(allPosts);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch nearby posts');
-      console.error('Failed to fetch nearby posts:', err);
+      const apiError = ApiErrorHandler.handle(err, 'Nearby Posts');
+      setError(apiError.message);
+      console.error('Failed to fetch nearby posts:', apiError);
     } finally {
       setLoading(false);
     }
@@ -112,20 +106,12 @@ export const useNearbyPosts = (location: LocationData | null, radiusMiles: numbe
     setError(null);
 
     try {
-      const { data, error } = await supabase
-        .rpc('get_posts_by_location', {
-          user_city: city,
-          user_state: state,
-          limit_count: 20,
-          offset_count: 0,
-        });
-
-      if (error) throw error;
-
+      const data = await requestService.getPostsByLocation(city, state, 20);
       setPosts((data || []) as NearbyPost[]);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch posts by location');
-      console.error('Failed to fetch posts by location:', err);
+      const apiError = ApiErrorHandler.handle(err, 'Posts by Location');
+      setError(apiError.message);
+      console.error('Failed to fetch posts by location:', apiError);
     } finally {
       setLoading(false);
     }

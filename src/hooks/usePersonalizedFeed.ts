@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { requestService } from '@/utils/requestService';
+import { ApiErrorHandler } from '@/utils/errorHandler';
 
 interface PersonalizedPost {
   id: string;
@@ -18,16 +20,18 @@ interface PersonalizedPost {
   created_at: string;
   updated_at: string;
   profiles: {
-    id: string;
+    id?: string;
     first_name: string;
     last_name: string;
     avatar_url: string | null;
-    profession: string | null;
+    profession?: string | null;
   };
   communities?: {
-    id: string;
+    id?: string;
     name: string;
-    type: string;
+    city?: string;
+    state?: string;
+    type?: string;
   };
   final_score?: number;
   engagement_score?: number;
@@ -51,57 +55,13 @@ export const usePersonalizedFeed = () => {
       setLoading(true);
       setError(null);
 
-      // Get personalized post IDs using the database function
-      const { data: personalizedData, error: personalizedError } = await supabase
-        .rpc('calculate_personalized_feed', {
-          target_user_id: user.id,
-          limit_count: 20,
-          offset_count: 0
-        });
-
-      if (personalizedError) {
-        console.error('Error fetching personalized feed:', personalizedError);
-        // Fallback to regular feed if personalized feed fails
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('posts')
-          .select(`
-            id,
-            title,
-            content,
-            author_id,
-            community_id,
-            post_type,
-            tags,
-            media_urls,
-            media_type,
-            upvotes,
-            downvotes,
-            comment_count,
-            created_at,
-            updated_at,
-            profiles!posts_author_id_fkey (
-              id,
-              first_name,
-              last_name,
-              avatar_url,
-              profession
-            ),
-            communities (
-              id,
-              name,
-              type
-            )
-          `)
-          .order('created_at', { ascending: false })
-          .limit(20);
-
-        if (fallbackError) throw fallbackError;
-        setPosts(fallbackData || []);
-        return;
-      }
+      // Get personalized post IDs using the new request service
+      const personalizedData = await requestService.getPersonalizedFeed(user.id, 20);
 
       if (!personalizedData || personalizedData.length === 0) {
-        setPosts([]);
+        // Fallback to regular feed if personalized feed is empty
+        const fallbackData = await requestService.getPosts(1, 20, 'latest');
+        setPosts((fallbackData || []) as PersonalizedPost[]);
         return;
       }
 
@@ -155,8 +115,19 @@ export const usePersonalizedFeed = () => {
 
       setPosts(personalizedPosts);
     } catch (err) {
-      console.error('Error fetching personalized feed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch personalized feed');
+      // Use the new error handler
+      const apiError = ApiErrorHandler.handle(err, 'Personalized Feed');
+      setError(apiError.message);
+      
+      // If we get a network error, try fallback
+      if (ApiErrorHandler.isNetworkError(err)) {
+        try {
+          const fallbackData = await requestService.getPosts(1, 20, 'latest');
+          setPosts((fallbackData || []) as PersonalizedPost[]);
+        } catch (fallbackErr) {
+          console.error('Fallback also failed:', fallbackErr);
+        }
+      }
     } finally {
       setLoading(false);
     }

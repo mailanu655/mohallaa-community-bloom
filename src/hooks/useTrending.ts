@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { requestService } from '@/utils/requestService';
+import { ApiErrorHandler } from '@/utils/errorHandler';
 
 interface TrendingTopic {
   hashtag: string;
@@ -20,14 +22,8 @@ export const useTrending = () => {
     try {
       setLoading(true);
 
-      // Get recent posts (last 7 days) to analyze trending topics
-      const { data: posts, error } = await supabase
-        .from('posts')
-        .select('content, tags, created_at')
-        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      // Get recent posts using the new request service
+      const posts = await requestService.getTrendingTopics();
 
       // Count hashtags from content and tags
       const hashtagCounts: Record<string, number> = {};
@@ -119,7 +115,8 @@ export const useTrending = () => {
       }
 
     } catch (error) {
-      console.error('Error fetching trending topics:', error);
+      const apiError = ApiErrorHandler.handle(error, 'Trending Topics');
+      console.error('Error fetching trending topics:', apiError.message);
       setTrending([]);
     } finally {
       setLoading(false);
