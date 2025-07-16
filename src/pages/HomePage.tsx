@@ -6,49 +6,75 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   MapPin, 
   MessageSquare, 
-  Heart, 
-  Share2, 
   Calendar,
   ShoppingBag,
   Users,
   TrendingUp,
-  Image,
-  Video,
-  BarChart3,
-  FileText,
-  Plus
+  Plus,
+  Sparkles,
+  Bell,
+  Search
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatDistanceToNow } from 'date-fns';
 import CreatePostModal from '@/components/CreatePostModal';
+import FeedSortTabs from '@/components/FeedSortTabs';
+import LocalFavesWidget from '@/components/LocalFavesWidget';
+import ConnectionsWidget from '@/components/ConnectionsWidget';
+import RealTimeAlertsWidget from '@/components/RealTimeAlertsWidget';
+import EnhancedPostCard from '@/components/EnhancedPostCard';
 
 const HomePage = () => {
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [marketplaceItems, setMarketplaceItems] = useState([]);
-  const [activeTab, setActiveTab] = useState('newest');
+  const [businesses, setBusinesses] = useState([]);
+  const [feedSort, setFeedSort] = useState('for-you');
   const [loading, setLoading] = useState(true);
   const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
+  const [alertsCount, setAlertsCount] = useState(3);
 
   useEffect(() => {
     fetchFeedData();
-  }, []);
+  }, [feedSort]);
 
   const fetchFeedData = async () => {
     try {
-      // Fetch recent posts
-      const { data: postsData } = await supabase
+      let postsQuery = supabase
         .from('posts')
         .select(`
           *,
           profiles!inner(first_name, last_name, avatar_url),
           communities(name, city, state)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        `);
+
+      // Apply sorting based on feed type
+      switch (feedSort) {
+        case 'for-you':
+          // Personalized feed - mix of popular and relevant content
+          postsQuery = postsQuery
+            .order('upvotes', { ascending: false })
+            .order('created_at', { ascending: false });
+          break;
+        case 'latest':
+          postsQuery = postsQuery.order('created_at', { ascending: false });
+          break;
+        case 'nearby':
+          // TODO: Add location-based filtering
+          postsQuery = postsQuery.order('created_at', { ascending: false });
+          break;
+        case 'trending':
+          postsQuery = postsQuery
+            .order('comment_count', { ascending: false })
+            .order('upvotes', { ascending: false });
+          break;
+        default:
+          postsQuery = postsQuery.order('created_at', { ascending: false });
+      }
+
+      const { data: postsData } = await postsQuery.limit(15);
 
       // Fetch upcoming events
       const { data: eventsData } = await supabase
@@ -73,9 +99,17 @@ const HomePage = () => {
         .order('created_at', { ascending: false })
         .limit(6);
 
+      // Fetch trending businesses
+      const { data: businessData } = await supabase
+        .from('businesses')
+        .select('id, name, rating, review_count, category, image_url')
+        .order('rating', { ascending: false })
+        .limit(5);
+
       setPosts(postsData || []);
       setEvents(eventsData || []);
       setMarketplaceItems(marketplaceData || []);
+      setBusinesses(businessData || []);
     } catch (error) {
       console.error('Error fetching feed data:', error);
     } finally {
@@ -96,213 +130,239 @@ const HomePage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Welcome Section */}
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-foreground">
-          Welcome to Your Neighborhood
-        </h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Stay connected with your local Indian community. Discover events, browse marketplace items, and engage in neighborhood discussions.
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-secondary/10">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Welcome Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-foreground">
+            Welcome to Your <span className="text-primary">Mohallaa</span>
+          </h1>
+          <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
+            Stay connected with your local Indian community. Discover events, get local recommendations, and engage in meaningful neighborhood conversations.
+          </p>
+        </div>
 
-      {/* Create Post Button */}
-      <Card className="border border-border/50 bg-card/80 backdrop-blur-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-12 h-12 bg-primary/10 text-primary font-semibold">
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            
-            <Button 
-              variant="ghost" 
-              className="flex-1 justify-start text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted h-12 text-base"
-              onClick={() => setCreatePostModalOpen(true)}
-            >
-              Share with your local Indian community...
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Create Post Prompt */}
+        <Card className="border-0 bg-gradient-to-r from-primary/5 to-accent/5 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <Avatar className="w-14 h-14 ring-2 ring-primary/20">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+                  {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              
+              <Button 
+                variant="ghost" 
+                className="flex-1 justify-start text-muted-foreground hover:text-foreground bg-background/80 hover:bg-background h-14 text-lg rounded-xl border border-border/50"
+                onClick={() => setCreatePostModalOpen(true)}
+              >
+                What's happening in your neighborhood?
+              </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Feed */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Neighborhood Feed</span>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/posts">View All Posts</Link>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="icon" className="rounded-xl">
+                  <Sparkles className="w-5 h-5" />
                 </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {posts.map((post) => (
-                <div key={post.id} className="border-b border-border/50 pb-6 last:border-0 last:pb-0">
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-3">
-                      <Avatar className="w-10 h-10 bg-primary/10 text-primary font-semibold">
-                        <AvatarImage src={post.profiles?.avatar_url} />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                          {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-semibold text-foreground">
-                              {post.profiles?.first_name} {post.profiles?.last_name}
-                            </h4>
-                            <Badge 
-                              className={`text-xs px-2 py-1 ${
-                                post.post_type === 'question' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' :
-                                post.post_type === 'discussion' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
-                                post.post_type === 'announcement' ? 'bg-orange-100 text-orange-700 hover:bg-orange-100' :
-                                'bg-purple-100 text-purple-700 hover:bg-purple-100'
-                              }`}
-                            >
-                              {post.post_type}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground mb-3">
-                          {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <h3 className="font-semibold text-foreground leading-tight">
-                            <Link to={`/post/${post.id}`} className="hover:text-primary transition-colors">
-                              {post.title}
-                            </Link>
-                          </h3>
-                          <p className="text-muted-foreground text-sm leading-relaxed">
-                            {post.content}
-                          </p>
-                        </div>
+                <Button variant="outline" size="icon" className="rounded-xl">
+                  <Search className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-                        <div className="flex items-center space-x-6 mt-4 pt-2 text-sm text-muted-foreground">
-                          <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-                            <Heart className="w-4 h-4" />
-                            <span>{post.upvotes || 23}</span>
-                          </button>
-                          <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-                            <MessageSquare className="w-4 h-4" />
-                            <span>{post.comment_count || 8}</span>
-                          </button>
-                          <button className="flex items-center space-x-1 hover:text-primary transition-colors">
-                            <Share2 className="w-4 h-4" />
-                            <span>Share</span>
-                          </button>
-                        </div>
+        {/* Feed Sort Tabs */}
+        <FeedSortTabs 
+          activeSort={feedSort} 
+          onSortChange={setFeedSort}
+          alertsCount={alertsCount}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Main Feed */}
+          <div className="lg:col-span-2 space-y-6">
+            {posts.map((post, index) => (
+              <EnhancedPostCard 
+                key={post.id} 
+                post={post}
+                isHighlighted={feedSort === 'for-you' && index < 2}
+                showConnection={feedSort === 'for-you' && Math.random() > 0.7}
+              />
+            ))}
+
+            {posts.length === 0 && (
+              <Card className="border-0 bg-card/80 backdrop-blur-sm">
+                <CardContent className="p-12 text-center">
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center">
+                      <MessageSquare className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">Your feed is empty</h3>
+                      <p className="text-muted-foreground">
+                        Be the first to share something with your neighborhood!
+                      </p>
+                    </div>
+                    <Button 
+                      variant="default"
+                      onClick={() => setCreatePostModalOpen(true)}
+                    >
+                      Create First Post
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Left Sidebar */}
+          <div className="space-y-6">
+            {/* Local Faves AI Widget */}
+            <LocalFavesWidget />
+
+            {/* Real-time Alerts */}
+            <RealTimeAlertsWidget />
+
+            {/* Trending Businesses */}
+            <Card className="border-0 bg-card/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="w-5 h-5" />
+                  Trending Places
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {businesses.slice(0, 4).map((business) => (
+                  <Link 
+                    key={business.id}
+                    to={`/business/${business.id}`}
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-background/50 transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <ShoppingBag className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                        {business.name}
+                      </h4>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{business.category}</span>
+                        <span>•</span>
+                        <span>⭐ {business.rating || 0}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Connections Widget */}
+            <ConnectionsWidget />
+
+            {/* Upcoming Events */}
+            <Card className="border-0 bg-card/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    <span className="text-lg">Events</span>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/events">View All</Link>
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {events.slice(0, 3).map((event) => (
+                  <div key={event.id} className="space-y-2 p-3 rounded-lg hover:bg-background/50 transition-colors">
+                    <h4 className="font-semibold text-sm">{event.title}</h4>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div className="flex items-center">
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {new Date(event.start_date).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center">
+                        <MapPin className="w-3 h-3 mr-1" />
+                        {event.location}
+                      </div>
+                    </div>
+                    <Badge variant={event.is_free ? 'secondary' : 'outline'} className="text-xs">
+                      {event.is_free ? 'Free' : `$${event.ticket_price}`}
+                    </Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Marketplace Items */}
+            <Card className="border-0 bg-card/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5" />
+                    <span className="text-lg">For Sale & Free</span>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/marketplace">View All</Link>
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {marketplaceItems.slice(0, 3).map((item) => (
+                  <div key={item.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-background/50 transition-colors">
+                    <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                      <ShoppingBag className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm text-foreground mb-1">{item.title}</h4>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-sm text-foreground">
+                          {item.price ? `$${item.price}` : 'FREE'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {item.profiles?.first_name}
+                        </span>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+                ))}
+              </CardContent>
+            </Card>
 
-        {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Upcoming Events */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-lg">Upcoming Events</span>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/events">View All</Link>
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {events.slice(0, 3).map((event) => (
-                <div key={event.id} className="space-y-2">
-                  <h4 className="font-semibold text-sm">{event.title}</h4>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div className="flex items-center">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      {new Date(event.start_date).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {event.location}
-                    </div>
-                  </div>
-                  <Badge variant={event.is_free ? 'secondary' : 'outline'} className="text-xs">
-                    {event.is_free ? 'Free' : `$${event.ticket_price}`}
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Marketplace Items */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-lg">For Sale & Free</span>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/marketplace">View All</Link>
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {marketplaceItems.slice(0, 3).map((item) => (
-                <div key={item.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6 text-gray-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm text-foreground mb-1">{item.title}</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm text-foreground">
-                        {item.price ? `$${item.price}` : 'FREE'}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.profiles?.first_name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="cultural" className="w-full justify-start" asChild>
-                <Link to="/posts/create">
-                  <MessageSquare className="w-4 h-4 mr-2" />
+            {/* Quick Actions */}
+            <Card className="border-0 bg-card/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-lg">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button 
+                  variant="default" 
+                  className="w-full justify-start" 
+                  onClick={() => setCreatePostModalOpen(true)}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
                   Create Post
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link to="/events/create">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Create Event
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link to="/marketplace/create">
-                  <ShoppingBag className="w-4 h-4 mr-2" />
-                  List Item
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+                </Button>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/events/create">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Create Event
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/marketplace/create">
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    List Item
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
