@@ -30,6 +30,7 @@ import SafetyAlertsModal from '@/components/SafetyAlertsModal';
 import { useSafetyAlerts } from '@/hooks/useSafetyAlerts';
 import { useRealTimeSafetyAlerts } from '@/hooks/useRealTimeSafetyAlerts';
 import { PostLikeButton } from '@/components/PostLikeButton';
+import { PostBookmarkButton } from '@/components/PostBookmarkButton';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -44,7 +45,6 @@ const HomePage = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [postDetailModalOpen, setPostDetailModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
 
   // Safety alerts hooks
   const { getActiveAlertsCount } = useSafetyAlerts();
@@ -194,6 +194,12 @@ const HomePage = () => {
                     Businesses
                   </Link>
                 </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link to="/bookmarks">
+                    <Bookmark className="w-5 h-5 mr-3" />
+                    Bookmarks
+                  </Link>
+                </Button>
               </nav>
             </div>
 
@@ -300,12 +306,7 @@ const HomePage = () => {
                             <Share2 className="w-5 h-5" />
                           </button>
                           
-                          <button 
-                            onClick={() => setIsSaved(!isSaved)}
-                            className="text-muted-foreground hover:text-primary transition-colors p-2 hover:bg-primary/10 rounded-full"
-                          >
-                            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-current text-primary' : ''}`} />
-                          </button>
+                          <PostBookmarkButton postId={post.id} />
                         </div>
                       </div>
                     </div>

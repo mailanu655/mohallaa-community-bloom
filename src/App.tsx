@@ -29,6 +29,7 @@ import BookServicePage from "./pages/BookServicePage";
 import { CreateAdPage } from "./pages/CreateAdPage";
 import { AdsDashboardPage } from "./pages/AdsDashboardPage";
 import BusinessSubscriptionPage from "./pages/BusinessSubscriptionPage";
+import BookmarksPage from "./pages/BookmarksPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/business/:businessId/subscription" element={<Layout><ProtectedRoute><BusinessSubscriptionPage /></ProtectedRoute></Layout>} />
             <Route path="/ads-dashboard" element={<Layout><ProtectedRoute><AdsDashboardPage /></ProtectedRoute></Layout>} />
             <Route path="/create-ad" element={<Layout><ProtectedRoute><CreateAdPage /></ProtectedRoute></Layout>} />
+            <Route path="/bookmarks" element={<Layout><BookmarksPage /></Layout>} />
             <Route path="/profile" element={<Layout><ProtectedRoute><ProfileRedirect /></ProtectedRoute></Layout>} />
             <Route path="/profile/:id" element={<Layout><ProfilePage /></Layout>} />
             <Route path="/profile/edit" element={
