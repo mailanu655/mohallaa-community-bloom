@@ -17,11 +17,22 @@ import {
   X,
   MapPin,
   Clock,
-  Reply
+  Reply,
+  Copy,
+  Link,
+  Facebook,
+  Twitter
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface PostDetailModalProps {
   postId: string | null;
@@ -36,6 +47,7 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [newComment, setNewComment] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     if (postId && open) {
@@ -80,6 +92,49 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
+  const handleShare = async (method?: string) => {
+    if (!post) return;
+    
+    const shareUrl = `${window.location.origin}/post/${post.id}`;
+    const shareTitle = post.title || 'Check out this post';
+    const shareText = `${shareTitle}\n\n${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}`;
+
+    if (method === 'copy' || !navigator.share) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast({
+          title: "Link copied!",
+          description: "Post link has been copied to your clipboard.",
+        });
+      } catch (error) {
+        console.error('Failed to copy:', error);
+        toast({
+          title: "Copy failed",
+          description: "Please try again or use manual copy.",
+          variant: "destructive",
+        });
+      }
+    } else if (method === 'native' && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Share failed:', error);
+        }
+      }
+    } else if (method === 'twitter') {
+      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(tweetUrl, '_blank');
+    } else if (method === 'facebook') {
+      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+      window.open(facebookUrl, '_blank');
+    }
   };
 
   const getPostTypeColor = (type: string) => {
@@ -157,9 +212,33 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <button className="text-muted-foreground hover:text-primary transition-colors">
-                    <Share2 className="w-5 h-5" />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="text-muted-foreground hover:text-primary transition-colors">
+                        <Share2 className="w-5 h-5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleShare('copy')}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy link
+                      </DropdownMenuItem>
+                      {navigator.share && (
+                        <DropdownMenuItem onClick={() => handleShare('native')}>
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share via...
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={() => handleShare('twitter')}>
+                        <Twitter className="w-4 h-4 mr-2" />
+                        Share on Twitter
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleShare('facebook')}>
+                        <Facebook className="w-4 h-4 mr-2" />
+                        Share on Facebook
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <button className="text-muted-foreground hover:text-primary transition-colors">
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
