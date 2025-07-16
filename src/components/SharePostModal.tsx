@@ -95,16 +95,15 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 bg-background rounded-2xl relative" aria-describedby="share-post-description">
-        <DialogClose className="absolute right-4 top-4 z-10 w-8 h-8 rounded-full bg-slate-800 text-white hover:bg-slate-700 flex items-center justify-center transition-colors">
-          <X className="h-4 w-4" />
-        </DialogClose>
-        
+      <DialogContent className="max-w-md p-0 bg-background rounded-2xl">
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="text-xl font-semibold">Share this post</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl font-semibold">Share this post</DialogTitle>
+            <DialogClose className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-800 text-white hover:bg-slate-700 flex items-center justify-center transition-colors">
+              <X className="h-4 w-4" />
+            </DialogClose>
+          </div>
         </DialogHeader>
-
-        <div id="share-post-description" className="sr-only">Share this post on social media or copy the link</div>
 
         <div className="px-6 pb-6">
           {/* Post Preview */}
@@ -203,12 +202,7 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
             </button>
 
             <button
-              onClick={() => {
-                toast({
-                  title: "Repost coming soon!",
-                  description: "This feature will be available in a future update.",
-                });
-              }}
+              onClick={() => handleShare('repost')}
               className="flex flex-col items-center space-y-2 p-3 hover:bg-muted/20 rounded-lg transition-colors"
             >
               <Repeat2 className="w-6 h-6 text-muted-foreground" />
