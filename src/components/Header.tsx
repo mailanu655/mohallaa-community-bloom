@@ -13,10 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 const Header = () => {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState(null);
+  const [hasBusinessAccess, setHasBusinessAccess] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProfile();
+      checkBusinessAccess();
     }
   }, [user]);
 
@@ -33,6 +35,22 @@ const Header = () => {
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
+    }
+  };
+
+  const checkBusinessAccess = async () => {
+    if (!user) return;
+    
+    try {
+      const { data } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user.id)
+        .limit(1);
+      
+      setHasBusinessAccess(data && data.length > 0);
+    } catch (error) {
+      console.error('Error checking business access:', error);
     }
   };
 
@@ -83,9 +101,11 @@ const Header = () => {
                 <AuthGuardLink to="/events" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                   Events
                 </AuthGuardLink>
-                <AuthGuardLink to="/ads-dashboard" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
-                  Advertise
-                </AuthGuardLink>
+                {hasBusinessAccess && (
+                  <AuthGuardLink to="/ads-dashboard" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
+                    Advertise
+                  </AuthGuardLink>
+                )}
                 {user && (
                   <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium flex items-center">
                     <Avatar className="w-8 h-8">

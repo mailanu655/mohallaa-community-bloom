@@ -15,7 +15,8 @@ import {
   Edit,
   BarChart3,
   Calendar,
-  MapPin
+  MapPin,
+  Building
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,6 +50,7 @@ export const AdsDashboardPage: React.FC = () => {
   const { toast } = useToast();
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasBusinessAccess, setHasBusinessAccess] = useState<boolean | null>(null);
   const [stats, setStats] = useState({
     totalSpend: 0,
     totalImpressions: 0,
@@ -59,9 +61,34 @@ export const AdsDashboardPage: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      fetchAds();
+      checkBusinessAccess();
     }
   }, [user]);
+
+  const checkBusinessAccess = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user?.id)
+        .limit(1);
+
+      if (error) throw error;
+
+      const hasAccess = data && data.length > 0;
+      setHasBusinessAccess(hasAccess);
+      
+      if (hasAccess) {
+        fetchAds();
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error checking business access:', error);
+      setHasBusinessAccess(false);
+      setLoading(false);
+    }
+  };
 
   const fetchAds = async () => {
     try {
@@ -173,6 +200,23 @@ export const AdsDashboardPage: React.FC = () => {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Please sign in to access advertising dashboard</h1>
           <Button onClick={() => navigate('/auth')}>Sign In</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasBusinessAccess === false) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <Building className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <h1 className="text-2xl font-bold mb-4">Business Registration Required</h1>
+          <p className="text-muted-foreground mb-6">
+            You need to register a business to access the advertising dashboard.
+          </p>
+          <Button onClick={() => navigate('/register-business')}>
+            Register Your Business
+          </Button>
         </div>
       </div>
     );
