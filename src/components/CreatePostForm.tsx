@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DialogClose } from '@/components/ui/dialog';
+import FileUploader from '@/components/FileUploader';
 
 interface CreatePostFormProps {
   communities: Array<{ id: string; name: string }>;
@@ -22,6 +23,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
     tags: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -45,7 +47,8 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
           post_type: formData.postType as 'discussion' | 'question' | 'announcement' | 'resource',
           community_id: formData.communityId || null,
           author_id: user.id,
-          tags: tagsArray.length > 0 ? tagsArray : null
+          tags: tagsArray.length > 0 ? tagsArray : null,
+          media_urls: mediaUrls.length > 0 ? mediaUrls : null
         });
 
       if (error) throw error;
@@ -63,6 +66,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
         communityId: '',
         tags: ''
       });
+      setMediaUrls([]);
 
       onPostCreated();
     } catch (error) {
@@ -138,6 +142,19 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
           placeholder="Add tags separated by commas..."
           value={formData.tags}
           onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Media (optional)</label>
+        <FileUploader
+          onUploadComplete={(fileInfo) => {
+            setMediaUrls(prev => [...prev, fileInfo.url]);
+          }}
+          maxFiles={4}
+          folder="posts"
+          acceptedFileTypes={['image/*', 'video/*']}
+          maxSizeMB={10}
         />
       </div>
 

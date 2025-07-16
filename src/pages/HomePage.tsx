@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +37,9 @@ import { useLocation } from '@/hooks/useLocation';
 import { useNearbyPosts } from '@/hooks/useNearbyPosts';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useRealTimeSubscription } from '@/hooks/useRealTimeSubscription';
+import PostMediaGallery from '@/components/PostMediaGallery';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -51,6 +54,9 @@ const HomePage = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [postDetailModalOpen, setPostDetailModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [allPosts, setAllPosts] = useState([]);
 
   // Safety alerts hooks
   const { getActiveAlertsCount } = useSafetyAlerts();
@@ -80,26 +86,67 @@ const HomePage = () => {
   const { location, loading: locationLoading, requestLocation, permissionStatus } = useLocation();
   const { posts: nearbyPosts, loading: nearbyLoading } = useNearbyPosts(location);
 
+  // Real-time subscription for posts
+  useRealTimeSubscription({
+    table: 'posts',
+    onInsert: (payload) => {
+      const newPost = payload.new;
+      if (newPost) {
+        setAllPosts(prev => [newPost, ...prev]);
+        setPosts(prev => [newPost, ...prev]);
+      }
+    },
+    onUpdate: (payload) => {
+      const updatedPost = payload.new;
+      if (updatedPost) {
+        setAllPosts(prev => prev.map(post => post.id === updatedPost.id ? updatedPost : post));
+        setPosts(prev => prev.map(post => post.id === updatedPost.id ? updatedPost : post));
+      }
+    },
+    onDelete: (payload) => {
+      const deletedPost = payload.old;
+      if (deletedPost) {
+        setAllPosts(prev => prev.filter(post => post.id !== deletedPost.id));
+        setPosts(prev => prev.filter(post => post.id !== deletedPost.id));
+      }
+    }
+  });
+
+  const fetchMore = useCallback(async () => {
+    if (!hasMore || loading) return;
+    
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchFeedData(nextPage, false);
+  }, [hasMore, loading, page, feedSort]);
+
+  const { isFetching } = useInfiniteScroll(fetchMore);
+
   useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    
     if (feedSort === 'for-you') {
       // For personalized feed, use the personalized posts
       setLoading(personalizedLoading);
       if (!personalizedLoading) {
         setPosts(personalizedPosts);
+        setAllPosts(personalizedPosts);
       }
     } else if (feedSort === 'nearby') {
       // For nearby feed, use the nearby posts
       setLoading(nearbyLoading);
       if (!nearbyLoading) {
         setPosts(nearbyPosts);
+        setAllPosts(nearbyPosts);
       }
     } else {
       // For other feed types, fetch data normally
-      fetchFeedData();
+      fetchFeedData(1, true);
     }
   }, [feedSort, personalizedPosts, personalizedLoading, nearbyPosts, nearbyLoading]);
 
-  const fetchFeedData = async () => {
+  const fetchFeedData = async (pageNum = 1, reset = false) => {
     try {
       let postsQuery = supabase
         .from('posts')
@@ -123,7 +170,9 @@ const HomePage = () => {
           postsQuery = postsQuery.order('created_at', { ascending: false });
       }
 
-      const { data: postsData } = await postsQuery.limit(15);
+      const POSTS_PER_PAGE = 15;
+      const { data: postsData } = await postsQuery
+        .range((pageNum - 1) * POSTS_PER_PAGE, pageNum * POSTS_PER_PAGE - 1);
 
       // Fetch upcoming events
       const { data: eventsData } = await supabase
@@ -155,7 +204,18 @@ const HomePage = () => {
         .order('rating', { ascending: false })
         .limit(5);
 
-      setPosts(postsData || []);
+      const newPosts = postsData || [];
+      setHasMore(newPosts.length === 15);
+      
+      if (reset || pageNum === 1) {
+        setPosts(newPosts);
+        setAllPosts(newPosts);
+        setPage(1);
+      } else {
+        setPosts(prev => [...prev, ...newPosts]);
+        setAllPosts(prev => [...prev, ...newPosts]);
+      }
+      
       setEvents(eventsData || []);
       setMarketplaceItems(marketplaceData || []);
       setBusinesses(businessData || []);
@@ -381,9 +441,10 @@ const HomePage = () => {
                         </div>
                         
                         {post.media_urls && post.media_urls.length > 0 && (
-                          <div className="rounded-lg overflow-hidden border border-border/50">
-                            <div className="aspect-video bg-muted"></div>
-                          </div>
+                          <PostMediaGallery 
+                            mediaUrls={post.media_urls}
+                            className="mt-3"
+                          />
                         )}
                         
                         <div className="flex items-center justify-between max-w-md pt-2">
@@ -412,7 +473,7 @@ const HomePage = () => {
                 </div>
               ))}
 
-              {posts.length === 0 && (
+              {posts.length === 0 && !loading && (
                 <div className="p-12 text-center">
                   <div className="space-y-4">
                     <div className="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center">
@@ -431,6 +492,14 @@ const HomePage = () => {
                       Create First Post
                     </Button>
                   </div>
+                </div>
+              )}
+
+              {/* Loading indicator for infinite scroll */}
+              {isFetching && (
+                <div className="p-6 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  <p className="text-muted-foreground mt-2">Loading more posts...</p>
                 </div>
               )}
             </div>
