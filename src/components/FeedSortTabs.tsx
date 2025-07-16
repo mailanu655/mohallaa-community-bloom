@@ -14,9 +14,10 @@ interface FeedSortTabsProps {
   activeSort: string;
   onSortChange: (sort: string) => void;
   alertsCount?: number;
+  onAlertsClick?: () => void;
 }
 
-const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0 }: FeedSortTabsProps) => {
+const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0, onAlertsClick }: FeedSortTabsProps) => {
   return (
     <div className="flex items-center justify-between mb-6">
       <Tabs value={activeSort} onValueChange={onSortChange} className="w-auto">
@@ -41,6 +42,7 @@ const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0 }: FeedSortTab
         <Button 
           variant="outline" 
           size="sm" 
+          onClick={onAlertsClick}
           className="flex items-center gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"
         >
           <AlertTriangle className="w-4 h-4" />

@@ -26,6 +26,9 @@ import CreatePostModal from '@/components/CreatePostModal';
 import FeedSortTabs from '@/components/FeedSortTabs';
 import EnhancedPostCard from '@/components/EnhancedPostCard';
 import PostDetailModal from '@/components/PostDetailModal';
+import SafetyAlertsModal from '@/components/SafetyAlertsModal';
+import { useSafetyAlerts } from '@/hooks/useSafetyAlerts';
+import { useRealTimeSafetyAlerts } from '@/hooks/useRealTimeSafetyAlerts';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -36,12 +39,16 @@ const HomePage = () => {
   const [feedSort, setFeedSort] = useState('for-you');
   const [loading, setLoading] = useState(true);
   const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
-  const [alertsCount, setAlertsCount] = useState(3);
+  const [safetyAlertsModalOpen, setSafetyAlertsModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [postDetailModalOpen, setPostDetailModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Safety alerts hooks
+  const { getActiveAlertsCount } = useSafetyAlerts();
+  useRealTimeSafetyAlerts();
 
   useEffect(() => {
     fetchFeedData();
@@ -215,7 +222,8 @@ const HomePage = () => {
               <FeedSortTabs 
                 activeSort={feedSort} 
                 onSortChange={setFeedSort}
-                alertsCount={alertsCount}
+                alertsCount={getActiveAlertsCount()}
+                onAlertsClick={() => setSafetyAlertsModalOpen(true)}
               />
             </div>
 
@@ -418,6 +426,12 @@ const HomePage = () => {
         postId={selectedPostId}
         open={postDetailModalOpen}
         onClose={handleClosePostModal}
+      />
+
+      {/* Safety Alerts Modal */}
+      <SafetyAlertsModal 
+        open={safetyAlertsModalOpen}
+        onOpenChange={setSafetyAlertsModalOpen}
       />
     </div>
   );
