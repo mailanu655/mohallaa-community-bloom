@@ -1,23 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Users, MessageSquare, Calendar, ShoppingBag, Building2, Heart, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const Features = () => {
   const mainFeatures = [
     {
-      icon: Users,
       title: "Connect with your community",
       description: "Find and connect with Indians in your neighborhood. Build meaningful relationships with people who share your cultural background and professional interests.",
       link: "/communities"
     },
     {
-      icon: MessageSquare,
       title: "Share your experiences",
       description: "Post questions, share recommendations, and get advice from community members. From the best Indian restaurants to career guidance.",
       link: "/posts"
     },
     {
-      icon: Calendar,
       title: "Join cultural events",
       description: "Discover and attend Diwali celebrations, Garba nights, professional meetups, and family gatherings in your city.",
       link: "/events"
@@ -26,17 +23,14 @@ const Features = () => {
 
   const additionalFeatures = [
     {
-      icon: <ShoppingBag className="w-6 h-6 text-primary" />,
       title: "Local Marketplace",
       description: "Buy and sell within your community"
     },
     {
-      icon: <Building2 className="w-6 h-6 text-secondary" />,
       title: "Business Directory",
       description: "Discover Indian-owned businesses"
     },
     {
-      icon: <Heart className="w-6 h-6 text-accent" />,
       title: "Cultural Support",
       description: "Get help with cultural adaptation"
     }
@@ -68,11 +62,6 @@ const Features = () => {
             >
               <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
                 <div className="mb-6">
-                  <div className="flex items-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-cultural rounded-2xl flex items-center justify-center shadow-warm mr-4">
-                      <feature.icon className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {feature.title}
                   </h3>
@@ -89,36 +78,8 @@ const Features = () => {
               </div>
               
               <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                <div className="relative group">
-                  <div className="bg-gradient-cultural rounded-2xl p-8 h-80 flex items-center justify-center overflow-hidden relative">
-                    {/* Animated background pattern */}
-                    <div className="absolute inset-0 opacity-10">
-                      <div className="absolute top-4 left-4 w-16 h-16 bg-primary/20 rounded-full animate-pulse"></div>
-                      <div className="absolute top-12 right-8 w-8 h-8 bg-secondary/30 rounded-full animate-bounce"></div>
-                      <div className="absolute bottom-8 left-12 w-12 h-12 bg-accent/25 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                      <div className="absolute bottom-4 right-4 w-6 h-6 bg-primary/20 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
-                    </div>
-                    
-                    {/* Main content */}
-                    <div className="relative z-10 text-center">
-                      <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-elegant">
-                        <feature.icon className="w-12 h-12 text-white" />
-                      </div>
-                      <div className="text-sm font-medium text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        {feature.title}
-                      </div>
-                    </div>
-                    
-                    {/* Floating elements */}
-                    <div className="absolute top-6 right-6 w-3 h-3 bg-white/50 rounded-full animate-ping"></div>
-                    <div className="absolute bottom-6 left-6 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
-                  </div>
-                  
-                  {/* Interactive border */}
-                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-primary/30 transition-colors duration-300"></div>
-                  
-                  {/* Professional showcase mockup */}
-                  <div className="absolute inset-0 rounded-2xl bg-white/90 p-6 opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-sm">
+                <div className="relative">
+                  <div className="bg-white rounded-2xl p-6 h-80 border border-border shadow-sm">
                     <div className="h-full flex flex-col justify-center space-y-4">
                       {index === 0 && (
                         <>
@@ -194,11 +155,6 @@ const Features = () => {
         <div className="grid md:grid-cols-3 gap-8">
           {additionalFeatures.map((feature, index) => (
             <div key={index} className="text-center p-6 rounded-xl bg-gradient-cultural hover:shadow-lg transition-all duration-300">
-              <div className="flex justify-center mb-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  {feature.icon}
-                </div>
-              </div>
               <h4 className="font-semibold text-foreground mb-2">{feature.title}</h4>
               <p className="text-sm text-muted-foreground">{feature.description}</p>
             </div>
