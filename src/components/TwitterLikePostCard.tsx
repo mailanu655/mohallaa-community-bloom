@@ -93,7 +93,7 @@ const TwitterLikePostCard = ({
   return (
     <>
       <article
-        className="border-b border-border/50 p-4 hover:bg-muted/30 transition-colors cursor-pointer"
+        className="border-b border-border/60 p-5 hover:bg-muted/40 transition-all duration-200 cursor-pointer hover:shadow-sm"
         onClick={() => onPostClick?.(post.id)}
       >
         <div className="flex space-x-3">
@@ -109,11 +109,11 @@ const TwitterLikePostCard = ({
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-center space-x-2 mb-1">
-              <span className="font-semibold text-foreground hover:underline">
+              <span className="font-semibold text-foreground hover:underline cursor-pointer">
                 {post.profiles?.first_name} {post.profiles?.last_name}
               </span>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-muted-foreground text-sm">
+              <span className="text-muted-foreground/70">·</span>
+              <span className="text-muted-foreground text-sm font-medium">
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
               </span>
               {post.communities && (
@@ -151,13 +151,13 @@ const TwitterLikePostCard = ({
 
             {/* Title */}
             {post.title && (
-              <h3 className="font-medium text-foreground mb-1 leading-tight">
+              <h3 className="font-semibold text-foreground mb-2 leading-tight text-lg">
                 {post.title}
               </h3>
             )}
 
             {/* Content */}
-            <div className="text-foreground mb-3 leading-relaxed">
+            <div className="text-foreground/90 mb-3 leading-relaxed">
               <RichContentRenderer content={post.content} />
             </div>
 
@@ -185,57 +185,57 @@ const TwitterLikePostCard = ({
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-between max-w-md">
+            <div className="flex items-center justify-between max-w-md mt-3 pt-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleComment}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50/50 group"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-primary/5 group transition-all"
               >
-                <MessageCircle className="w-4 h-4 group-hover:fill-blue-600/20" />
-                <span className="text-sm">{post.comment_count || 0}</span>
+                <MessageCircle className="w-4 h-4 group-hover:fill-primary/20" />
+                <span className="text-sm font-medium">{post.comment_count || 0}</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`flex items-center space-x-2 group ${
+                className={`flex items-center space-x-2 group transition-all ${
                   isLiked 
                     ? 'text-red-600' 
                     : 'text-muted-foreground hover:text-red-600 hover:bg-red-50/50'
                 }`}
               >
                 <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : 'group-hover:fill-red-600/20'}`} />
-                <span className="text-sm">{likeCount}</span>
+                <span className="text-sm font-medium">{likeCount}</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleShare}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-green-600 hover:bg-green-50/50 group"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-secondary hover:bg-secondary/5 group transition-all"
               >
-                <Share className="w-4 h-4 group-hover:fill-green-600/20" />
+                <Share className="w-4 h-4 group-hover:fill-secondary/20" />
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleSave}
-                className={`flex items-center space-x-2 group ${
+                className={`flex items-center space-x-2 group transition-all ${
                   isSaved 
-                    ? 'text-blue-600' 
-                    : 'text-muted-foreground hover:text-blue-600 hover:bg-blue-50/50'
+                    ? 'text-primary' 
+                    : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                 }`}
               >
-                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : 'group-hover:fill-blue-600/20'}`} />
+                <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : 'group-hover:fill-primary/20'}`} />
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>

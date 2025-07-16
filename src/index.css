@@ -6,49 +6,49 @@
 
 @layer base {
   :root {
-    /* Core brand colors inspired by Indian culture */
+    /* Professional neighborhood community colors */
     --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
+    --foreground: 215 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 215 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 215 25% 12%;
 
-    /* Primary: Deep saffron orange */
-    --primary: 24 95% 53%;
+    /* Primary: Trustworthy teal-blue */
+    --primary: 195 85% 41%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 30 100% 65%;
+    --primary-glow: 195 85% 55%;
 
-    /* Secondary: Royal blue */
-    --secondary: 220 70% 45%;
+    /* Secondary: Warm sage green */
+    --secondary: 160 35% 45%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Warm terracotta accent */
-    --accent: 15 85% 55%;
+    /* Accent: Professional purple */
+    --accent: 240 65% 55%;
     --accent-foreground: 0 0% 100%;
 
-    /* Muted warm tones */
-    --muted: 30 20% 95%;
-    --muted-foreground: 220 15% 45%;
+    /* Improved muted tones for better contrast */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 15% 35%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 90%;
-    --input: 30 15% 92%;
-    --ring: 24 95% 53%;
+    --border: 210 20% 90%;
+    --input: 210 20% 92%;
+    --ring: 195 85% 41%;
 
-    /* Cultural gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(15 85% 55%) 50%, hsl(220 70% 45%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(30 100% 97%) 0%, hsl(24 20% 96%) 100%);
-    --gradient-cultural: linear-gradient(45deg, hsl(24 95% 53% / 0.1) 0%, hsl(220 70% 45% / 0.1) 100%);
+    /* Professional gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(195 85% 41%) 0%, hsl(160 35% 45%) 50%, hsl(240 65% 55%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(210 20% 98%) 0%, hsl(195 15% 96%) 100%);
+    --gradient-cultural: linear-gradient(45deg, hsl(195 85% 41% / 0.08) 0%, hsl(160 35% 45% / 0.08) 100%);
 
-    /* Cultural shadows */
-    --shadow-warm: 0 10px 40px -10px hsl(24 95% 53% / 0.25);
-    --shadow-cultural: 0 20px 60px -15px hsl(24 95% 53% / 0.3);
-    --shadow-elegant: 0 4px 20px -2px hsl(220 70% 45% / 0.15);
+    /* Professional shadows */
+    --shadow-warm: 0 10px 40px -10px hsl(195 85% 41% / 0.2);
+    --shadow-cultural: 0 20px 60px -15px hsl(195 85% 41% / 0.25);
+    --shadow-elegant: 0 4px 20px -2px hsl(195 85% 41% / 0.12);
 
     /* Animations */
     --transition-cultural: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
