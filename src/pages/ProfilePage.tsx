@@ -4,13 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Mail, Calendar, Heart, MessageSquare, ExternalLink, Globe, Briefcase, GraduationCap, Languages } from "lucide-react";
+import { 
+  MapPin, 
+  Calendar, 
+  Heart, 
+  MessageSquare, 
+  Home,
+  ShoppingBag,
+  Users,
+  Settings,
+  HelpCircle,
+  UserPlus,
+  Bookmark,
+  Share2,
+  MoreHorizontal
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import { formatDistanceToNow } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-
-import ConnectButton from "@/components/ConnectButton";
 
 const ProfilePage = () => {
   const { id } = useParams();
@@ -19,7 +31,9 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [community, setCommunity] = useState(null);
+  const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isOwnProfile = user?.id === id;
 
   useEffect(() => {
     if (id) {
@@ -44,15 +58,26 @@ const ProfilePage = () => {
         .from('posts')
         .select(`
           *,
-          communities(name)
+          communities(name),
+          profiles(first_name, last_name, avatar_url)
         `)
         .eq('author_id', id)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(5);
+
+      // Fetch communities user is member of
+      const { data: userCommunities } = await supabase
+        .from('community_members')
+        .select(`
+          communities(id, name, member_count, description)
+        `)
+        .eq('user_id', id)
+        .limit(3);
 
       setProfile(profileData);
       setPosts(postsData || []);
       setCommunity(profileData?.communities);
+      setCommunities(userCommunities?.map(item => item.communities) || []);
     } catch (error) {
       console.error('Error fetching profile data:', error);
     } finally {
@@ -92,276 +117,274 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-warm">
-      <div className="max-w-5xl mx-auto p-6 space-y-8">
-        {/* Profile Header */}
-        <Card className="border-0 bg-card/80 backdrop-blur-sm animate-fade-in">
-          <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Avatar and Basic Info */}
-              <div className="flex flex-col items-center md:items-start space-y-4">
-                <Avatar className="w-32 h-32">
-                  <AvatarImage src={profile.avatar_url} />
-                  <AvatarFallback className="text-2xl">
-                    {profile.first_name?.[0]}{profile.last_name?.[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="text-center md:text-left space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold text-foreground">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-4 min-h-screen">
+          {/* Left Sidebar */}
+          <div className="hidden lg:block border-r border-border/50 p-6 space-y-6">
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-foreground">Mohallaa</h2>
+              
+              <nav className="space-y-2">
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link to="/home">
+                    <Home className="w-5 h-5 mr-3" />
+                    Home
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link to="/marketplace">
+                    <ShoppingBag className="w-5 h-5 mr-3" />
+                    For Sale & Free
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start">
+                  <Heart className="w-5 h-5 mr-3" />
+                  Faves
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link to="/communities">
+                    <Users className="w-5 h-5 mr-3" />
+                    Groups
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link to="/events">
+                    <Calendar className="w-5 h-5 mr-3" />
+                    Events
+                  </Link>
+                </Button>
+              </nav>
+
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                Post
+              </Button>
+            </div>
+
+            <div className="space-y-2 pt-6 border-t border-border/50">
+              <Button variant="ghost" className="w-full justify-start">
+                <Settings className="w-5 h-5 mr-3" />
+                Settings
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <HelpCircle className="w-5 h-5 mr-3" />
+                Help Center
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <UserPlus className="w-5 h-5 mr-3" />
+                Invite neighbors
+              </Button>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-3 p-6 space-y-6">
+            {/* Profile Header with Cover */}
+            <div className="relative">
+              {/* Cover Image */}
+              <div className="h-48 bg-gradient-to-r from-blue-200 to-purple-200 rounded-t-lg relative">
+                <div className="absolute top-4 right-4 flex space-x-2">
+                  <Button variant="outline" size="sm" className="bg-white/80">
+                    <Users className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="bg-white/80">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Profile Info */}
+              <div className="bg-white border border-border/50 rounded-b-lg p-6 -mt-16 relative z-10">
+                <div className="flex items-start space-x-6">
+                  <Avatar className="w-24 h-24 border-4 border-white">
+                    <AvatarImage src={profile.avatar_url} />
+                    <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                      {profile.first_name?.[0]}{profile.last_name?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 mt-8">
+                    <h1 className="text-2xl font-bold text-foreground">
                       {profile.first_name} {profile.last_name}
                     </h1>
-                    {profile.is_verified && (
-                      <Badge variant="default">Verified</Badge>
+                    {community && (
+                      <div className="flex items-center text-muted-foreground mt-1">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        <span>{community.city}</span>
+                      </div>
                     )}
-                  </div>
-                  {profile.profession && (
-                    <p className="text-lg text-muted-foreground flex items-center">
-                      <Briefcase className="w-4 h-4 mr-2" />
-                      {profile.profession}
-                    </p>
-                  )}
-                  {profile.experience_years && (
-                    <p className="text-sm text-muted-foreground flex items-center">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {profile.experience_years} years experience
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Profile Details */}
-              <div className="flex-1 space-y-6">
-                {/* Bio */}
-                {profile.bio && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">About</h3>
-                    <p className="text-muted-foreground leading-relaxed">{profile.bio}</p>
-                  </div>
-                )}
-
-                {/* Contact and Location */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-muted-foreground">
-                      <Mail className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{profile.email}</span>
+                    
+                    <div className="flex space-x-3 mt-4">
+                      {isOwnProfile ? (
+                        <>
+                          <Button variant="outline">Edit profile</Button>
+                          <Button variant="ghost">Switch accounts</Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button>Connect</Button>
+                          <Button variant="outline">Message</Button>
+                        </>
+                      )}
                     </div>
-                    {community && (
-                      <div className="flex items-center text-muted-foreground">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        <span className="text-sm">{community.city}, {community.state}</span>
-                      </div>
-                    )}
-                    {profile.hometown_india && (
-                      <div className="flex items-center text-muted-foreground">
-                        <Globe className="w-4 h-4 mr-2" />
-                        <span className="text-sm">From {profile.hometown_india}, India</span>
-                      </div>
-                    )}
-                    {profile.linkedin_url && (
-                      <div className="flex items-center text-muted-foreground">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        <a 
-                          href={profile.linkedin_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm hover:text-primary transition-colors story-link"
-                        >
-                          LinkedIn Profile
-                        </a>
-                      </div>
-                    )}
                   </div>
-                  
-                  <div className="space-y-2">
-                    {profile.languages && profile.languages.length > 0 && (
-                      <div className="flex items-start">
-                        <Languages className="w-4 h-4 mr-2 mt-1" />
-                        <div className="flex flex-wrap gap-1">
-                          {profile.languages.map((language, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {language}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {community && (
-                      <div className="flex items-center text-muted-foreground">
-                        <span className="text-sm">Member of </span>
-                        <Link 
-                          to={`/community/${profile.community_id}`}
-                          className="text-sm text-primary hover:underline ml-1 story-link"
-                        >
-                          {community.name}
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3">
-                  <ConnectButton userId={profile.id} />
-                  <Button variant="outline">Send Message</Button>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Profile Content */}
-        <Tabs defaultValue="skills" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-card/80 backdrop-blur-sm">
-            <TabsTrigger value="skills">Skills & Interests</TabsTrigger>
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
-
-          {/* Skills & Interests Tab */}
-          <TabsContent value="skills" className="space-y-6 animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Skills */}
-              {profile.skills && profile.skills.length > 0 && (
-                <Card className="border-0 bg-card/80 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <GraduationCap className="w-5 h-5 mr-2" />
-                      Skills & Expertise
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.skills.map((skill, index) => (
-                        <Badge key={index} variant="default" className="text-sm">
-                          {skill}
-                        </Badge>
-                      ))}
+            {/* Dashboard Section */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-foreground">Dashboard</h2>
+                <span className="text-sm text-muted-foreground">Only visible to you</span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <Bookmark className="w-5 h-5 text-muted-foreground" />
+                      <span className="font-medium">Bookmarks</span>
                     </div>
                   </CardContent>
                 </Card>
-              )}
-
-              {/* Interests */}
-              {profile.interests && profile.interests.length > 0 && (
-                <Card className="border-0 bg-card/80 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Heart className="w-5 h-5 mr-2" />
-                      Interests
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.interests.map((interest, index) => (
-                        <Badge key={index} variant="outline" className="text-sm">
-                          {interest}
-                        </Badge>
-                      ))}
+                
+                <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <span className="font-medium">Events</span>
                     </div>
                   </CardContent>
                 </Card>
-              )}
+                
+                <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <Heart className="w-5 h-5 text-muted-foreground" />
+                      <span className="font-medium">Interests</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            {(!profile.skills || profile.skills.length === 0) && (!profile.interests || profile.interests.length === 0) && (
-              <Card className="border-0 bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-12 text-center">
-                  <GraduationCap className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No skills or interests listed</h3>
-                  <p className="text-muted-foreground">
-                    This user hasn't added their skills and interests yet.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* Posts Tab */}
-          <TabsContent value="posts" className="space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Recent Posts</h2>
-              <p className="text-muted-foreground">{posts.length} posts</p>
-            </div>
-            
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <Card key={post.id} className="border-0 bg-card/80 backdrop-blur-sm hover:shadow-cultural transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant={post.post_type === 'announcement' ? 'default' : 'secondary'}>
-                              {post.post_type}
-                            </Badge>
-                            {post.is_pinned && (
-                              <Badge variant="outline">Pinned</Badge>
-                            )}
-                          </div>
-                          <h3 className="text-xl font-semibold text-foreground hover:text-primary transition-colors">
-                            <Link to={`/post/${post.id}`} className="story-link">
-                              {post.title}
-                            </Link>
-                          </h3>
-                          <p className="text-muted-foreground line-clamp-3">
-                            {post.content}
+            {/* Groups Section */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-foreground">Groups</h2>
+                <Button variant="ghost" className="text-sm text-primary">See all</Button>
+              </div>
+              
+              <div className="space-y-3">
+                {communities.map((community, index) => (
+                  <Card key={index} className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback className="text-sm bg-primary/10 text-primary">
+                            {community.name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-foreground">{community.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {community.member_count} members
                           </p>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                          {post.communities && (
-                            <span>in {post.communities.name}</span>
-                          )}
-                          <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span className="flex items-center">
-                            <Heart className="w-4 h-4 mr-1" />
-                            {post.upvotes || 0}
-                          </span>
-                          <span className="flex items-center">
-                            <MessageSquare className="w-4 h-4 mr-1" />
-                            {post.comment_count || 0}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+                
+                {communities.length === 0 && (
+                  <Card className="border border-border/50">
+                    <CardContent className="p-6 text-center">
+                      <Users className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground">Not a member of any groups yet</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
 
-            {posts.length === 0 && (
-              <Card className="border-0 bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-12 text-center">
-                  <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
-                  <p className="text-muted-foreground">
-                    This user hasn't shared any posts yet.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* Activity Tab */}
-          <TabsContent value="activity" className="space-y-6 animate-fade-in">
-            <Card className="border-0 bg-card/80 backdrop-blur-sm">
-              <CardContent className="p-12 text-center">
-                <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">Activity Feed</h3>
-                <p className="text-muted-foreground">
-                  Activity feed coming soon! This will show user engagement and interactions.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            {/* Posts Section */}
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-4">Posts</h2>
+              
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <Card key={post.id} className="border border-border/50">
+                    <CardContent className="p-4">
+                      <div className="flex space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={post.profiles?.avatar_url} />
+                          <AvatarFallback className="text-sm bg-primary/10 text-primary">
+                            {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="font-medium text-foreground">
+                              {post.profiles?.first_name} {post.profiles?.last_name}
+                            </span>
+                            <span className="text-muted-foreground">·</span>
+                            <span className="text-sm text-muted-foreground">
+                              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                            </span>
+                            <Badge className="text-xs">{post.post_type}</Badge>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div>
+                              <h3 className="font-medium text-foreground mb-1">{post.title}</h3>
+                              <p className="text-foreground">{post.content}</p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-6">
+                                <button className="flex items-center space-x-2 text-muted-foreground hover:text-red-500 transition-colors">
+                                  <Heart className="w-5 h-5" />
+                                  <span className="text-sm">{post.upvotes || 0}</span>
+                                </button>
+                                
+                                <button className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors">
+                                  <MessageSquare className="w-5 h-5" />
+                                  <span className="text-sm">{post.comment_count || 0}</span>
+                                </button>
+                                
+                                <button className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors">
+                                  <Share2 className="w-5 h-5" />
+                                </button>
+                              </div>
+                              
+                              <button className="text-muted-foreground hover:text-foreground transition-colors">
+                                <MoreHorizontal className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                
+                {posts.length === 0 && (
+                  <Card className="border border-border/50">
+                    <CardContent className="p-12 text-center">
+                      <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
+                      <p className="text-muted-foreground">
+                        {isOwnProfile ? "You haven't shared any posts yet." : "This user hasn't shared any posts yet."}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
