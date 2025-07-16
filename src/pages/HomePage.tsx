@@ -16,7 +16,8 @@ import {
   Search,
   Heart,
   Share2,
-  Bookmark
+  Bookmark,
+  AlertTriangle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -32,6 +33,8 @@ import { useRealTimeSafetyAlerts } from '@/hooks/useRealTimeSafetyAlerts';
 import { useTrending } from '@/hooks/useTrending';
 import { usePersonalizedFeed } from '@/hooks/usePersonalizedFeed';
 import { useUserInteractions } from '@/hooks/useUserInteractions';
+import { useLocation } from '@/hooks/useLocation';
+import { useNearbyPosts } from '@/hooks/useNearbyPosts';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
 
@@ -73,6 +76,10 @@ const HomePage = () => {
     trackBookmark 
   } = useUserInteractions();
 
+  // Location and nearby posts hooks
+  const { location, loading: locationLoading, requestLocation, permissionStatus } = useLocation();
+  const { posts: nearbyPosts, loading: nearbyLoading } = useNearbyPosts(location);
+
   useEffect(() => {
     if (feedSort === 'for-you') {
       // For personalized feed, use the personalized posts
@@ -80,11 +87,17 @@ const HomePage = () => {
       if (!personalizedLoading) {
         setPosts(personalizedPosts);
       }
+    } else if (feedSort === 'nearby') {
+      // For nearby feed, use the nearby posts
+      setLoading(nearbyLoading);
+      if (!nearbyLoading) {
+        setPosts(nearbyPosts);
+      }
     } else {
       // For other feed types, fetch data normally
       fetchFeedData();
     }
-  }, [feedSort, personalizedPosts, personalizedLoading]);
+  }, [feedSort, personalizedPosts, personalizedLoading, nearbyPosts, nearbyLoading]);
 
   const fetchFeedData = async () => {
     try {
@@ -96,13 +109,9 @@ const HomePage = () => {
           communities(name, city, state)
         `);
 
-      // Apply sorting based on feed type (for-you is handled separately)
+      // Apply sorting based on feed type (for-you and nearby are handled separately)
       switch (feedSort) {
         case 'latest':
-          postsQuery = postsQuery.order('created_at', { ascending: false });
-          break;
-        case 'nearby':
-          // TODO: Add location-based filtering
           postsQuery = postsQuery.order('created_at', { ascending: false });
           break;
         case 'trending':
@@ -264,7 +273,12 @@ const HomePage = () => {
             <div className="border-b border-border/50">
               <FeedSortTabs 
                 activeSort={feedSort} 
-                onSortChange={setFeedSort}
+                onSortChange={(sort) => {
+                  setFeedSort(sort);
+                  if (sort === 'nearby' && !location && permissionStatus === 'prompt') {
+                    requestLocation();
+                  }
+                }}
                 alertsCount={getActiveAlertsCount()}
                 onAlertsClick={() => setSafetyAlertsModalOpen(true)}
               />
@@ -289,6 +303,50 @@ const HomePage = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Location Permission Prompt for Nearby */}
+            {feedSort === 'nearby' && permissionStatus === 'prompt' && (
+              <div className="bg-muted/50 border border-border rounded-lg p-4 m-4">
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <h3 className="font-medium text-foreground">Enable Location Access</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Allow location access to see posts from your area
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={requestLocation} 
+                    disabled={locationLoading}
+                    size="sm"
+                  >
+                    {locationLoading ? 'Getting Location...' : 'Allow Location'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Location Denied Message */}
+            {feedSort === 'nearby' && permissionStatus === 'denied' && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 m-4">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  <div className="flex-1">
+                    <h3 className="font-medium text-amber-800">Location Access Denied</h3>
+                    <p className="text-sm text-amber-700">
+                      To see nearby posts, please enable location access in your browser settings or try again.
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={requestLocation} 
+                    variant="outline"
+                    size="sm"
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Posts Feed */}
             <div>
