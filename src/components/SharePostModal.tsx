@@ -201,7 +201,12 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
             </button>
 
             <button
-              onClick={() => handleShare('repost')}
+              onClick={() => {
+                toast({
+                  title: "Repost coming soon!",
+                  description: "This feature will be available in a future update.",
+                });
+              }}
               className="flex flex-col items-center space-y-2 p-3 hover:bg-muted/20 rounded-lg transition-colors"
             >
               <Repeat2 className="w-6 h-6 text-muted-foreground" />
