@@ -116,7 +116,7 @@ const ProfileDropdown = () => {
           </div>
           
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link to="/profile">
+            <Link to={`/profile/${user?.id}`}>
               <User className="w-4 h-4 mr-2" />
               View profile
             </Link>

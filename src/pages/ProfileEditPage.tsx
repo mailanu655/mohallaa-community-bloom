@@ -220,7 +220,7 @@ const ProfileEditPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="outline" asChild>
-              <Link to="/profile">
+              <Link to={`/profile/${user?.id}`}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Profile
               </Link>

@@ -14,6 +14,7 @@ import CommunityPage from "./pages/CommunityPage";
 import PostsPage from "./pages/PostsPage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
+import ProfileRedirect from "./components/ProfileRedirect";
 import ProfileEditPage from "./pages/ProfileEditPage";
 import HomePage from "./pages/HomePage";
 import MarketplacePage from "./pages/MarketplacePage";
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/business/:businessId/subscription" element={<Layout><ProtectedRoute><BusinessSubscriptionPage /></ProtectedRoute></Layout>} />
             <Route path="/ads-dashboard" element={<Layout><ProtectedRoute><AdsDashboardPage /></ProtectedRoute></Layout>} />
             <Route path="/create-ad" element={<Layout><ProtectedRoute><CreateAdPage /></ProtectedRoute></Layout>} />
+            <Route path="/profile" element={<Layout><ProtectedRoute><ProfileRedirect /></ProtectedRoute></Layout>} />
             <Route path="/profile/:id" element={<Layout><ProfilePage /></Layout>} />
             <Route path="/profile/edit" element={
               <Layout>
