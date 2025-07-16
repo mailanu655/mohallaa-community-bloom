@@ -293,6 +293,191 @@ export type Database = {
           },
         ]
       }
+      business_deals: {
+        Row: {
+          business_id: string
+          created_at: string
+          current_redemptions: number | null
+          deal_type: string
+          description: string
+          discount_amount: number | null
+          discount_percentage: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          max_redemptions: number | null
+          start_date: string
+          target_communities: string[] | null
+          terms_conditions: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          current_redemptions?: number | null
+          deal_type?: string
+          description: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_redemptions?: number | null
+          start_date?: string
+          target_communities?: string[] | null
+          terms_conditions?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          current_redemptions?: number | null
+          deal_type?: string
+          description?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_redemptions?: number | null
+          start_date?: string
+          target_communities?: string[] | null
+          terms_conditions?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_deals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_posts: {
+        Row: {
+          author_id: string
+          business_id: string
+          content: string
+          created_at: string
+          engagement_count: number | null
+          id: string
+          is_promoted: boolean | null
+          post_type: string
+          promotion_budget: number | null
+          promotion_end_date: string | null
+          target_communities: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id: string
+          business_id: string
+          content: string
+          created_at?: string
+          engagement_count?: number | null
+          id?: string
+          is_promoted?: boolean | null
+          post_type?: string
+          promotion_budget?: number | null
+          promotion_end_date?: string | null
+          target_communities?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          business_id?: string
+          content?: string
+          created_at?: string
+          engagement_count?: number | null
+          id?: string
+          is_promoted?: boolean | null
+          post_type?: string
+          promotion_budget?: number | null
+          promotion_end_date?: string | null
+          target_communities?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_reviews: {
+        Row: {
+          business_id: string
+          content: string | null
+          created_at: string
+          helpful_count: number | null
+          id: string
+          is_recommended: boolean | null
+          rating: number
+          reviewer_id: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          content?: string | null
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_recommended?: boolean | null
+          rating: number
+          reviewer_id: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          content?: string | null
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_recommended?: boolean | null
+          rating?: number
+          reviewer_id?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_subscriptions: {
         Row: {
           business_id: string | null
@@ -343,6 +528,63 @@ export type Database = {
           },
         ]
       }
+      business_verifications: {
+        Row: {
+          business_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          status: string
+          submitted_documents: string[] | null
+          updated_at: string
+          verification_notes: string | null
+          verification_type: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          status?: string
+          submitted_documents?: string[] | null
+          updated_at?: string
+          verification_notes?: string | null
+          verification_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          status?: string
+          submitted_documents?: string[] | null
+          updated_at?: string
+          verification_notes?: string | null
+          verification_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_verifications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verifications_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           address: string
@@ -357,6 +599,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_featured: boolean | null
+          is_verified: boolean | null
           name: string
           owner_id: string | null
           phone: string | null
@@ -384,6 +627,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
+          is_verified?: boolean | null
           name: string
           owner_id?: string | null
           phone?: string | null
@@ -411,6 +655,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
+          is_verified?: boolean | null
           name?: string
           owner_id?: string | null
           phone?: string | null
