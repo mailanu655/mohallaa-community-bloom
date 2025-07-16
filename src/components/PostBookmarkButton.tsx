@@ -4,9 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface PostBookmarkButtonProps {
   postId: string;
+  onBookmark?: (postId: string) => void;
 }
 
-export const PostBookmarkButton = ({ postId }: PostBookmarkButtonProps) => {
+export const PostBookmarkButton = ({ postId, onBookmark }: PostBookmarkButtonProps) => {
   const { user } = useAuth();
   const { isBookmarked, toggleBookmark, isLoading } = useBookmarks(postId);
   
@@ -17,6 +18,7 @@ export const PostBookmarkButton = ({ postId }: PostBookmarkButtonProps) => {
       return;
     }
     toggleBookmark();
+    onBookmark?.(postId);
   };
   
   return (

@@ -4,9 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface PostLikeButtonProps {
   postId: string;
+  onLike?: (postId: string) => void;
 }
 
-export const PostLikeButton = ({ postId }: PostLikeButtonProps) => {
+export const PostLikeButton = ({ postId, onLike }: PostLikeButtonProps) => {
   const { user } = useAuth();
   const { upvotes, userVote, vote, isLoading } = useVoting(postId, 'post');
   const isLiked = userVote === 'upvote';
@@ -18,6 +19,7 @@ export const PostLikeButton = ({ postId }: PostLikeButtonProps) => {
       return;
     }
     vote('upvote');
+    onLike?.(postId);
   };
   
   return (

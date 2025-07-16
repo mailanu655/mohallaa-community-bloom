@@ -30,6 +30,8 @@ import SafetyAlertsModal from '@/components/SafetyAlertsModal';
 import { useSafetyAlerts } from '@/hooks/useSafetyAlerts';
 import { useRealTimeSafetyAlerts } from '@/hooks/useRealTimeSafetyAlerts';
 import { useTrending } from '@/hooks/useTrending';
+import { usePersonalizedFeed } from '@/hooks/usePersonalizedFeed';
+import { useUserInteractions } from '@/hooks/useUserInteractions';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
 
@@ -53,10 +55,36 @@ const HomePage = () => {
   
   // Trending topics hook
   const { trending, loading: trendingLoading } = useTrending();
+  
+  // Personalized feed hook
+  const { 
+    posts: personalizedPosts, 
+    loading: personalizedLoading, 
+    error: personalizedError,
+    refreshFeed 
+  } = usePersonalizedFeed();
+  
+  // User interactions hook
+  const { 
+    trackView, 
+    trackLike, 
+    trackComment, 
+    trackShare, 
+    trackBookmark 
+  } = useUserInteractions();
 
   useEffect(() => {
-    fetchFeedData();
-  }, [feedSort]);
+    if (feedSort === 'for-you') {
+      // For personalized feed, use the personalized posts
+      setLoading(personalizedLoading);
+      if (!personalizedLoading) {
+        setPosts(personalizedPosts);
+      }
+    } else {
+      // For other feed types, fetch data normally
+      fetchFeedData();
+    }
+  }, [feedSort, personalizedPosts, personalizedLoading]);
 
   const fetchFeedData = async () => {
     try {
@@ -68,14 +96,8 @@ const HomePage = () => {
           communities(name, city, state)
         `);
 
-      // Apply sorting based on feed type
+      // Apply sorting based on feed type (for-you is handled separately)
       switch (feedSort) {
-        case 'for-you':
-          // Personalized feed - mix of popular and relevant content
-          postsQuery = postsQuery
-            .order('upvotes', { ascending: false })
-            .order('created_at', { ascending: false });
-          break;
         case 'latest':
           postsQuery = postsQuery.order('created_at', { ascending: false });
           break;
@@ -136,6 +158,8 @@ const HomePage = () => {
   };
 
   const handlePostClick = (postId: string) => {
+    // Track post view
+    trackView(postId);
     setSelectedPostId(postId);
     setPostDetailModalOpen(true);
   };
@@ -143,6 +167,18 @@ const HomePage = () => {
   const handleClosePostModal = () => {
     setPostDetailModalOpen(false);
     setSelectedPostId(null);
+  };
+
+  const handleCommentClick = (postId: string) => {
+    // Track comment interaction
+    trackComment(postId);
+    handlePostClick(postId);
+  };
+
+  const handleShareClick = (postId: string) => {
+    // Track share interaction
+    trackShare(postId);
+    setShareModalOpen(true);
   };
 
 
@@ -293,10 +329,10 @@ const HomePage = () => {
                         )}
                         
                         <div className="flex items-center justify-between max-w-md pt-2">
-                          <PostLikeButton postId={post.id} />
+                          <PostLikeButton postId={post.id} onLike={trackLike} />
                           
                           <button 
-                            onClick={() => handlePostClick(post.id)}
+                            onClick={() => handleCommentClick(post.id)}
                             className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors p-2 hover:bg-blue-50 rounded-full"
                           >
                             <MessageSquare className="w-5 h-5" />
@@ -304,13 +340,13 @@ const HomePage = () => {
                           </button>
                           
                           <button 
-                            onClick={() => setShareModalOpen(true)}
+                            onClick={() => handleShareClick(post.id)}
                             className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors p-2 hover:bg-green-50 rounded-full"
                           >
                             <Share2 className="w-5 h-5" />
                           </button>
                           
-                          <PostBookmarkButton postId={post.id} />
+                          <PostBookmarkButton postId={post.id} onBookmark={trackBookmark} />
                         </div>
                       </div>
                     </div>

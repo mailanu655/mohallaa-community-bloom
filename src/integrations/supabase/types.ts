@@ -2337,6 +2337,121 @@ export type Database = {
           },
         ]
       }
+      user_engagement_scores: {
+        Row: {
+          calculated_at: string
+          community_weight: number | null
+          engagement_score: number | null
+          final_score: number | null
+          id: string
+          post_id: string
+          recency_score: number | null
+          relevance_score: number | null
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string
+          community_weight?: number | null
+          engagement_score?: number | null
+          final_score?: number | null
+          id?: string
+          post_id: string
+          recency_score?: number | null
+          relevance_score?: number | null
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string
+          community_weight?: number | null
+          engagement_score?: number | null
+          final_score?: number | null
+          id?: string
+          post_id?: string
+          recency_score?: number | null
+          relevance_score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_engagement_scores_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_interactions: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          interaction_type: string
+          metadata: Json | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          interaction_type: string
+          metadata?: Json | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          interaction_type?: string
+          metadata?: Json | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_weights: Json | null
+          personalization_enabled: boolean | null
+          preferred_categories: string[] | null
+          preferred_post_types: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_weights?: Json | null
+          personalization_enabled?: boolean | null
+          preferred_categories?: string[] | null
+          preferred_post_types?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_weights?: Json | null
+          personalization_enabled?: boolean | null
+          preferred_categories?: string[] | null
+          preferred_post_types?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       business_dashboard_stats: {
@@ -2357,6 +2472,20 @@ export type Database = {
       business_has_premium_features: {
         Args: { business_uuid: string }
         Returns: boolean
+      }
+      calculate_personalized_feed: {
+        Args: {
+          target_user_id: string
+          limit_count?: number
+          offset_count?: number
+        }
+        Returns: {
+          post_id: string
+          final_score: number
+          engagement_score: number
+          relevance_score: number
+          recency_score: number
+        }[]
       }
       calculate_profile_completion: {
         Args: { profile_id: string }
