@@ -445,9 +445,9 @@ const HomePage = () => {
                   </div>
                 ) : trending.length > 0 ? (
                   trending.map((topic, index) => (
-                    <div key={topic.hashtag} className="space-y-1">
-                      <p className="text-sm text-muted-foreground">{topic.category}</p>
-                      <p className="font-medium">{topic.hashtag}</p>
+                    <div key={topic.category} className="space-y-1">
+                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="font-medium">{topic.label}</p>
                       <p className="text-xs text-muted-foreground">
                         {topic.count} {topic.count === 1 ? 'post' : 'posts'}
                       </p>
@@ -455,9 +455,9 @@ const HomePage = () => {
                   ))
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground">No trending topics yet</p>
+                    <p className="text-sm text-muted-foreground">No trending categories yet</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Start posting with hashtags to see what's trending!
+                      Start posting to see which categories are trending!
                     </p>
                   </div>
                 )}

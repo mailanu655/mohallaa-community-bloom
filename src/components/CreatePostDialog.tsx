@@ -92,8 +92,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
   const [selectedType, setSelectedType] = useState<Database['public']['Enums']['post_type'] | ''>('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -104,16 +102,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
     setStep('content');
   };
 
-  const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -173,7 +161,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
           post_type: selectedType as Database['public']['Enums']['post_type'],
           community_id: communityId,
           author_id: user.id,
-          tags: tags.length > 0 ? tags : null,
+          tags: null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null,
           media_type: mediaUrls.length > 0 ? 'image' : null
         });
@@ -187,7 +175,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
       setSelectedType('');
       setTitle('');
       setContent('');
-      setTags([]);
       setMediaFiles([]);
       
       onPostCreated?.();
@@ -205,7 +192,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
     setSelectedType('');
     setTitle('');
     setContent('');
-    setTags([]);
+    
     setMediaFiles([]);
     onClose();
   };
@@ -338,38 +325,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
               </div>
             </div>
 
-            {/* Tags */}
-            <div>
-              <Label htmlFor="tags">Tags (optional)</Label>
-              <div className="mt-2 space-y-3">
-                <div className="flex gap-2">
-                  <Input
-                    id="tags"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    placeholder="Add a tag"
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                  />
-                  <Button type="button" onClick={handleAddTag} disabled={!newTag.trim()}>
-                    Add
-                  </Button>
-                </div>
-                
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                        {tag}
-                        <X 
-                          className="w-3 h-3 cursor-pointer" 
-                          onClick={() => handleRemoveTag(tag)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Submit buttons */}
             <div className="flex justify-end gap-3 pt-4">

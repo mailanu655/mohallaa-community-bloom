@@ -134,13 +134,6 @@ const PostPage = () => {
                 <p className="whitespace-pre-wrap leading-relaxed">{post.content}</p>
               </div>
               
-              {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline">#{tag}</Badge>
-                  ))}
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>

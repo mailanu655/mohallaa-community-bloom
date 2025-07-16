@@ -170,19 +170,6 @@ const TwitterLikePostCard = ({
               </div>
             )}
 
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {post.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="text-primary hover:underline cursor-pointer text-sm"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
 
             {/* Actions */}
             <div className="flex items-center justify-between max-w-md mt-3 pt-1">

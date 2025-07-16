@@ -20,7 +20,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
     content: '',
     postType: 'discussion',
     communityId: '',
-    tags: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
@@ -34,10 +33,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
     setIsLoading(true);
 
     try {
-      const tagsArray = formData.tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
 
       const { error } = await supabase
         .from('posts')
@@ -47,7 +42,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
           post_type: formData.postType as 'discussion' | 'question' | 'announcement' | 'resource',
           community_id: formData.communityId || null,
           author_id: user.id,
-          tags: tagsArray.length > 0 ? tagsArray : null,
+          tags: null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null
         });
 
@@ -64,7 +59,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
         content: '',
         postType: 'discussion',
         communityId: '',
-        tags: ''
+        
       });
       setMediaUrls([]);
 
@@ -136,14 +131,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
         />
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Tags (optional)</label>
-        <Input
-          placeholder="Add tags separated by commas..."
-          value={formData.tags}
-          onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-        />
-      </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Media (optional)</label>

@@ -74,8 +74,7 @@ const PostsPage = () => {
     if (searchTerm) {
       filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        post.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -284,15 +283,6 @@ const PostsPage = () => {
                               mediaUrls={post.media_urls} 
                               className="mt-3"
                             />
-                          )}
-                          {post.tags && post.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {post.tags.map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  #{tag}
-                                </Badge>
-                              ))}
-                            </div>
                           )}
                         </div>
                       </div>
