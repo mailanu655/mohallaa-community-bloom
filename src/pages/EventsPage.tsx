@@ -14,11 +14,13 @@ import {
   Plus,
   Filter
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { format, parseISO, isToday, isTomorrow, isThisWeek } from 'date-fns';
+import EventRSVPButton from '@/components/EventRSVPButton';
 
 const EventsPage = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ const EventsPage = () => {
         .from('events')
         .select(`
           *,
-          profiles!inner(first_name, last_name, avatar_url),
+          profiles(first_name, last_name, avatar_url),
           communities(name, city, state)
         `)
         .gte('start_date', new Date().toISOString())
@@ -332,12 +334,14 @@ const EventsPage = () => {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => navigate(`/events/${event.id}`)}
+                  >
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Users className="w-4 h-4" />
-                  </Button>
+                  <EventRSVPButton eventId={event.id} size="sm" variant="outline" />
                 </div>
               </CardContent>
             </Card>

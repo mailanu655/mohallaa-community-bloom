@@ -20,6 +20,7 @@ import HomePage from "./pages/HomePage";
 import MarketplacePage from "./pages/MarketplacePage";
 import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
 import EventsPage from "./pages/EventsPage";
+import EventDetailsPage from "./pages/EventDetailsPage";
 import CreateEventPage from "./pages/CreateEventPage";
 import CreateCommunityPage from "./pages/CreateCommunityPage";
 import BusinessesPage from "./pages/BusinessesPage";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/marketplace" element={<Layout><MarketplacePage /></Layout>} />
             <Route path="/marketplace/create" element={<Layout><CreateMarketplaceItemPage /></Layout>} />
             <Route path="/events" element={<Layout><EventsPage /></Layout>} />
+            <Route path="/events/:id" element={<Layout><EventDetailsPage /></Layout>} />
             <Route path="/events/create" element={<Layout><ProtectedRoute><CreateEventPage /></ProtectedRoute></Layout>} />
             <Route path="/businesses" element={<Layout><BusinessesPage /></Layout>} />
             <Route path="/business/:id" element={<Layout><BusinessPage /></Layout>} />
