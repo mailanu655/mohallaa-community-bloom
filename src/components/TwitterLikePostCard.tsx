@@ -82,25 +82,25 @@ const TwitterLikePostCard = ({
 
   const getPostTypeColor = (type: string) => {
     switch (type) {
-      case 'question': return 'bg-blue-500/10 text-blue-700 border-blue-200';
-      case 'recommendation': return 'bg-green-500/10 text-green-700 border-green-200';
-      case 'event': return 'bg-purple-500/10 text-purple-700 border-purple-200';
-      case 'alert': return 'bg-red-500/10 text-red-700 border-red-200';
-      default: return 'bg-muted text-muted-foreground border-border';
+      case 'question': return 'bg-white text-blue-700 border-blue-200';
+      case 'recommendation': return 'bg-white text-green-700 border-green-200';
+      case 'event': return 'bg-white text-purple-700 border-purple-200';
+      case 'alert': return 'bg-white text-red-700 border-red-200';
+      default: return 'bg-white text-muted-foreground border-border';
     }
   };
 
   return (
     <>
       <article
-        className="border-b border-border/30 p-5 hover:bg-muted/40 transition-all duration-300 cursor-pointer hover:shadow-premium hover-lift glass-effect animate-slide-up"
+        className="border-b border-border/30 p-5 hover:bg-white hover:shadow-sm transition-all duration-300 cursor-pointer bg-white"
         onClick={() => onPostClick?.(post.id)}
       >
         <div className="flex space-x-3">
           {/* Avatar */}
           <Avatar className="w-10 h-10 flex-shrink-0 hover:scale-105 transition-all duration-300 hover:shadow-elegant">
             <AvatarImage src={post.profiles?.avatar_url} />
-            <AvatarFallback className="bg-primary/10 text-primary text-sm hover:bg-primary/20 transition-colors">
+            <AvatarFallback className="bg-white text-primary text-sm hover:bg-gray-50 transition-colors border border-border">
               {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
             </AvatarFallback>
           </Avatar>
@@ -190,7 +190,7 @@ const TwitterLikePostCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleComment}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-primary/5 group transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-white group transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <MessageCircle className="w-4 h-4 group-hover:fill-primary/20" />
                 <span className="text-sm font-medium font-display">{post.comment_count || 0}</span>
@@ -203,7 +203,7 @@ const TwitterLikePostCard = ({
                 className={`flex items-center space-x-2 group transition-all duration-200 hover:scale-105 active:scale-95 ${
                   isLiked 
                     ? 'text-red-600 animate-bounce-subtle' 
-                    : 'text-muted-foreground hover:text-red-600 hover:bg-red-50/50'
+                    : 'text-muted-foreground hover:text-red-600 hover:bg-white'
                 }`}
               >
                 <Heart className={`w-4 h-4 transition-all duration-200 ${isLiked ? 'fill-current scale-110' : 'group-hover:fill-red-600/20'}`} />
@@ -214,7 +214,7 @@ const TwitterLikePostCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleShare}
-                className="flex items-center space-x-2 text-muted-foreground hover:text-secondary hover:bg-secondary/5 group transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex items-center space-x-2 text-muted-foreground hover:text-secondary hover:bg-white group transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <Share className="w-4 h-4 group-hover:fill-secondary/20" />
               </Button>
@@ -226,7 +226,7 @@ const TwitterLikePostCard = ({
                 className={`flex items-center space-x-2 group transition-all duration-200 hover:scale-105 active:scale-95 ${
                   isSaved 
                     ? 'text-primary animate-pulse-glow' 
-                    : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
+                    : 'text-muted-foreground hover:text-primary hover:bg-white'
                 }`}
               >
                 <Bookmark className={`w-4 h-4 transition-all duration-200 ${isSaved ? 'fill-current scale-110' : 'group-hover:fill-primary/20'}`} />
@@ -235,7 +235,7 @@ const TwitterLikePostCard = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="text-muted-foreground hover:text-foreground hover:bg-white transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
