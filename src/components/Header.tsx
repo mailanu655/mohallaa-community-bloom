@@ -6,37 +6,19 @@ import SearchBar from "./SearchBar";
 import LiveChat from "./LiveChat";
 import MobileNav from "./MobileNav";
 import AuthGuardLink from "./AuthGuardLink";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ProfileDropdown from "./ProfileDropdown";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const { user, signOut } = useAuth();
-  const [profile, setProfile] = useState(null);
   const [hasBusinessAccess, setHasBusinessAccess] = useState(false);
 
   useEffect(() => {
     if (user) {
-      fetchProfile();
       checkBusinessAccess();
     }
   }, [user]);
-
-  const fetchProfile = async () => {
-    if (!user) return;
-    
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, avatar_url')
-        .eq('id', user.id)
-        .single();
-      
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
 
   const checkBusinessAccess = async () => {
     if (!user) return;
@@ -52,16 +34,6 @@ const Header = () => {
     } catch (error) {
       console.error('Error checking business access:', error);
     }
-  };
-
-  const getUserInitial = () => {
-    if (profile?.first_name) {
-      return profile.first_name.charAt(0).toUpperCase();
-    }
-    if (user?.email) {
-      return user.email.charAt(0).toUpperCase();
-    }
-    return 'U';
   };
 
   return (
@@ -106,24 +78,12 @@ const Header = () => {
                     Advertise
                   </AuthGuardLink>
                 )}
-                {user && (
-                  <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium flex items-center">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={profile?.avatar_url} />
-                      <AvatarFallback className="text-sm font-bold">
-                        {getUserInitial()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                )}
+                {user && <ProfileDropdown />}
               </nav>
 
               {user ? (
                 <div className="flex items-center space-x-3">
                   <NotificationCenter />
-                  <Button onClick={signOut} variant="outline" size="sm">
-                    Sign Out
-                  </Button>
                 </div>
               ) : (
                 <div className="flex items-center space-x-3">
