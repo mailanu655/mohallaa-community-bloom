@@ -96,13 +96,13 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
-        <DialogClose className="absolute right-4 top-4 z-10 w-6 h-6 flex items-center justify-center text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-          <X className="h-5 w-5" />
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0 bg-background rounded-2xl">
+        <DialogClose className="absolute right-4 top-4 z-10 w-8 h-8 rounded-full bg-slate-800 text-white hover:bg-slate-700 flex items-center justify-center transition-colors">
+          <X className="h-4 w-4" />
         </DialogClose>
 
         {loading ? (
-          <div className="p-8 space-y-4">
+          <div className="p-6 space-y-4">
             <div className="animate-pulse space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
@@ -115,126 +115,107 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
             </div>
           </div>
         ) : post ? (
-          <div className="flex flex-col h-full">
-            {/* Post Header */}
-            <div className="p-6 border-b">
+          <div className="flex flex-col h-full max-h-[90vh]">
+            {/* Post Content */}
+            <div className="p-6 space-y-4">
+              {/* User Info */}
               <div className="flex items-start space-x-3">
                 <Avatar className="w-12 h-12">
                   <AvatarImage src={post.profiles?.avatar_url} />
-                  <AvatarFallback className="bg-primary/10 text-primary">
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                     {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
                 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-foreground">
-                      {post.profiles?.first_name} {post.profiles?.last_name}
-                    </h3>
-                    <Badge className={`text-xs ${getPostTypeColor(post.post_type)}`}>
-                      {post.post_type}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                    </div>
-                    
-                    {post.communities && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {post.communities.name}
-                      </div>
-                    )}
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground text-base">
+                    {post.profiles?.first_name} {post.profiles?.last_name}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>{post.communities?.name || 'General'}</span>
+                    <span>•</span>
+                    <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
                   </div>
                 </div>
               </div>
               
-              {/* Post Content */}
-              <div className="mt-4 space-y-3">
-                <h4 className="text-lg font-medium text-foreground">{post.title}</h4>
-                <p className="text-foreground whitespace-pre-wrap leading-relaxed">
-                  {post.content}
-                </p>
-              </div>
+              {/* Post Text */}
+              <p className="text-foreground leading-relaxed">
+                {post.content}
+              </p>
               
-              {/* Post Actions */}
-              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              {/* Reaction Bar */}
+              <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center space-x-6">
                   <button 
                     onClick={handleLike}
-                    className={`flex items-center space-x-2 transition-colors ${
-                      isLiked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
-                    }`}
+                    className="flex items-center space-x-2 text-muted-foreground hover:text-red-500 transition-colors"
                   >
-                    <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                    <span className="text-sm">Like</span>
-                  </button>
-                  
-                  <button className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors">
-                    <Share2 className="w-5 h-5" />
-                    <span className="text-sm">Share</span>
+                    <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                    <span className="text-sm">{likeCount > 0 ? `${likeCount} reaction${likeCount > 1 ? 's' : ''}` : 'Like'}</span>
                   </button>
                 </div>
                 
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center space-x-4">
+                  <button className="text-muted-foreground hover:text-primary transition-colors">
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                  <button className="text-muted-foreground hover:text-primary transition-colors">
+                    <MoreHorizontal className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Comments Section */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-6">
-                <h5 className="font-semibold mb-4 flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5" />
+            <div className="border-t bg-muted/20 flex-1 overflow-y-auto">
+              <div className="p-6 space-y-4">
+                <h5 className="font-semibold text-foreground">
                   Comments ({comments.length})
                 </h5>
                 
                 {/* Comments List */}
-                <div className="space-y-4 mb-6">
+                <div className="space-y-6">
                   {comments.map((comment) => (
                     <div key={comment.id} className="space-y-3">
                       <div className="flex items-start space-x-3">
-                        <Avatar className="w-8 h-8">
+                        <Avatar className="w-10 h-10">
                           <AvatarImage src={comment.profiles?.avatar_url} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          <AvatarFallback className="bg-primary/10 text-primary text-sm">
                             {comment.profiles?.first_name?.[0]}{comment.profiles?.last_name?.[0]}
                           </AvatarFallback>
                         </Avatar>
                         
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">
+                            <span className="font-semibold text-foreground">
                               {comment.profiles?.first_name} {comment.profiles?.last_name}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                               {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                             </span>
                           </div>
                           
-                          <p className="text-sm text-foreground leading-relaxed mb-2">
+                          <p className="text-foreground leading-relaxed mb-3">
                             {comment.content}
                           </p>
                           
-                          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                          <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                             <button className="hover:text-red-500 transition-colors flex items-center gap-1">
-                              <Heart className="w-3 h-3" />
+                              <Heart className="w-4 h-4" />
                               Like
                             </button>
                             <button className="hover:text-primary transition-colors flex items-center gap-1">
-                              <Reply className="w-3 h-3" />
+                              <MessageSquare className="w-4 h-4" />
                               Reply
                             </button>
                             <button className="hover:text-primary transition-colors flex items-center gap-1">
-                              <Share2 className="w-3 h-3" />
+                              <Share2 className="w-4 h-4" />
                               Share
                             </button>
-                            <Button variant="ghost" size="sm" className="h-auto p-0">
-                              <MoreHorizontal className="w-3 h-3" />
-                            </Button>
+                            <button className="hover:text-primary transition-colors">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -249,10 +230,10 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
                 </div>
                 
                 {/* Add Comment */}
-                <div className="border-t pt-4">
+                <div className="border-t pt-4 mt-6">
                   <div className="flex space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    <Avatar className="w-10 h-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                         U
                       </AvatarFallback>
                     </Avatar>
@@ -261,7 +242,7 @@ const PostDetailModal = ({ postId, open, onClose }: PostDetailModalProps) => {
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Add a comment..."
-                        className="min-h-[40px] resize-none border-0 bg-muted/50 focus:bg-background"
+                        className="min-h-[50px] resize-none border border-border rounded-xl bg-background"
                         rows={2}
                       />
                     </div>
