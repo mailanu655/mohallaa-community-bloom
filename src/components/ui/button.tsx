@@ -20,7 +20,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline hover:scale-[1.02] active:scale-[0.98]",
         hero: "bg-gradient-hero text-primary-foreground border-2 border-primary/20 hover:bg-primary hover:shadow-cultural hover:scale-105 active:scale-[0.98] transition-all duration-300",
         cultural: "bg-primary/10 text-primary border-2 border-primary/30 hover:bg-primary/20 hover:shadow-warm backdrop-blur-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-300",
-        premium: "bg-gradient-glass text-primary border border-primary/20 hover:bg-primary/10 hover:shadow-floating hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/10 before:via-transparent before:to-primary/10 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
+        premium: "bg-gradient-glass text-primary border border-primary/20 hover:bg-primary/10 hover:shadow-floating hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/10 before:via-transparent before:to-primary/10 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 font-medium",
       },
       size: {
         default: "h-10 px-4 py-2",
