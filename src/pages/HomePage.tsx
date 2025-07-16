@@ -29,6 +29,7 @@ import PostDetailModal from '@/components/PostDetailModal';
 import SafetyAlertsModal from '@/components/SafetyAlertsModal';
 import { useSafetyAlerts } from '@/hooks/useSafetyAlerts';
 import { useRealTimeSafetyAlerts } from '@/hooks/useRealTimeSafetyAlerts';
+import { PostLikeButton } from '@/components/PostLikeButton';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -43,7 +44,6 @@ const HomePage = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [postDetailModalOpen, setPostDetailModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
   // Safety alerts hooks
@@ -141,9 +141,6 @@ const HomePage = () => {
     setSelectedPostId(null);
   };
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-  };
 
   if (loading) {
     return (
@@ -286,13 +283,7 @@ const HomePage = () => {
                         )}
                         
                         <div className="flex items-center justify-between max-w-md pt-2">
-                          <button 
-                            onClick={handleLike}
-                            className="flex items-center space-x-2 text-muted-foreground hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-full"
-                          >
-                            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current text-red-500' : ''}`} />
-                            <span className="text-sm">{post.upvotes || 0}</span>
-                          </button>
+                          <PostLikeButton postId={post.id} />
                           
                           <button 
                             onClick={() => handlePostClick(post.id)}
