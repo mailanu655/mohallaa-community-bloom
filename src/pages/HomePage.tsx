@@ -25,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import CreatePostModal from '@/components/CreatePostModal';
 import FeedSortTabs from '@/components/FeedSortTabs';
-import EnhancedPostCard from '@/components/EnhancedPostCard';
+import TwitterLikePostCard from '@/components/TwitterLikePostCard';
 import PostDetailModal from '@/components/PostDetailModal';
 import SafetyAlertsModal from '@/components/SafetyAlertsModal';
 import { useSafetyAlerts } from '@/hooks/useSafetyAlerts';
@@ -411,66 +411,13 @@ const HomePage = () => {
             {/* Posts Feed */}
             <div>
               {posts.map((post) => (
-                <div key={post.id} className="border-b border-border/50 p-4 hover:bg-muted/30 transition-colors">
-                  <div className="flex space-x-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={post.profiles?.avatar_url} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                        {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-foreground">
-                          {post.profiles?.first_name} {post.profiles?.last_name}
-                        </span>
-                        <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground text-sm">
-                          {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div 
-                          className="cursor-pointer"
-                           onClick={() => handlePostClick(post.id)}
-                        >
-                          <h3 className="font-medium text-foreground mb-1">{post.title}</h3>
-                          <p className="text-foreground leading-relaxed">{post.content}</p>
-                        </div>
-                        
-                        {post.media_urls && post.media_urls.length > 0 && (
-                          <PostMediaGallery 
-                            mediaUrls={post.media_urls}
-                            className="mt-3"
-                          />
-                        )}
-                        
-                        <div className="flex items-center justify-between max-w-md pt-2">
-                          <PostLikeButton postId={post.id} onLike={trackLike} />
-                          
-                          <button 
-                            onClick={() => handleCommentClick(post.id)}
-                            className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors p-2 hover:bg-blue-50 rounded-full"
-                          >
-                            <MessageSquare className="w-5 h-5" />
-                            <span className="text-sm">{post.comment_count || 0}</span>
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleShareClick(post.id)}
-                            className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors p-2 hover:bg-green-50 rounded-full"
-                          >
-                            <Share2 className="w-5 h-5" />
-                          </button>
-                          
-                          <PostBookmarkButton postId={post.id} onBookmark={trackBookmark} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <TwitterLikePostCard
+                  key={post.id}
+                  post={post}
+                  onPostClick={handlePostClick}
+                  onCommentClick={handleCommentClick}
+                  onShareClick={handleShareClick}
+                />
               ))}
 
               {posts.length === 0 && !loading && (
