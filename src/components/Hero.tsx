@@ -42,7 +42,7 @@ const Hero = () => {
 
           {/* Right Content - Community Grid */}
           <div className="relative">
-            <div className="grid grid-cols-6 gap-4 p-8 bg-gradient-cultural rounded-2xl">
+            <div className="grid grid-cols-6 gap-4 p-8 bg-white rounded-2xl border border-border/50">
               {/* Profile avatars grid */}
               {Array.from({ length: 24 }).map((_, i) => (
                 <div
