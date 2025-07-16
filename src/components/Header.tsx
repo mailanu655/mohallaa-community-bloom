@@ -58,21 +58,6 @@ const Header = () => {
             {/* Navigation & Auth */}
             <div className="flex items-center space-x-6">
               <nav className="flex items-center space-x-6">
-                <Link to="/home" className="text-foreground hover:text-primary transition-colors font-medium">
-                  Home
-                </Link>
-                <AuthGuardLink to="/communities" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
-                  Communities
-                </AuthGuardLink>
-                <AuthGuardLink to="/marketplace" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
-                  Buy & Sell
-                </AuthGuardLink>
-                <AuthGuardLink to="/businesses" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
-                  Businesses
-                </AuthGuardLink>
-                <AuthGuardLink to="/events" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
-                  Events
-                </AuthGuardLink>
                 {hasBusinessAccess && (
                   <AuthGuardLink to="/ads-dashboard" requireAuth={true} className="text-foreground hover:text-primary transition-colors font-medium">
                     Advertise
