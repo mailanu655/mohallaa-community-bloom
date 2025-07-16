@@ -20,7 +20,7 @@ const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0 }: FeedSortTab
   return (
     <div className="flex items-center justify-between mb-6">
       <Tabs value={activeSort} onValueChange={onSortChange} className="w-auto">
-        <TabsList className="grid grid-cols-4 w-auto bg-muted/50">
+        <TabsList className="grid grid-cols-3 w-auto bg-muted/50">
           <TabsTrigger value="for-you" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             <span className="hidden sm:inline">For You</span>
@@ -32,10 +32,6 @@ const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0 }: FeedSortTab
           <TabsTrigger value="nearby" className="flex items-center gap-2">
             <MapPin className="w-4 h-4" />
             <span className="hidden sm:inline">Nearby</span>
-          </TabsTrigger>
-          <TabsTrigger value="trending" className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">Trending</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>

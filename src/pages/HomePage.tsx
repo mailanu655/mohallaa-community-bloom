@@ -20,9 +20,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import CreatePostModal from '@/components/CreatePostModal';
 import FeedSortTabs from '@/components/FeedSortTabs';
-import LocalFavesWidget from '@/components/LocalFavesWidget';
-import ConnectionsWidget from '@/components/ConnectionsWidget';
-import RealTimeAlertsWidget from '@/components/RealTimeAlertsWidget';
 import EnhancedPostCard from '@/components/EnhancedPostCard';
 
 const HomePage = () => {
@@ -180,7 +177,7 @@ const HomePage = () => {
           alertsCount={alertsCount}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Feed */}
           <div className="lg:col-span-2 space-y-6">
             {posts.map((post, index) => (
@@ -217,52 +214,8 @@ const HomePage = () => {
             )}
           </div>
 
-          {/* Left Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Local Faves AI Widget */}
-            <LocalFavesWidget />
-
-            {/* Real-time Alerts */}
-            <RealTimeAlertsWidget />
-
-            {/* Trending Businesses */}
-            <Card className="border-0 bg-card/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <TrendingUp className="w-5 h-5" />
-                  Trending Places
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {businesses.slice(0, 4).map((business) => (
-                  <Link 
-                    key={business.id}
-                    to={`/business/${business.id}`}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-background/50 transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <ShoppingBag className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
-                        {business.name}
-                      </h4>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{business.category}</span>
-                        <span>•</span>
-                        <span>⭐ {business.rating || 0}</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="space-y-6">
-            {/* Connections Widget */}
-            <ConnectionsWidget />
 
             {/* Upcoming Events */}
             <Card className="border-0 bg-card/80 backdrop-blur-sm">
