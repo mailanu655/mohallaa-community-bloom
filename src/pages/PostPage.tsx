@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Heart, MessageSquare, Share, Flag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import PostMetaTags from "@/components/PostMetaTags";
 
 const PostPage = () => {
   const { id } = useParams();
@@ -82,6 +83,7 @@ const PostPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-warm">
+      <PostMetaTags post={post} />
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Post Content */}
         <Card className="border-0 bg-card/80 backdrop-blur-sm animate-fade-in">
