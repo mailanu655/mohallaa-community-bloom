@@ -56,14 +56,24 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
     try {
       switch (method) {
         case 'facebook':
-          const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-          const facebookWindow = window.open(facebookUrl, '_blank');
-          if (!facebookWindow) {
-            throw new Error('Popup blocked');
+          // Updated Facebook sharing URL format
+          const facebookShareUrl = `https://www.facebook.com/sharer.php?u=${encodeURIComponent(shareUrl)}&t=${encodeURIComponent(shareTitle)}`;
+          
+          // Try to open popup window
+          const facebookWindow = window.open(
+            facebookShareUrl, 
+            'facebook-share',
+            'width=626,height=436,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,status=no,directories=no,location=no'
+          );
+          
+          if (!facebookWindow || facebookWindow.closed || typeof facebookWindow.closed == 'undefined') {
+            // Fallback: try direct navigation if popup is blocked
+            window.open(facebookShareUrl, '_blank');
           }
+          
           toast({
-            title: "Shared to Facebook!",
-            description: "Post opened in new tab.",
+            title: "Opening Facebook Share",
+            description: "Facebook share dialog is opening in a new window.",
           });
           break;
           
@@ -174,11 +184,21 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
       }
     } catch (error) {
       console.error('Share failed:', error);
-      toast({
-        title: "Share failed",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      });
+      
+      // Special handling for Facebook sharing errors
+      if (method === 'facebook') {
+        toast({
+          title: "Facebook sharing issue",
+          description: "Try copying the link and sharing it manually on Facebook.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Share failed",
+          description: error instanceof Error ? error.message : "Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(null);
     }

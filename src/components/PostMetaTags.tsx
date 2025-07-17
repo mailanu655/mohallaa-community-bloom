@@ -1,3 +1,4 @@
+
 import { Helmet } from 'react-helmet-async';
 
 interface Post {
@@ -27,13 +28,19 @@ const PostMetaTags = ({ post }: PostMetaTagsProps) => {
   
   return (
     <Helmet>
-      {/* Open Graph Meta Tags */}
+      {/* Enhanced Open Graph Meta Tags for Facebook */}
       <meta property="og:title" content={post.title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:url" content={currentUrl} />
       <meta property="og:type" content="article" />
       <meta property="og:site_name" content="Mohallaa Community" />
+      <meta property="og:locale" content="en_US" />
+      
+      {/* Facebook App ID (if you have one) */}
+      {/* <meta property="fb:app_id" content="YOUR_FACEBOOK_APP_ID" /> */}
       
       {/* Article specific tags */}
       <meta property="article:author" content={authorName} />
@@ -47,11 +54,18 @@ const PostMetaTags = ({ post }: PostMetaTagsProps) => {
       <meta name="twitter:title" content={post.title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={imageUrl} />
+      <meta name="twitter:site" content="@mohallaa" />
+      <meta name="twitter:creator" content={`@${authorName.replace(' ', '').toLowerCase()}`} />
       
       {/* Standard meta tags */}
       <title>{post.title} - Mohallaa Community</title>
       <meta name="description" content={description} />
+      <meta name="author" content={authorName} />
       <link rel="canonical" href={currentUrl} />
+      
+      {/* Additional meta tags for better sharing */}
+      <meta name="robots" content="index, follow" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </Helmet>
   );
 };
