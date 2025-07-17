@@ -1921,6 +1921,7 @@ export type Database = {
           longitude: number | null
           media_type: string | null
           media_urls: string[] | null
+          original_post_id: string | null
           post_type: Database["public"]["Enums"]["post_type"]
           rich_content: Json | null
           search_vector: unknown | null
@@ -1945,6 +1946,7 @@ export type Database = {
           longitude?: number | null
           media_type?: string | null
           media_urls?: string[] | null
+          original_post_id?: string | null
           post_type?: Database["public"]["Enums"]["post_type"]
           rich_content?: Json | null
           search_vector?: unknown | null
@@ -1969,6 +1971,7 @@ export type Database = {
           longitude?: number | null
           media_type?: string | null
           media_urls?: string[] | null
+          original_post_id?: string | null
           post_type?: Database["public"]["Enums"]["post_type"]
           rich_content?: Json | null
           search_vector?: unknown | null
@@ -1991,6 +1994,13 @@ export type Database = {
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_original_post_id_fkey"
+            columns: ["original_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
