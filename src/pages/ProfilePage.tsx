@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,13 +17,15 @@ import {
   UserPlus,
   Bookmark,
   Share2,
-  MoreHorizontal
+  MoreHorizontal,
+  Edit
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRealTimeSubscription } from "@/hooks/useRealTimeSubscription";
+import ConnectButton from "@/components/ConnectButton";
+import CreatePostModal from "@/components/CreatePostModal";
 
 const ProfilePage = () => {
   const { id } = useParams();
@@ -34,6 +36,7 @@ const ProfilePage = () => {
   const [community, setCommunity] = useState(null);
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showCreatePost, setShowCreatePost] = useState(false);
   const isOwnProfile = user?.id === id;
 
   // Set up real-time subscription for profile updates
@@ -198,15 +201,20 @@ const ProfilePage = () => {
                 </Button>
               </nav>
 
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700"
+                onClick={() => setShowCreatePost(true)}
+              >
                 Post
               </Button>
             </div>
 
             <div className="space-y-2 pt-6 border-t border-border/50">
-              <Button variant="ghost" className="w-full justify-start">
-                <Settings className="w-5 h-5 mr-3" />
-                Settings
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link to="/profile/edit">
+                  <Settings className="w-5 h-5 mr-3" />
+                  Settings
+                </Link>
               </Button>
               <Button variant="ghost" className="w-full justify-start">
                 <HelpCircle className="w-5 h-5 mr-3" />
@@ -225,14 +233,20 @@ const ProfilePage = () => {
             <div className="relative">
               {/* Cover Image */}
               <div className="h-48 bg-gradient-to-r from-blue-200 to-purple-200 rounded-t-lg relative">
-                <div className="absolute top-4 right-4 flex space-x-2">
-                  <Button variant="outline" size="sm" className="bg-white/80">
-                    <Users className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="bg-white/80">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                </div>
+                {isOwnProfile && (
+                  <div className="absolute top-4 right-4 flex space-x-2">
+                    <Button variant="outline" size="sm" className="bg-white/80" asChild>
+                      <Link to="/communities">
+                        <Users className="w-4 h-4" />
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="bg-white/80" asChild>
+                      <Link to="/profile/edit">
+                        <Settings className="w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Profile Info */}
@@ -259,14 +273,16 @@ const ProfilePage = () => {
                     <div className="flex space-x-3 mt-4">
                       {isOwnProfile ? (
                         <>
-                          <Button variant="outline">Edit profile</Button>
+                          <Button variant="outline" asChild>
+                            <Link to="/profile/edit">
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit profile
+                            </Link>
+                          </Button>
                           <Button variant="ghost">Switch accounts</Button>
                         </>
                       ) : (
-                        <>
-                          <Button>Connect</Button>
-                          <Button variant="outline">Message</Button>
-                        </>
+                        <ConnectButton userId={id || ''} />
                       )}
                     </div>
                   </div>
@@ -282,32 +298,38 @@ const ProfilePage = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <Bookmark className="w-5 h-5 text-muted-foreground" />
-                      <span className="font-medium">Bookmarks</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Link to="/bookmarks">
+                  <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <Bookmark className="w-5 h-5 text-muted-foreground" />
+                        <span className="font-medium">Bookmarks</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
                 
-                <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <Calendar className="w-5 h-5 text-muted-foreground" />
-                      <span className="font-medium">Events</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Link to="/events">
+                  <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <Calendar className="w-5 h-5 text-muted-foreground" />
+                        <span className="font-medium">Events</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
                 
-                <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <Heart className="w-5 h-5 text-muted-foreground" />
-                      <span className="font-medium">Interests</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Link to="/profile/edit">
+                  <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <Heart className="w-5 h-5 text-muted-foreground" />
+                        <span className="font-medium">Interests</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </div>
             </div>
 
@@ -315,28 +337,32 @@ const ProfilePage = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-foreground">Groups</h2>
-                <Button variant="ghost" className="text-sm text-primary">See all</Button>
+                <Button variant="ghost" className="text-sm text-primary" asChild>
+                  <Link to="/communities">See all</Link>
+                </Button>
               </div>
               
               <div className="space-y-3">
                 {communities.map((community, index) => (
-                  <Card key={index} className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarFallback className="text-sm bg-primary/10 text-primary">
-                            {community.name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-foreground">{community.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {community.member_count} members
-                          </p>
+                  <Link key={index} to={`/communities/${community.id}`}>
+                    <Card className="border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="w-10 h-10">
+                            <AvatarFallback className="text-sm bg-primary/10 text-primary">
+                              {community.name?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-foreground">{community.name}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {community.member_count} members
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
                 
                 {communities.length === 0 && (
@@ -428,6 +454,12 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Create Post Modal */}
+      <CreatePostModal 
+        open={showCreatePost} 
+        onOpenChange={setShowCreatePost} 
+      />
     </div>
   );
 };
