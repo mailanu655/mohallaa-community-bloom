@@ -16,7 +16,7 @@ const WhyMohallaa = () => {
       description: "Network with Indian professionals, find mentors, discover job opportunities, and build career connections in your field."
     },
     {
-      icon: <Heart className="w-8 h-8 text-accent" />,
+      icon: <Heart className="w-8 h-8 text-secondary" />,
       title: "Cultural Connection",
       description: "Never miss Diwali celebrations, find authentic Indian restaurants, or connect with others who understand your cultural values."
     },
