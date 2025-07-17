@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRealTimeSubscription } from "@/hooks/useRealTimeSubscription";
 
 const ProfilePage = () => {
   const { id } = useParams();
@@ -35,6 +36,40 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const isOwnProfile = user?.id === id;
 
+  // Set up real-time subscription for profile updates
+  useRealTimeSubscription({
+    table: 'profiles',
+    filter: `id=eq.${id}`,
+    onUpdate: (payload) => {
+      if (payload.new.id === id) {
+        setProfile(prev => prev ? { ...prev, ...payload.new } : payload.new);
+      }
+    },
+    onError: (error) => {
+      console.error('Profile subscription error:', error);
+    }
+  });
+
+  // Set up real-time subscription for posts updates
+  useRealTimeSubscription({
+    table: 'posts',
+    filter: `author_id=eq.${id}`,
+    onInsert: (payload) => {
+      setPosts(prev => [payload.new, ...prev]);
+    },
+    onUpdate: (payload) => {
+      setPosts(prev => prev.map(post => 
+        post.id === payload.new.id ? { ...post, ...payload.new } : post
+      ));
+    },
+    onDelete: (payload) => {
+      setPosts(prev => prev.filter(post => post.id !== payload.old.id));
+    },
+    onError: (error) => {
+      console.error('Posts subscription error:', error);
+    }
+  });
+
   useEffect(() => {
     if (id) {
       fetchProfileData();
@@ -44,14 +79,21 @@ const ProfilePage = () => {
   const fetchProfileData = async () => {
     try {
       // Fetch profile details
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select(`
           *,
           communities(name, city, state)
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
 
       // Fetch user's posts
       const { data: postsData } = await supabase

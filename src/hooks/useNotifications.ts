@@ -48,7 +48,7 @@ export const useNotifications = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, updateUnreadCount]);
+  }, [user?.id]); // Only depend on user.id to prevent excessive re-fetching
 
   // Set up real-time subscription
   useRealTimeSubscription({
@@ -78,10 +78,10 @@ export const useNotifications = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchNotifications();
     }
-  }, [user, fetchNotifications]);
+  }, [user?.id, fetchNotifications]); // Only trigger once per user
 
   const markAsRead = async (notificationId: string) => {
     try {
