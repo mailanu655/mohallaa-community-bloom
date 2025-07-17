@@ -52,7 +52,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
         .insert({
           title: formData.title,
           content: formData.content,
-          post_type: formData.postType as 'discussion' | 'question' | 'announcement' | 'resource',
+          post_type: formData.postType as any,
           community_id: formData.communityId || null,
           author_id: user.id,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null
@@ -106,6 +106,12 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
             <SelectItem value="question">Question</SelectItem>
             <SelectItem value="announcement">Announcement</SelectItem>
             <SelectItem value="resource">Resource</SelectItem>
+            <SelectItem value="event">Event</SelectItem>
+            <SelectItem value="job">Job</SelectItem>
+            <SelectItem value="housing">Housing</SelectItem>
+            <SelectItem value="marketplace">Marketplace</SelectItem>
+            <SelectItem value="recommendation">Recommendation</SelectItem>
+            <SelectItem value="safety_alert">Safety Alert</SelectItem>
           </SelectContent>
         </Select>
       </div>

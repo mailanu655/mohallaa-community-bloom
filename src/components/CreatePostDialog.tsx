@@ -36,55 +36,76 @@ interface CreatePostDialogProps {
 
 const postTypes = [
   { 
-    value: "discussion", 
+    value: "discussion" as const, 
     label: "General Discussion", 
     icon: MessageSquare,
     color: "bg-blue-500",
     description: "Share thoughts, questions, or start a conversation"
   },
   { 
-    value: "announcement", 
+    value: "question" as const, 
+    label: "Question", 
+    icon: MessageSquare,
+    color: "bg-blue-600",
+    description: "Ask the community for help or advice"
+  },
+  { 
+    value: "announcement" as const, 
     label: "Announcement", 
     icon: AlertTriangle,
     color: "bg-orange-500",
     description: "Important community updates or notices"
   },
   { 
-    value: "marketplace", 
-    label: "For Sale & Free", 
-    icon: ShoppingBag,
-    color: "bg-green-500",
-    description: "Buy, sell, or give away items"
+    value: "resource" as const, 
+    label: "Resource", 
+    icon: Users,
+    color: "bg-teal-500",
+    description: "Share helpful resources and information"
   },
   { 
-    value: "event", 
+    value: "event" as const, 
     label: "Event", 
     icon: Calendar,
     color: "bg-purple-500",
     description: "Community events and gatherings"
   },
   { 
-    value: "job", 
+    value: "job" as const, 
     label: "Jobs", 
     icon: Briefcase,
     color: "bg-indigo-500",
     description: "Job opportunities and hiring"
   },
   { 
-    value: "housing", 
+    value: "housing" as const, 
     label: "Housing", 
     icon: Home,
     color: "bg-red-500",
     description: "Rentals, roommates, and housing"
   },
   { 
-    value: "recommendation", 
+    value: "marketplace" as const, 
+    label: "For Sale & Free", 
+    icon: ShoppingBag,
+    color: "bg-green-500",
+    description: "Buy, sell, or give away items"
+  },
+  { 
+    value: "recommendation" as const, 
     label: "Recommendation", 
     icon: Heart,
     color: "bg-pink-500",
     description: "Recommend local businesses or services"
+  },
+  { 
+    value: "safety_alert" as const, 
+    label: "Safety Alert", 
+    icon: AlertTriangle,
+    color: "bg-red-600",
+    description: "Important safety information for the community"
   }
-] as const;
+];
 
 const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: CreatePostDialogProps) => {
   const { user } = useAuth();
@@ -139,8 +160,13 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim() || !user) {
+    if (!title.trim() || !content.trim() || !selectedType || !user) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (!communityId) {
+      toast.error("Community ID is required");
       return;
     }
 
@@ -152,21 +178,27 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
         mediaUrls = await uploadMedia(mediaFiles);
       }
 
-      // Create the post
+      // Create the post with proper validation
+      const postData = {
+        title: title.trim(),
+        content: content.trim(),
+        post_type: selectedType,
+        community_id: communityId,
+        author_id: user.id,
+        media_urls: mediaUrls.length > 0 ? mediaUrls : null,
+        media_type: mediaUrls.length > 0 ? 'image' : null
+      };
+
+      console.log('Creating post with data:', postData);
+
       const { error } = await supabase
         .from('posts')
-        .insert({
-          title: title.trim(),
-          content: content.trim(),
-          post_type: selectedType as Database['public']['Enums']['post_type'],
-          community_id: communityId,
-          author_id: user.id,
-          tags: null,
-          media_urls: mediaUrls.length > 0 ? mediaUrls : null,
-          media_type: mediaUrls.length > 0 ? 'image' : null
-        });
+        .insert(postData);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       toast.success("Post created successfully!");
       
@@ -181,7 +213,8 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
       onClose();
     } catch (error) {
       console.error('Error creating post:', error);
-      toast.error("Failed to create post");
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create post';
+      toast.error(`Failed to create post: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
