@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,14 +13,19 @@ import FileUploader from '@/components/FileUploader';
 interface CreatePostFormProps {
   communities: Array<{ id: string; name: string }>;
   onPostCreated: () => void;
+  defaultCommunityId?: string;  // Add this prop for direct community posting
 }
 
-const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCreated }) => {
+const CreatePostForm: React.FC<CreatePostFormProps> = ({ 
+  communities, 
+  onPostCreated,
+  defaultCommunityId 
+}) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     postType: 'discussion',
-    communityId: '',
+    communityId: defaultCommunityId || '',  // Use defaultCommunityId if provided
   });
   const [isLoading, setIsLoading] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
@@ -28,12 +34,19 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to create a post.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsLoading(true);
 
     try {
-
+      // Ensure community_id is properly formatted for the insert
       const { error } = await supabase
         .from('posts')
         .insert({
@@ -42,11 +55,13 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
           post_type: formData.postType as 'discussion' | 'question' | 'announcement' | 'resource',
           community_id: formData.communityId || null,
           author_id: user.id,
-          tags: null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating post:', error);
+        throw error;
+      }
 
       toast({
         title: "Post created!",
@@ -58,8 +73,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
         title: '',
         content: '',
         postType: 'discussion',
-        communityId: '',
-        
+        communityId: defaultCommunityId || '',
       });
       setMediaUrls([]);
 
@@ -80,7 +94,10 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
     <form onSubmit={handleSubmit} className="space-y-6 p-6">
       <div className="space-y-2">
         <label className="text-sm font-medium">Post Type</label>
-        <Select value={formData.postType} onValueChange={(value) => setFormData({ ...formData, postType: value })}>
+        <Select 
+          value={formData.postType} 
+          onValueChange={(value) => setFormData({ ...formData, postType: value })}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select post type" />
           </SelectTrigger>
@@ -93,22 +110,26 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Community (optional)</label>
-        <Select value={formData.communityId} onValueChange={(value) => setFormData({ ...formData, communityId: value })}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select community" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="general">General Discussion</SelectItem>
-            {communities.map(community => (
-              <SelectItem key={community.id} value={community.id}>
-                {community.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {!defaultCommunityId && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Community (optional)</label>
+          <Select 
+            value={formData.communityId} 
+            onValueChange={(value) => setFormData({ ...formData, communityId: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select community" />
+            </SelectTrigger>
+            <SelectContent>
+              {communities.map(community => (
+                <SelectItem key={community.id} value={community.id}>
+                  {community.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Title</label>
@@ -130,7 +151,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({ communities, onPostCrea
           required
         />
       </div>
-
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Media (optional)</label>
