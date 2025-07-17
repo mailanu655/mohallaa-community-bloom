@@ -1515,6 +1515,42 @@ export type Database = {
           },
         ]
       }
+      location_history: {
+        Row: {
+          accuracy: number | null
+          city: string | null
+          created_at: string
+          detection_method: string
+          id: string
+          latitude: number
+          longitude: number
+          state: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy?: number | null
+          city?: string | null
+          created_at?: string
+          detection_method?: string
+          id?: string
+          latitude: number
+          longitude: number
+          state?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy?: number | null
+          city?: string | null
+          created_at?: string
+          detection_method?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          state?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketplace: {
         Row: {
           category: Database["public"]["Enums"]["marketplace_category"]
@@ -2786,6 +2822,10 @@ export type Database = {
       can_moderate_community: {
         Args: { user_id: string; community_id: string }
         Returns: boolean
+      }
+      cleanup_old_location_history: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       disablelongtransactions: {
         Args: Record<PropertyKey, never>

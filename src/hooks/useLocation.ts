@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ApiErrorHandler } from '@/utils/errorHandler';
 import GeocodingService from '@/utils/geocoding';
 import LocationCacheService from '@/utils/locationCache';
+import LocationHistoryService from '@/utils/locationHistory';
 
 export interface LocationData {
   latitude: number;
@@ -12,6 +13,9 @@ export interface LocationData {
   state?: string;
   accuracy?: number;
   fromCache?: boolean;
+  provider?: string;
+  accuracyLevel?: 'high' | 'medium' | 'low';
+  confidence?: number;
 }
 
 export const useLocation = () => {
@@ -77,6 +81,9 @@ export const useLocation = () => {
           locationData.city = geocodeResult.city;
           locationData.state = geocodeResult.state;
           locationData.fromCache = geocodeResult.fromCache;
+          locationData.provider = geocodeResult.provider;
+          locationData.accuracyLevel = geocodeResult.accuracy;
+          locationData.confidence = geocodeResult.confidence;
         } else {
           // Geocoding failed but location still works
           console.warn('Geocoding failed, but location coordinates are available');
@@ -90,7 +97,7 @@ export const useLocation = () => {
       setLocation(locationData);
       setPermissionStatus('granted');
 
-      // Update user's location preferences if logged in
+      // Update user's location preferences and add to history if logged in
       if (user) {
         try {
           await supabase
@@ -102,6 +109,9 @@ export const useLocation = () => {
               current_state: locationData.state,
             })
             .eq('id', user.id);
+
+          // Add to location history
+          await LocationHistoryService.addEntry(locationData, 'auto');
         } catch (dbError) {
           console.warn('Failed to save location to profile:', dbError);
         }
@@ -150,6 +160,62 @@ export const useLocation = () => {
     }
   };
 
+  const setManualLocation = async (city: string, state: string): Promise<boolean> => {
+    if (!city || !state) {
+      setError('City and state are required');
+      return false;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Try to geocode the manual location to get coordinates
+      const geocodeResult = await GeocodingService.reverseGeocode(0, 0); // This will fail, but we'll handle it
+      
+      // For manual locations, we'll use approximate coordinates based on city/state
+      // In a real implementation, you'd want to use a forward geocoding service
+      const locationData: LocationData = {
+        latitude: 0, // Would be resolved by forward geocoding
+        longitude: 0, // Would be resolved by forward geocoding
+        city,
+        state,
+        accuracy: 0,
+        fromCache: false,
+        provider: 'manual',
+        accuracyLevel: 'low'
+      };
+
+      setLocation(locationData);
+      setPermissionStatus('granted');
+
+      // Update user's location preferences and add to history if logged in
+      if (user) {
+        try {
+          await supabase
+            .from('profiles')
+            .update({
+              current_city: locationData.city,
+              current_state: locationData.state,
+            })
+            .eq('id', user.id);
+
+          // Add to location history
+          await LocationHistoryService.addEntry(locationData, 'manual');
+        } catch (dbError) {
+          console.warn('Failed to save manual location to profile:', dbError);
+        }
+      }
+
+      setLoading(false);
+      return true;
+    } catch (err: any) {
+      setError('Failed to set manual location');
+      setLoading(false);
+      return false;
+    }
+  };
+
   const clearLocationCache = (): void => {
     LocationCacheService.clear();
     setLocation(null);
@@ -171,5 +237,6 @@ export const useLocation = () => {
     requestLocation,
     loadSavedLocation,
     clearLocationCache,
+    setManualLocation,
   };
 };
