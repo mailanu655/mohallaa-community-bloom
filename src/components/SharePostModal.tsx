@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ShareAnalyticsService } from '@/utils/shareAnalytics';
 
 interface Post {
   id: string;
@@ -33,10 +32,6 @@ interface Post {
     first_name?: string;
     last_name?: string;
     avatar_url?: string;
-  };
-  communities?: {
-    id?: string;
-    name?: string;
   };
 }
 
@@ -54,8 +49,6 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
     if (!post) return;
     
     setLoading(method);
-    await ShareAnalyticsService.trackShareAttempt(post.id, method);
-    
     const shareUrl = `${window.location.origin}/post/${post.id}`;
     const shareTitle = post.title || 'Check out this post';
     const shareText = `${shareTitle}\n\n${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}`;
@@ -63,34 +56,21 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
     try {
       switch (method) {
         case 'facebook':
-          // Updated to modern Facebook Share Dialog API
-          const facebookShareUrl = `https://www.facebook.com/dialog/share?` +
-            `href=${encodeURIComponent(shareUrl)}&` +
-            `redirect_uri=${encodeURIComponent(window.location.origin)}`;
+          // Updated Facebook sharing URL format
+          const facebookShareUrl = `https://www.facebook.com/sharer.php?u=${encodeURIComponent(shareUrl)}&t=${encodeURIComponent(shareTitle)}`;
           
-          // Try to open popup window with better specifications
+          // Try to open popup window
           const facebookWindow = window.open(
             facebookShareUrl, 
             'facebook-share',
             'width=626,height=436,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,status=no,directories=no,location=no'
           );
           
-          if (!facebookWindow || facebookWindow.closed || typeof facebookWindow.closed === 'undefined') {
-            // Fallback for popup blockers
-            if (confirm('Popup blocked. Open Facebook share in a new tab?')) {
-              window.open(facebookShareUrl, '_blank');
-            } else {
-              // Copy link as final fallback
-              await navigator.clipboard.writeText(shareUrl);
-              toast({
-                title: "Link copied instead",
-                description: "Facebook share was blocked, but the link is copied to your clipboard.",
-              });
-              return;
-            }
+          if (!facebookWindow || facebookWindow.closed || typeof facebookWindow.closed == 'undefined') {
+            // Fallback: try direct navigation if popup is blocked
+            window.open(facebookShareUrl, '_blank');
           }
           
-          await ShareAnalyticsService.trackShareSuccess(post.id, method);
           toast({
             title: "Opening Facebook Share",
             description: "Facebook share dialog is opening in a new window.",
@@ -103,7 +83,6 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
           if (!whatsappWindow) {
             throw new Error('Popup blocked');
           }
-          await ShareAnalyticsService.trackShareSuccess(post.id, method);
           toast({
             title: "Shared to WhatsApp!",
             description: "Post opened in new tab.",
@@ -116,7 +95,6 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
           if (!twitterWindow) {
             throw new Error('Popup blocked');
           }
-          await ShareAnalyticsService.trackShareSuccess(post.id, method);
           toast({
             title: "Shared to X!",
             description: "Post opened in new tab.",
@@ -135,7 +113,6 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
           } else {
             await navigator.clipboard.writeText(shareUrl);
           }
-          await ShareAnalyticsService.trackShareSuccess(post.id, method);
           toast({
             title: "Link copied!",
             description: "Post link has been copied to your clipboard.",
@@ -145,7 +122,6 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
         case 'email':
           const emailUrl = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`;
           window.location.href = emailUrl;
-          await ShareAnalyticsService.trackShareSuccess(post.id, method);
           toast({
             title: "Email app opened!",
             description: "Compose email with post details.",
@@ -153,30 +129,21 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
           break;
           
         case 'chat':
-          if (navigator.share && navigator.canShare) {
-            const shareData = {
+          if (navigator.share) {
+            await navigator.share({
               title: shareTitle,
               text: shareText,
               url: shareUrl,
-            };
-            
-            if (navigator.canShare(shareData)) {
-              await navigator.share(shareData);
-              await ShareAnalyticsService.trackShareSuccess(post.id, method);
-              toast({
-                title: "Shared successfully!",
-                description: "Post shared via native share.",
-              });
-            } else {
-              throw new Error('Content not shareable');
-            }
-          } else {
-            // Fallback to copy link for better mobile UX
-            await navigator.clipboard.writeText(shareUrl);
-            await ShareAnalyticsService.trackShareSuccess(post.id, 'copy');
+            });
             toast({
-              title: "Link copied!",
-              description: "Share link copied to clipboard.",
+              title: "Shared successfully!",
+              description: "Post shared via native share.",
+            });
+          } else {
+            toast({
+              title: "Share not supported",
+              description: "Native sharing is not available on this device.",
+              variant: "destructive",
             });
           }
           break;
@@ -193,38 +160,18 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
             return;
           }
           
-          // Check if already reposted to prevent duplicates
-          const { data: existingRepost } = await supabase
-            .from('posts')
-            .select('id')
-            .eq('author_id', user.id)
-            .eq('original_post_id', post.id)
-            .maybeSingle();
-            
-          if (existingRepost) {
-            toast({
-              title: "Already reposted",
-              description: "You've already shared this post to your feed.",
-              variant: "destructive",
-            });
-            return;
-          }
-          
-          // Create a repost with proper reference to original
+          // Create a repost - insert new post referencing original
           const { error } = await supabase.from('posts').insert({
             author_id: user.id,
-            title: post.title,
-            content: post.content,
-            original_post_id: post.id,
-            post_type: 'discussion',
-            community_id: post.communities?.id || null
+            title: `Repost: ${post.title}`,
+            content: `Shared from original post:\n\n"${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}"\n\nOriginal post: ${shareUrl}`,
+            post_type: 'discussion'
           });
           
           if (error) {
             throw error;
           }
           
-          await ShareAnalyticsService.trackShareSuccess(post.id, method);
           toast({
             title: "Reposted successfully!",
             description: "The post has been shared to your feed.",
@@ -373,7 +320,7 @@ const SharePostModal = ({ post, open, onClose }: SharePostModalProps) => {
                 <MessageCircle className="w-6 h-6 text-muted-foreground" />
               )}
               <span className="text-xs font-medium text-center">
-                {navigator.share ? 'Share' : 'Copy Link'}
+                {navigator.share ? 'Chat' : 'Chat (unavailable)'}
               </span>
             </button>
 
