@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,12 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MapPin, Plus, LogOut, User } from "lucide-react";
+import { MapPin, Plus, LogOut, User, RefreshCw } from "lucide-react";
+import { useLocation } from "@/hooks/useLocation";
 
 const ProfileDropdown = () => {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [hasBusinessAccess, setHasBusinessAccess] = useState(false);
+  const { location, loading: locationLoading, requestLocation } = useLocation();
 
   useEffect(() => {
     if (user) {
@@ -25,15 +28,27 @@ const ProfileDropdown = () => {
     }
   }, [user]);
 
+  // Refetch profile when location changes
+  useEffect(() => {
+    if (user && location) {
+      fetchProfile();
+    }
+  }, [user, location]);
+
   const fetchProfile = async () => {
     if (!user) return;
     
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('first_name, last_name, avatar_url, current_address')
+        .select('first_name, last_name, avatar_url, current_address, current_city, current_state, current_latitude, current_longitude')
         .eq('id', user.id)
         .single();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
       
       setProfile(data);
     } catch (error) {
@@ -57,6 +72,10 @@ const ProfileDropdown = () => {
     }
   };
 
+  const handleLocationRefresh = async () => {
+    await requestLocation();
+  };
+
   const getUserInitial = () => {
     if (profile?.first_name) {
       return profile.first_name.charAt(0).toUpperCase();
@@ -78,7 +97,22 @@ const ProfileDropdown = () => {
   };
 
   const getLocation = () => {
-    return profile?.current_address || 'Location not set';
+    // Use the most recent location data from useLocation hook first
+    if (location?.city && location?.state) {
+      return `${location.city}, ${location.state}`;
+    }
+    
+    // Fall back to profile data
+    if (profile?.current_city && profile?.current_state) {
+      return `${profile.current_city}, ${profile.current_state}`;
+    }
+    
+    // Fall back to current_address if available
+    if (profile?.current_address) {
+      return profile.current_address;
+    }
+    
+    return 'Location not set';
   };
 
   if (!user) return null;
@@ -111,7 +145,17 @@ const ProfileDropdown = () => {
             </h3>
             <div className="flex items-center justify-center text-muted-foreground text-sm mt-1">
               <MapPin className="w-4 h-4 mr-1" />
-              {getLocation()}
+              <span>{getLocation()}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-2 h-auto p-1 hover:bg-muted"
+                onClick={handleLocationRefresh}
+                disabled={locationLoading}
+                title="Refresh location"
+              >
+                <RefreshCw className={`w-3 h-3 ${locationLoading ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           </div>
           
