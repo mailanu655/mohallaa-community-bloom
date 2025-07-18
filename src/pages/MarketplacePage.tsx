@@ -38,7 +38,8 @@ const MarketplacePage = () => {
 
   const fetchMarketplaceItems = async () => {
     try {
-      // Fetch dedicated marketplace items
+      // Only fetch from marketplace table to avoid duplicates
+      // Since our unified integration ensures all marketplace items (both from posts and dedicated creation) are stored here
       const { data: marketplaceData, error: marketplaceError } = await supabase
         .from('marketplace')
         .select(`
@@ -51,48 +52,7 @@ const MarketplacePage = () => {
 
       if (marketplaceError) throw marketplaceError;
 
-      // Fetch marketplace posts (posts with post_type = 'marketplace')
-      const { data: marketplacePostsData, error: marketplacePostsError } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles!inner(first_name, last_name, avatar_url),
-          communities(name, city, state)
-        `)
-        .eq('post_type', 'marketplace')
-        .order('created_at', { ascending: false });
-
-      if (marketplacePostsError) throw marketplacePostsError;
-
-      // Transform marketplace posts to match marketplace format
-      const transformedMarketplacePosts = (marketplacePostsData || []).map(post => ({
-        id: post.id,
-        title: post.title,
-        description: post.content,
-        price: null, // Default for post-sourced items
-        category: 'goods', // Default category for post-sourced items
-        is_negotiable: true,
-        location: null,
-        images: post.media_urls || [],
-        seller_id: post.author_id,
-        community_id: post.community_id,
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        status: 'active',
-        contact_info: null,
-        source: 'post',
-        post_id: post.id,
-        profiles: post.profiles,
-        communities: post.communities
-      }));
-
-      // Combine both sources
-      const allItems = [...(marketplaceData || []), ...transformedMarketplacePosts];
-      
-      // Sort by created_at
-      allItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      
-      setItems(allItems);
+      setItems(marketplaceData || []);
     } catch (error) {
       console.error('Error fetching marketplace items:', error);
     } finally {
