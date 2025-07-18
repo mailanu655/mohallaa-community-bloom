@@ -164,71 +164,8 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-4 min-h-screen">
-          {/* Left Sidebar */}
-          <div className="hidden lg:block border-r border-border/50 p-6 space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-foreground">Mohallaa</h2>
-              
-              <nav className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start" asChild>
-                  <Link to="/home">
-                    <Home className="w-5 h-5 mr-3" />
-                    Home
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" asChild>
-                  <Link to="/marketplace">
-                    <ShoppingBag className="w-5 h-5 mr-3" />
-                    For Sale & Free
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <Heart className="w-5 h-5 mr-3" />
-                  Faves
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" asChild>
-                  <Link to="/communities">
-                    <Users className="w-5 h-5 mr-3" />
-                    Groups
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" asChild>
-                  <Link to="/events">
-                    <Calendar className="w-5 h-5 mr-3" />
-                    Events
-                  </Link>
-                </Button>
-              </nav>
-
-              <Button 
-                className="w-full bg-green-600 hover:bg-green-700"
-                onClick={() => setShowCreatePost(true)}
-              >
-                Post
-              </Button>
-            </div>
-
-            <div className="space-y-2 pt-6 border-t border-border/50">
-              <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link to="/profile/edit">
-                  <Settings className="w-5 h-5 mr-3" />
-                  Settings
-                </Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <HelpCircle className="w-5 h-5 mr-3" />
-                Help Center
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <UserPlus className="w-5 h-5 mr-3" />
-                Invite neighbors
-              </Button>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3 p-6 space-y-6">
+        {/* Main Content */}
+        <div className="p-6 space-y-6">
             {/* Profile Header with Cover */}
             <div className="relative">
               {/* Cover Image */}
@@ -451,7 +388,6 @@ const ProfilePage = () => {
                 )}
               </div>
             </div>
-          </div>
         </div>
       </div>
       
