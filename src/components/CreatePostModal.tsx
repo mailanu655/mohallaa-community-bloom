@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,13 +5,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   X, 
   AtSign, 
   Image as ImageIcon, 
   MapPin,
   Smile,
-  Globe
+  Globe,
+  Users,
+  Eye,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +43,13 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
   const [showFileUploader, setShowFileUploader] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [characterCount, setCharacterCount] = useState(0);
+
+  // Smart defaults: when community is selected, suggest community visibility
+  useEffect(() => {
+    if (formData.communityId !== 'general' && formData.visibility === 'public') {
+      setFormData(prev => ({ ...prev, visibility: 'community' }));
+    }
+  }, [formData.communityId]);
 
   const resetForm = () => {
     setFormData({
@@ -144,167 +154,248 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
     }
   };
 
+  const getVisibilityIcon = () => {
+    return formData.visibility === 'public' ? Globe : Users;
+  };
+
+  const getVisibilityLabel = () => {
+    return formData.visibility === 'public' ? 'Everyone' : 'Community Members Only';
+  };
+
+  const getVisibilityDescription = () => {
+    if (formData.visibility === 'public') {
+      return 'Anyone can see this post, even outside your community';
+    } else {
+      return 'Only members of the selected community can see this post';
+    }
+  };
+
+  const getCommunityDescription = () => {
+    if (formData.communityId === 'general') {
+      return 'Will appear in the main public feed';
+    } else {
+      return 'Will appear in the selected community feed';
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg p-0 bg-background border border-border shadow-lg">
-        {/* Header */}
-        <div className="flex items-center p-4 border-b border-border">
-          <div className="flex items-center space-x-2">
-            <Select value={formData.visibility} onValueChange={(value) => setFormData(prev => ({ ...prev, visibility: value }))}>
-              <SelectTrigger className="w-24 h-8 border-0 bg-transparent text-sm">
-                <div className="flex items-center space-x-1">
-                  <Globe className="w-3 h-3" />
-                  <span className="capitalize">{formData.visibility}</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="public">Public</SelectItem>
-                <SelectItem value="community">Community</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+    <TooltipProvider>
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="max-w-lg p-0 bg-background border border-border shadow-lg">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="flex items-center space-x-3">
+              {/* Visibility Settings */}
+              <div className="flex items-center space-x-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center space-x-1">
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Who can see:</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Choose who can see your post</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Select value={formData.visibility} onValueChange={(value) => setFormData(prev => ({ ...prev, visibility: value }))}>
+                  <SelectTrigger className="w-auto h-8 border-0 bg-transparent text-sm min-w-[140px]">
+                    <div className="flex items-center space-x-1">
+                      {React.createElement(getVisibilityIcon(), { className: "w-3 h-3" })}
+                      <span>{getVisibilityLabel()}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="public">
+                      <div className="flex items-center space-x-2">
+                        <Globe className="w-4 h-4" />
+                        <div>
+                          <div className="font-medium">Everyone</div>
+                          <div className="text-xs text-muted-foreground">Anyone can see this post</div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="community">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-4 h-4" />
+                        <div>
+                          <div className="font-medium">Community Members Only</div>
+                          <div className="text-xs text-muted-foreground">Only community members can see</div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
 
-        {/* Content */}
-        <div className="p-4 space-y-4">
-          {/* User Info */}
-          <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-medium text-foreground text-sm">
-                {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
-              </h3>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{getVisibilityDescription()}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </div>
 
-          {/* Title Input (Optional) */}
-          <Input
-            placeholder="Title (optional)"
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            className="border-0 p-0 text-lg font-medium placeholder:text-muted-foreground focus-visible:ring-0 bg-transparent"
-          />
+          {/* Content */}
+          <div className="p-4 space-y-4">
+            {/* User Info */}
+            <div className="flex items-center space-x-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                  {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-medium text-foreground text-sm">
+                  {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                </h3>
+                <p className="text-xs text-muted-foreground">{getVisibilityDescription()}</p>
+              </div>
+            </div>
 
-          {/* Content Input */}
-          <div className="space-y-2">
-            <Textarea
-              data-content
-              placeholder="What are you working on?"
-              value={formData.content}
-              onChange={(e) => handleContentChange(e.target.value)}
-              className="min-h-[120px] border-0 p-0 text-base placeholder:text-muted-foreground resize-none focus-visible:ring-0 bg-transparent"
+            {/* Title Input (Optional) */}
+            <Input
+              placeholder="Title (optional)"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              className="border-0 p-0 text-lg font-medium placeholder:text-muted-foreground focus-visible:ring-0 bg-transparent"
             />
-            
-            {/* Character Counter */}
-            <div className="flex justify-between items-center text-xs text-muted-foreground">
-              <span>Type @ to mention people and companies</span>
-              <span className={characterCount > 1800 ? 'text-destructive' : ''}>{characterCount}/2000</span>
-            </div>
-          </div>
 
-          {/* Media Preview */}
-          {formData.mediaUrls.length > 0 && (
-            <div className="grid grid-cols-2 gap-2">
-              {formData.mediaUrls.map((url, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={url}
-                    alt={`Upload ${index + 1}`}
-                    className="w-full h-24 object-cover rounded border"
+            {/* Content Input */}
+            <div className="space-y-2">
+              <Textarea
+                data-content
+                placeholder="What are you working on?"
+                value={formData.content}
+                onChange={(e) => handleContentChange(e.target.value)}
+                className="min-h-[120px] border-0 p-0 text-base placeholder:text-muted-foreground resize-none focus-visible:ring-0 bg-transparent"
+              />
+              
+              {/* Character Counter */}
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
+                <span>Type @ to mention people and companies</span>
+                <span className={characterCount > 1800 ? 'text-destructive' : ''}>{characterCount}/2000</span>
+              </div>
+            </div>
+
+            {/* Media Preview */}
+            {formData.mediaUrls.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {formData.mediaUrls.map((url, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Upload ${index + 1}`}
+                      className="w-full h-24 object-cover rounded border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                      onClick={() => removeMedia(index)}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* File Uploader */}
+            {showFileUploader && (
+              <div className="p-3 border border-border rounded-lg bg-muted/30">
+                <FileUploader
+                  onUploadComplete={handleImageUpload}
+                  maxFiles={5}
+                  folder="posts"
+                  acceptedFileTypes={['image/jpeg', 'image/png', 'image/gif']}
+                  maxSizeMB={10}
+                />
+              </div>
+            )}
+
+            {/* Bottom Toolbar */}
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <div className="flex items-center space-x-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleMention}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  title="Add mention"
+                >
+                  <AtSign className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowFileUploader(!showFileUploader)}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  title="Add image"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleLocation}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  title="Add location"
+                >
+                  <MapPin className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {}}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  title="Add emoji"
+                >
+                  <Smile className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                {/* Community Selection with Better Labeling */}
+                <div className="flex items-center space-x-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Where:</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">{getCommunityDescription()}</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <CommunitySelector
+                    value={formData.communityId}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, communityId: value }))}
                   />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                    onClick={() => removeMedia(index)}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
                 </div>
-              ))}
-            </div>
-          )}
 
-          {/* File Uploader */}
-          {showFileUploader && (
-            <div className="p-3 border border-border rounded-lg bg-muted/30">
-              <FileUploader
-                onUploadComplete={handleImageUpload}
-                maxFiles={5}
-                folder="posts"
-                acceptedFileTypes={['image/jpeg', 'image/png', 'image/gif']}
-                maxSizeMB={10}
-              />
-            </div>
-          )}
-
-          {/* Bottom Toolbar */}
-          <div className="flex items-center justify-between pt-2 border-t border-border">
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleMention}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-                title="Add mention"
-              >
-                <AtSign className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowFileUploader(!showFileUploader)}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-                title="Add image"
-              >
-                <ImageIcon className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleLocation}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-                title="Add location"
-              >
-                <MapPin className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => {}}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-                title="Add emoji"
-              >
-                <Smile className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              {/* Community Selection */}
-              <CommunitySelector
-                value={formData.communityId}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, communityId: value }))}
-              />
-
-              {/* Post Button */}
-              <Button 
-                onClick={handleSubmit}
-                disabled={!formData.content.trim() || isLoading}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-1.5 h-8 text-sm font-medium"
-              >
-                {isLoading ? 'Posting...' : 'Post'}
-              </Button>
+                {/* Post Button */}
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={!formData.content.trim() || isLoading}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-1.5 h-8 text-sm font-medium"
+                >
+                  {isLoading ? 'Posting...' : 'Post'}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 };
 
