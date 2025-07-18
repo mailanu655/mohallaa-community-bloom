@@ -189,10 +189,6 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
               <div className="flex items-center space-x-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center space-x-1">
-                      <Eye className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">Who can see:</span>
-                    </div>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Choose who can see your post</p>
