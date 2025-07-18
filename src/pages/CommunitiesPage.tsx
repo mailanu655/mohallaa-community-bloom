@@ -235,14 +235,12 @@ const CommunitiesPage = () => {
                   </p>
                 )}
 
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex space-x-2">
-                    <Button variant="hero" size="sm" asChild>
-                      <Link to={`/community/${community.id}`}>
-                        View Community
-                      </Link>
-                    </Button>
-                  </div>
+                <div className="flex flex-col gap-2 pt-2">
+                  <Button variant="hero" size="sm" asChild className="w-full">
+                    <Link to={`/community/${community.id}`}>
+                      View Community
+                    </Link>
+                  </Button>
                   <CommunityJoinButton 
                     communityId={community.id}
                     requiresApproval={community.require_approval}
