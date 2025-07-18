@@ -1382,6 +1382,8 @@ export type Database = {
           location: string | null
           max_attendees: number | null
           organizer_id: string | null
+          post_id: string | null
+          source: string | null
           start_date: string
           ticket_price: number | null
           title: string
@@ -1402,6 +1404,8 @@ export type Database = {
           location?: string | null
           max_attendees?: number | null
           organizer_id?: string | null
+          post_id?: string | null
+          source?: string | null
           start_date: string
           ticket_price?: number | null
           title: string
@@ -1422,6 +1426,8 @@ export type Database = {
           location?: string | null
           max_attendees?: number | null
           organizer_id?: string | null
+          post_id?: string | null
+          source?: string | null
           start_date?: string
           ticket_price?: number | null
           title?: string
@@ -1440,6 +1446,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
@@ -1562,8 +1575,10 @@ export type Database = {
           images: string[] | null
           is_negotiable: boolean | null
           location: string | null
+          post_id: string | null
           price: number | null
           seller_id: string
+          source: string | null
           status: Database["public"]["Enums"]["listing_status"]
           title: string
           updated_at: string
@@ -1578,8 +1593,10 @@ export type Database = {
           images?: string[] | null
           is_negotiable?: boolean | null
           location?: string | null
+          post_id?: string | null
           price?: number | null
           seller_id: string
+          source?: string | null
           status?: Database["public"]["Enums"]["listing_status"]
           title: string
           updated_at?: string
@@ -1594,8 +1611,10 @@ export type Database = {
           images?: string[] | null
           is_negotiable?: boolean | null
           location?: string | null
+          post_id?: string | null
           price?: number | null
           seller_id?: string
+          source?: string | null
           status?: Database["public"]["Enums"]["listing_status"]
           title?: string
           updated_at?: string
@@ -1606,6 +1625,13 @@ export type Database = {
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
           {

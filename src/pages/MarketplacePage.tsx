@@ -38,7 +38,8 @@ const MarketplacePage = () => {
 
   const fetchMarketplaceItems = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch dedicated marketplace items
+      const { data: marketplaceData, error: marketplaceError } = await supabase
         .from('marketplace')
         .select(`
           *,
@@ -48,8 +49,50 @@ const MarketplacePage = () => {
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setItems(data || []);
+      if (marketplaceError) throw marketplaceError;
+
+      // Fetch marketplace posts (posts with post_type = 'marketplace')
+      const { data: marketplacePostsData, error: marketplacePostsError } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles!inner(first_name, last_name, avatar_url),
+          communities(name, city, state)
+        `)
+        .eq('post_type', 'marketplace')
+        .order('created_at', { ascending: false });
+
+      if (marketplacePostsError) throw marketplacePostsError;
+
+      // Transform marketplace posts to match marketplace format
+      const transformedMarketplacePosts = (marketplacePostsData || []).map(post => ({
+        id: post.id,
+        title: post.title,
+        description: post.content,
+        price: null, // Default for post-sourced items
+        category: 'goods', // Default category for post-sourced items
+        is_negotiable: true,
+        location: null,
+        images: post.media_urls || [],
+        seller_id: post.author_id,
+        community_id: post.community_id,
+        created_at: post.created_at,
+        updated_at: post.updated_at,
+        status: 'active',
+        contact_info: null,
+        source: 'post',
+        post_id: post.id,
+        profiles: post.profiles,
+        communities: post.communities
+      }));
+
+      // Combine both sources
+      const allItems = [...(marketplaceData || []), ...transformedMarketplacePosts];
+      
+      // Sort by created_at
+      allItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setItems(allItems);
     } catch (error) {
       console.error('Error fetching marketplace items:', error);
     } finally {
@@ -231,6 +274,11 @@ const MarketplacePage = () => {
                 {item.is_negotiable && (
                   <Badge variant="outline" className="text-xs">
                     Negotiable
+                  </Badge>
+                )}
+                {item.source === 'post' && (
+                  <Badge variant="secondary" className="text-xs">
+                    Post
                   </Badge>
                 )}
               </div>

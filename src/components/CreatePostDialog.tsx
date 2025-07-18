@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { 
   MessageSquare, 
   Camera, 
@@ -22,7 +23,9 @@ import {
   Upload,
   Image,
   HelpCircle,
-  Shield
+  Shield,
+  Clock,
+  DollarSign
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -118,6 +121,23 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Event-specific fields
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [location, setLocation] = useState('');
+  const [maxAttendees, setMaxAttendees] = useState('');
+  const [ticketPrice, setTicketPrice] = useState('');
+  const [isVirtual, setIsVirtual] = useState(false);
+  const [isFree, setIsFree] = useState(true);
+  const [eventType, setEventType] = useState('');
+
+  // Marketplace-specific fields
+  const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('');
+  const [isNegotiable, setIsNegotiable] = useState(false);
+  const [contactInfo, setContactInfo] = useState('');
+  const [locationMarket, setLocationMarket] = useState('');
+
   const selectedPostType = postTypes.find(type => type.value === selectedType);
 
   const handleTypeSelect = (type: Database['public']['Enums']['post_type']) => {
@@ -166,6 +186,17 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       return;
     }
 
+    // Additional validation for event and marketplace posts
+    if (selectedType === 'event' && (!startDate || !eventType)) {
+      toast.error("Please fill in event date and type");
+      return;
+    }
+
+    if (selectedType === 'marketplace' && !category) {
+      toast.error("Please select a category");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Upload media files if any
@@ -187,24 +218,77 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
       console.log('Creating post with data:', postData);
 
-      const { error } = await supabase
+      const { data: postResult, error: postError } = await supabase
         .from('posts')
-        .insert(postData);
+        .insert(postData)
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      if (postError) {
+        console.error('Supabase error:', postError);
+        throw postError;
+      }
+
+      // Create corresponding event or marketplace entry if needed
+      if (selectedType === 'event' && postResult) {
+        const eventData = {
+          title: title.trim(),
+          description: content.trim(),
+          start_date: startDate,
+          end_date: endDate || null,
+          location: location || null,
+          max_attendees: maxAttendees ? parseInt(maxAttendees) : null,
+          ticket_price: isFree ? null : (ticketPrice ? parseFloat(ticketPrice) : null),
+          is_free: isFree,
+          is_virtual: isVirtual,
+          event_type: eventType as Database['public']['Enums']['event_type'],
+          organizer_id: user.id,
+          community_id: communityId && communityId !== "general" ? communityId : null,
+          source: 'post' as const,
+          post_id: postResult.id,
+          image_url: mediaUrls.length > 0 ? mediaUrls[0] : null
+        };
+
+        const { error: eventError } = await supabase
+          .from('events')
+          .insert(eventData);
+
+        if (eventError) {
+          console.error('Event creation error:', eventError);
+          throw eventError;
+        }
+      }
+
+      if (selectedType === 'marketplace' && postResult) {
+        const marketplaceData = {
+          title: title.trim(),
+          description: content.trim(),
+          price: price ? parseFloat(price) : null,
+          category: category as Database['public']['Enums']['marketplace_category'],
+          is_negotiable: isNegotiable,
+          location: locationMarket || null,
+          images: mediaUrls.length > 0 ? mediaUrls : null,
+          seller_id: user.id,
+          community_id: communityId && communityId !== "general" ? communityId : null,
+          source: 'post' as const,
+          post_id: postResult.id,
+          contact_info: contactInfo ? JSON.parse(contactInfo) : null
+        };
+
+        const { error: marketError } = await supabase
+          .from('marketplace')
+          .insert(marketplaceData);
+
+        if (marketError) {
+          console.error('Marketplace creation error:', marketError);
+          throw marketError;
+        }
       }
 
       toast.success("Post created successfully!");
       
       // Reset form
-      setStep('type');
-      setSelectedType('');
-      setTitle('');
-      setContent('');
-      setMediaFiles([]);
-      
+      resetForm();
       onPostCreated?.();
       onClose();
     } catch (error) {
@@ -216,12 +300,31 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     }
   };
 
-  const handleClose = () => {
+  const resetForm = () => {
     setStep('type');
     setSelectedType('');
     setTitle('');
     setContent('');
     setMediaFiles([]);
+    // Reset event fields
+    setStartDate('');
+    setEndDate('');
+    setLocation('');
+    setMaxAttendees('');
+    setTicketPrice('');
+    setIsVirtual(false);
+    setIsFree(true);
+    setEventType('');
+    // Reset marketplace fields
+    setPrice('');
+    setCategory('');
+    setIsNegotiable(false);
+    setContactInfo('');
+    setLocationMarket('');
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
@@ -300,6 +403,186 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                 className="mt-2"
               />
             </div>
+
+            {/* Event-specific fields */}
+            {selectedType === 'event' && (
+              <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-purple-600" />
+                  <Label className="text-sm font-medium">Event Details</Label>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="start-date">Start Date & Time *</Label>
+                    <Input
+                      id="start-date"
+                      type="datetime-local"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end-date">End Date & Time</Label>
+                    <Input
+                      id="end-date"
+                      type="datetime-local"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="event-type">Event Type *</Label>
+                    <Select value={eventType} onValueChange={setEventType}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Select event type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cultural">Cultural</SelectItem>
+                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="social">Social</SelectItem>
+                        <SelectItem value="religious">Religious</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="max-attendees">Max Attendees</Label>
+                    <Input
+                      id="max-attendees"
+                      type="number"
+                      value={maxAttendees}
+                      onChange={(e) => setMaxAttendees(e.target.value)}
+                      placeholder="Optional"
+                      className="mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="event-location">Location</Label>
+                  <Input
+                    id="event-location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Event location or online"
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-6">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="is-virtual"
+                      checked={isVirtual}
+                      onCheckedChange={setIsVirtual}
+                    />
+                    <Label htmlFor="is-virtual">Virtual Event</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="is-free"
+                      checked={isFree}
+                      onCheckedChange={setIsFree}
+                    />
+                    <Label htmlFor="is-free">Free Event</Label>
+                  </div>
+                </div>
+
+                {!isFree && (
+                  <div>
+                    <Label htmlFor="ticket-price">Ticket Price ($)</Label>
+                    <Input
+                      id="ticket-price"
+                      type="number"
+                      step="0.01"
+                      value={ticketPrice}
+                      onChange={(e) => setTicketPrice(e.target.value)}
+                      placeholder="0.00"
+                      className="mt-2"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Marketplace-specific fields */}
+            {selectedType === 'marketplace' && (
+              <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-green-600" />
+                  <Label className="text-sm font-medium">Listing Details</Label>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="category">Category *</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="goods">Goods</SelectItem>
+                        <SelectItem value="services">Services</SelectItem>
+                        <SelectItem value="housing">Housing</SelectItem>
+                        <SelectItem value="jobs">Jobs</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="price">Price ($)</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder="0.00 (Leave empty for free)"
+                      className="mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="location-market">Location</Label>
+                  <Input
+                    id="location-market"
+                    value={locationMarket}
+                    onChange={(e) => setLocationMarket(e.target.value)}
+                    placeholder="Where is the item/service located?"
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="contact-info">Contact Information</Label>
+                  <Input
+                    id="contact-info"
+                    value={contactInfo}
+                    onChange={(e) => setContactInfo(e.target.value)}
+                    placeholder='{"phone": "123-456-7890", "email": "email@example.com"}'
+                    className="mt-2"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Optional: JSON format for contact details
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is-negotiable"
+                    checked={isNegotiable}
+                    onCheckedChange={setIsNegotiable}
+                  />
+                  <Label htmlFor="is-negotiable">Price is negotiable</Label>
+                </div>
+              </div>
+            )}
 
             {/* Media Upload */}
             <div>

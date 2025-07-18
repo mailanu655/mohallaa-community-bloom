@@ -38,7 +38,8 @@ const EventsPage = () => {
 
   const fetchEvents = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch dedicated events
+      const { data: eventsData, error: eventsError } = await supabase
         .from('events')
         .select(`
           *,
@@ -48,8 +49,53 @@ const EventsPage = () => {
         .gte('start_date', new Date().toISOString())
         .order('start_date', { ascending: true });
 
-      if (error) throw error;
-      setEvents(data || []);
+      if (eventsError) throw eventsError;
+
+      // Fetch event posts (posts with post_type = 'event')
+      const { data: eventPostsData, error: eventPostsError } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles(first_name, last_name, avatar_url),
+          communities(name, city, state)
+        `)
+        .eq('post_type', 'event')
+        .order('created_at', { ascending: false });
+
+      if (eventPostsError) throw eventPostsError;
+
+      // Transform event posts to match events format
+      const transformedEventPosts = (eventPostsData || []).map(post => ({
+        id: post.id,
+        title: post.title,
+        description: post.content,
+        start_date: post.created_at, // Use created_at as fallback
+        end_date: null,
+        location: null,
+        max_attendees: null,
+        current_attendees: 0,
+        ticket_price: null,
+        is_free: true,
+        is_virtual: false,
+        event_type: 'social', // Default type for post-sourced events
+        organizer_id: post.author_id,
+        community_id: post.community_id,
+        created_at: post.created_at,
+        updated_at: post.updated_at,
+        image_url: post.media_urls?.[0] || null,
+        source: 'post',
+        post_id: post.id,
+        profiles: post.profiles,
+        communities: post.communities
+      }));
+
+      // Combine both sources
+      const allEvents = [...(eventsData || []), ...transformedEventPosts];
+      
+      // Sort by date
+      allEvents.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+      
+      setEvents(allEvents);
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
@@ -275,6 +321,11 @@ const EventsPage = () => {
                       <Badge variant="outline" className="text-xs capitalize">
                         {event.event_type}
                       </Badge>
+                      {event.source === 'post' && (
+                        <Badge variant="secondary" className="text-xs">
+                          Post
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
