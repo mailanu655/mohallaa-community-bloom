@@ -18,7 +18,12 @@ export const useUserCommunities = () => {
   const { user } = useAuth();
   
   const fetchUserCommunities = async (): Promise<UserCommunity[]> => {
-    if (!user) return [];
+    if (!user) {
+      console.log('No user found, returning empty communities array');
+      return [];
+    }
+    
+    console.log('Fetching communities for user:', user.id);
     
     const { data, error } = await supabase
       .from('community_members')
@@ -37,9 +42,15 @@ export const useUserCommunities = () => {
       .order('joined_at', { ascending: false })
       .limit(10);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching user communities:', error);
+      throw error;
+    }
     
-    return data?.map(item => item.communities).filter(Boolean) || [];
+    const communities = data?.map(item => item.communities).filter(Boolean) as UserCommunity[] || [];
+    console.log('Fetched user communities:', communities);
+    
+    return communities;
   };
 
   const {

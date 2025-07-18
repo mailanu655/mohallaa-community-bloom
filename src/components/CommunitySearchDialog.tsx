@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -29,13 +29,15 @@ const CommunitySearchDialog = ({ open, onOpenChange, onSelectCommunity }: Commun
   const [searchResults, setSearchResults] = useState<Community[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const searchCommunities = async (query: string) => {
+  const searchCommunities = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       return;
     }
 
+    console.log('Searching for communities with query:', query);
     setLoading(true);
+    
     try {
       const { data, error } = await supabase
         .from('communities')
@@ -44,7 +46,12 @@ const CommunitySearchDialog = ({ open, onOpenChange, onSelectCommunity }: Commun
         .order('member_count', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Search error:', error);
+        throw error;
+      }
+
+      console.log('Search results:', data);
       setSearchResults(data || []);
     } catch (error) {
       console.error('Search error:', error);
@@ -52,12 +59,22 @@ const CommunitySearchDialog = ({ open, onOpenChange, onSelectCommunity }: Commun
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const debouncedSearch = debounce(searchCommunities, 300);
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      searchCommunities(query);
+    }, 300),
+    [searchCommunities]
+  );
 
   useEffect(() => {
     debouncedSearch(searchQuery);
+    
+    // Cleanup function to cancel pending debounced calls
+    return () => {
+      debouncedSearch.cancel();
+    };
   }, [searchQuery, debouncedSearch]);
 
   const handleSelectCommunity = (community: Community) => {
