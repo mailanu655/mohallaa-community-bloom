@@ -3093,13 +3093,15 @@ export type Database = {
         Returns: unknown
       }
       get_nearby_posts: {
-        Args: {
-          user_lat: number
-          user_lng: number
-          radius_miles?: number
-          limit_count?: number
-          offset_count?: number
-        }
+        Args:
+          | { user_lat: number; user_lng: number; radius_km?: number }
+          | {
+              user_lat: number
+              user_lng: number
+              radius_miles?: number
+              limit_count?: number
+              offset_count?: number
+            }
         Returns: {
           id: string
           title: string
