@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
     title: '',
     content: '',
     visibility: 'public',
-    communityId: '',
+    communityId: 'general',
     mediaUrls: [] as string[]
   });
   
@@ -66,7 +67,7 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
       title: '',
       content: '',
       visibility: 'public',
-      communityId: '',
+      communityId: 'general',
       mediaUrls: []
     });
     setCharacterCount(0);
@@ -137,7 +138,7 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
           title: formData.title || null,
           content: formData.content,
           post_type: 'discussion',
-          community_id: formData.communityId || null,
+          community_id: formData.communityId === 'general' ? null : formData.communityId,
           author_id: user.id,
           media_urls: formData.mediaUrls.length > 0 ? formData.mediaUrls : null,
           media_type: formData.mediaUrls.length > 0 ? 'mixed' : null
@@ -329,7 +330,7 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
                   <SelectValue placeholder="Community" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">General</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
                   {communities.map(community => (
                     <SelectItem key={community.id} value={community.id}>
                       {community.name}
