@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,7 +16,9 @@ import {
   ShoppingBag,
   AlertTriangle,
   Briefcase,
-  Home
+  Home,
+  HelpCircle,
+  Shield
 } from 'lucide-react';
 import SharePostModal from '@/components/SharePostModal';
 import PostMediaGallery from '@/components/PostMediaGallery';
@@ -105,7 +106,7 @@ const TwitterLikePostCard = ({
       case 'question':
         return {
           color: 'bg-purple-50 text-purple-700 border-purple-200',
-          icon: MessageCircle,
+          icon: HelpCircle,
           label: 'Question'
         };
       case 'announcement':
@@ -147,7 +148,7 @@ const TwitterLikePostCard = ({
       case 'safety_alert':
         return {
           color: 'bg-red-50 text-red-700 border-red-200',
-          icon: AlertTriangle,
+          icon: Shield,
           label: 'Safety Alert'
         };
       case 'resource':

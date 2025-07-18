@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,9 @@ import {
   Home,
   X,
   Upload,
-  Image
+  Image,
+  HelpCircle,
+  Shield
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,7 +47,7 @@ const postTypes = [
   { 
     value: "question" as const, 
     label: "Question", 
-    icon: MessageSquare,
+    icon: HelpCircle,
     color: "bg-purple-600",
     description: "Ask the community for help or advice"
   },
@@ -102,7 +103,7 @@ const postTypes = [
   { 
     value: "safety_alert" as const, 
     label: "Safety Alert", 
-    icon: AlertTriangle,
+    icon: Shield,
     color: "bg-red-600",
     description: "Important safety information for the community"
   }
