@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,6 +16,8 @@ import {
 import SharePostModal from '@/components/SharePostModal';
 import PostMediaGallery from '@/components/PostMediaGallery';
 import RichContentRenderer from '@/components/RichContentRenderer';
+import { useBookmarks } from '@/hooks/useBookmarks';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TwitterLikePostCardProps {
   post: {
@@ -53,8 +56,9 @@ const TwitterLikePostCard = ({
   onCommentClick, 
   onShareClick 
 }: TwitterLikePostCardProps) => {
+  const { user } = useAuth();
+  const { isBookmarked, toggleBookmark, isLoading: bookmarkLoading } = useBookmarks(post.id);
   const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(post.upvotes || 0);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
@@ -66,7 +70,11 @@ const TwitterLikePostCard = ({
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSaved(!isSaved);
+    if (!user) {
+      window.location.href = '/auth';
+      return;
+    }
+    toggleBookmark();
   };
 
   const handleShare = (e: React.MouseEvent) => {
@@ -170,7 +178,6 @@ const TwitterLikePostCard = ({
               </div>
             )}
 
-
             {/* Actions */}
             <div className="flex items-center justify-between max-w-md mt-3 pt-1">
               <Button
@@ -210,13 +217,14 @@ const TwitterLikePostCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleSave}
-                className={`flex items-center space-x-2 group transition-all duration-200 hover:scale-105 active:scale-95 ${
-                  isSaved 
+                disabled={bookmarkLoading}
+                className={`flex items-center space-x-2 group transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 ${
+                  isBookmarked 
                     ? 'text-primary animate-pulse-glow' 
                     : 'text-muted-foreground hover:text-primary hover:bg-white'
                 }`}
               >
-                <Bookmark className={`w-4 h-4 transition-all duration-200 ${isSaved ? 'fill-current scale-110' : 'group-hover:fill-primary/20'}`} />
+                <Bookmark className={`w-4 h-4 transition-all duration-200 ${isBookmarked ? 'fill-current scale-110' : 'group-hover:fill-primary/20'}`} />
               </Button>
 
               <Button
