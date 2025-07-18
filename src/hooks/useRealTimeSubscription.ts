@@ -26,6 +26,11 @@ export function useRealTimeSubscription({
   const channelRef = useRef<RealtimeChannel | null>(null);
   
   useEffect(() => {
+    // Skip if filter is undefined for authenticated-only subscriptions
+    if (table === 'notifications' && !filter) {
+      return;
+    }
+
     // Create unique channel name
     const channelName = `realtime_${table}_${Date.now()}`;
     const channel = supabase.channel(channelName);
@@ -66,6 +71,8 @@ export function useRealTimeSubscription({
       } else if (status === 'CHANNEL_ERROR') {
         console.error(`Error subscribing to ${table} changes`);
         onError?.(new Error('Subscription failed'));
+      } else if (status === 'CLOSED') {
+        console.warn(`Channel closed for ${table}`);
       }
     });
     
