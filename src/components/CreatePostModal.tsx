@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,13 +12,13 @@ import {
   Image as ImageIcon, 
   MapPin,
   Smile,
-  ChevronDown,
   Globe
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import FileUploader from './FileUploader';
+import CommunitySelector from './CommunitySelector';
 
 interface CreatePostModalProps {
   open: boolean;
@@ -36,30 +37,9 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
     mediaUrls: [] as string[]
   });
   
-  const [communities, setCommunities] = useState<Array<{ id: string; name: string }>>([]);
   const [showFileUploader, setShowFileUploader] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [characterCount, setCharacterCount] = useState(0);
-
-  useEffect(() => {
-    if (open) {
-      fetchCommunities();
-    }
-  }, [open]);
-
-  const fetchCommunities = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('communities')
-        .select('id, name')
-        .order('name');
-      
-      if (error) throw error;
-      setCommunities(data || []);
-    } catch (error) {
-      console.error('Error fetching communities:', error);
-    }
-  };
 
   const resetForm = () => {
     setFormData({
@@ -307,21 +287,10 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
 
             <div className="flex items-center space-x-3">
               {/* Community Selection */}
-              {communities.length > 0 && (
-                <Select value={formData.communityId} onValueChange={(value) => setFormData(prev => ({ ...prev, communityId: value }))}>
-                  <SelectTrigger className="w-auto h-8 border-0 bg-transparent text-xs">
-                    <SelectValue placeholder="Community" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">General</SelectItem>
-                    {communities.map(community => (
-                      <SelectItem key={community.id} value={community.id}>
-                        {community.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <CommunitySelector
+                value={formData.communityId}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, communityId: value }))}
+              />
 
               {/* Post Button */}
               <Button 
