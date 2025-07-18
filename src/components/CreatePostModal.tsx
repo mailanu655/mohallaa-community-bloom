@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -170,15 +169,6 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
       <DialogContent className="max-w-lg p-0 bg-background border border-border shadow-lg">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            className="h-8 w-8 rounded-full hover:bg-muted"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          
           <div className="flex items-center space-x-2">
             <Select value={formData.visibility} onValueChange={(value) => setFormData(prev => ({ ...prev, visibility: value }))}>
               <SelectTrigger className="w-24 h-8 border-0 bg-transparent text-sm">
