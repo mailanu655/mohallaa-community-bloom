@@ -168,7 +168,7 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg p-0 bg-background border border-border shadow-lg">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center p-4 border-b border-border">
           <div className="flex items-center space-x-2">
             <Select value={formData.visibility} onValueChange={(value) => setFormData(prev => ({ ...prev, visibility: value }))}>
               <SelectTrigger className="w-24 h-8 border-0 bg-transparent text-sm">
@@ -183,14 +183,6 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
               </SelectContent>
             </Select>
           </div>
-
-          <Button 
-            onClick={handleSubmit}
-            disabled={!formData.content.trim() || isLoading}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-1.5 h-8 text-sm font-medium"
-          >
-            {isLoading ? 'Posting...' : 'Post'}
-          </Button>
         </div>
 
         {/* Content */}
@@ -313,22 +305,33 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
               </Button>
             </div>
 
-            {/* Community Selection */}
-            {communities.length > 0 && (
-              <Select value={formData.communityId} onValueChange={(value) => setFormData(prev => ({ ...prev, communityId: value }))}>
-                <SelectTrigger className="w-auto h-8 border-0 bg-transparent text-xs">
-                  <SelectValue placeholder="Community" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="general">General</SelectItem>
-                  {communities.map(community => (
-                    <SelectItem key={community.id} value={community.id}>
-                      {community.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <div className="flex items-center space-x-3">
+              {/* Community Selection */}
+              {communities.length > 0 && (
+                <Select value={formData.communityId} onValueChange={(value) => setFormData(prev => ({ ...prev, communityId: value }))}>
+                  <SelectTrigger className="w-auto h-8 border-0 bg-transparent text-xs">
+                    <SelectValue placeholder="Community" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    {communities.map(community => (
+                      <SelectItem key={community.id} value={community.id}>
+                        {community.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Post Button */}
+              <Button 
+                onClick={handleSubmit}
+                disabled={!formData.content.trim() || isLoading}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-1.5 h-8 text-sm font-medium"
+              >
+                {isLoading ? 'Posting...' : 'Post'}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
