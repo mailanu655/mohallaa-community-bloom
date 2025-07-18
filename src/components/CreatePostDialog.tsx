@@ -4,14 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { 
   MessageSquare, 
   Camera, 
-  MapPin, 
   Calendar, 
   ShoppingBag, 
   AlertTriangle,
@@ -20,18 +17,15 @@ import {
   Briefcase,
   Home,
   X,
-  Upload,
-  Image,
   HelpCircle,
-  Shield,
-  Clock,
-  DollarSign
+  Shield
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import MarketplaceFormFields from "@/components/marketplace/MarketplaceFormFields";
+import EventFormFields from "@/components/events/EventFormFields";
 
 interface CreatePostDialogProps {
   isOpen: boolean;
@@ -122,15 +116,20 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Event-specific fields
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [location, setLocation] = useState('');
-  const [maxAttendees, setMaxAttendees] = useState('');
-  const [ticketPrice, setTicketPrice] = useState('');
-  const [isVirtual, setIsVirtual] = useState(false);
-  const [isFree, setIsFree] = useState(true);
-  const [eventType, setEventType] = useState('');
+  // Event-specific fields using unified structure
+  const [eventData, setEventData] = useState({
+    title: '',
+    description: '',
+    event_type: '',
+    is_virtual: false,
+    start_date: '',
+    end_date: '',
+    location: '',
+    address: '',
+    max_attendees: '',
+    is_free: true,
+    ticket_price: ''
+  });
 
   // Marketplace-specific fields
   const [marketplaceData, setMarketplaceData] = useState({
@@ -164,6 +163,13 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
   const removeMediaFile = (index: number) => {
     setMediaFiles(mediaFiles.filter((_, i) => i !== index));
+  };
+
+  const handleEventDataChange = (field: string, value: any) => {
+    setEventData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleMarketplaceDataChange = (field: string, value: any) => {
@@ -214,9 +220,18 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       return;
     }
 
-    // For marketplace posts, use marketplace data for title and content
-    const postTitle = selectedType === 'marketplace' ? marketplaceData.title : title;
-    const postContent = selectedType === 'marketplace' ? marketplaceData.description : content;
+    // Determine title and content based on post type
+    let postTitle, postContent;
+    if (selectedType === 'marketplace') {
+      postTitle = marketplaceData.title;
+      postContent = marketplaceData.description;
+    } else if (selectedType === 'event') {
+      postTitle = eventData.title;
+      postContent = eventData.description;
+    } else {
+      postTitle = title;
+      postContent = content;
+    }
 
     if (!postTitle.trim() || !postContent.trim()) {
       toast.error("Please fill in all required fields");
@@ -224,7 +239,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     }
 
     // Additional validation for event and marketplace posts
-    if (selectedType === 'event' && (!startDate || !eventType)) {
+    if (selectedType === 'event' && (!eventData.start_date || !eventData.event_type)) {
       toast.error("Please fill in event date and type");
       return;
     }
@@ -270,17 +285,18 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
       // Create corresponding event or marketplace entry if needed
       if (selectedType === 'event' && postResult) {
-        const eventData = {
+        const eventEntryData = {
           title: postTitle.trim(),
           description: postContent.trim(),
-          start_date: startDate,
-          end_date: endDate || null,
-          location: location || null,
-          max_attendees: maxAttendees ? parseInt(maxAttendees) : null,
-          ticket_price: isFree ? null : (ticketPrice ? parseFloat(ticketPrice) : null),
-          is_free: isFree,
-          is_virtual: isVirtual,
-          event_type: eventType as Database['public']['Enums']['event_type'],
+          start_date: eventData.start_date,
+          end_date: eventData.end_date || null,
+          location: eventData.location || null,
+          address: eventData.address || null,
+          max_attendees: eventData.max_attendees ? parseInt(eventData.max_attendees) : null,
+          ticket_price: eventData.is_free ? null : (eventData.ticket_price ? parseFloat(eventData.ticket_price) : null),
+          is_free: eventData.is_free,
+          is_virtual: eventData.is_virtual,
+          event_type: eventData.event_type as Database['public']['Enums']['event_type'],
           organizer_id: user.id,
           community_id: communityId && communityId !== "general" ? communityId : null,
           source: 'post' as const,
@@ -290,7 +306,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
         const { error: eventError } = await supabase
           .from('events')
-          .insert(eventData);
+          .insert(eventEntryData);
 
         if (eventError) {
           console.error('Event creation error:', eventError);
@@ -352,14 +368,19 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     setContent('');
     setMediaFiles([]);
     // Reset event fields
-    setStartDate('');
-    setEndDate('');
-    setLocation('');
-    setMaxAttendees('');
-    setTicketPrice('');
-    setIsVirtual(false);
-    setIsFree(true);
-    setEventType('');
+    setEventData({
+      title: '',
+      description: '',
+      event_type: '',
+      is_virtual: false,
+      start_date: '',
+      end_date: '',
+      location: '',
+      address: '',
+      max_attendees: '',
+      is_free: true,
+      ticket_price: ''
+    });
     // Reset marketplace fields
     setMarketplaceData({
       title: '',
@@ -431,8 +452,46 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               )}
             </div>
 
-            {/* Marketplace-specific fields */}
-            {selectedType === 'marketplace' ? (
+            {/* Event-specific fields */}
+            {selectedType === 'event' ? (
+              <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-purple-600" />
+                  <Label className="text-sm font-medium">Event Details</Label>
+                </div>
+                
+                {/* Title and Description for event posts */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="event-post-title">Event Title *</Label>
+                    <Input
+                      id="event-post-title"
+                      value={eventData.title}
+                      onChange={(e) => handleEventDataChange('title', e.target.value)}
+                      placeholder="e.g., Diwali Celebration 2024"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="event-post-description">Event Description *</Label>
+                    <Textarea
+                      id="event-post-description"
+                      value={eventData.description}
+                      onChange={(e) => handleEventDataChange('description', e.target.value)}
+                      placeholder="Describe your event, activities, and what attendees can expect..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+
+                <EventFormFields
+                  formData={eventData}
+                  onFormDataChange={handleEventDataChange}
+                  showTitle={false}
+                  showDescription={false}
+                />
+              </div>
+            ) : selectedType === 'marketplace' ? (
               <MarketplaceFormFields
                 formData={marketplaceData}
                 onFormDataChange={handleMarketplaceDataChange}
@@ -445,7 +504,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               />
             ) : (
               <>
-                {/* Title */}
+                {/* Title and Content for other post types */}
                 <div>
                   <Label htmlFor="title">Title *</Label>
                   <Input
@@ -457,7 +516,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                   />
                 </div>
 
-                {/* Content */}
                 <div>
                   <Label htmlFor="content">Description *</Label>
                   <Textarea
@@ -470,113 +528,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                   />
                 </div>
               </>
-            )}
-
-            {/* Event-specific fields */}
-            {selectedType === 'event' && (
-              <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-purple-600" />
-                  <Label className="text-sm font-medium">Event Details</Label>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="start-date">Start Date & Time *</Label>
-                    <Input
-                      id="start-date"
-                      type="datetime-local"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="end-date">End Date & Time</Label>
-                    <Input
-                      id="end-date"
-                      type="datetime-local"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="event-type">Event Type *</Label>
-                    <Select value={eventType} onValueChange={setEventType}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select event type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="cultural">Cultural</SelectItem>
-                        <SelectItem value="professional">Professional</SelectItem>
-                        <SelectItem value="social">Social</SelectItem>
-                        <SelectItem value="religious">Religious</SelectItem>
-                        <SelectItem value="educational">Educational</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="max-attendees">Max Attendees</Label>
-                    <Input
-                      id="max-attendees"
-                      type="number"
-                      value={maxAttendees}
-                      onChange={(e) => setMaxAttendees(e.target.value)}
-                      placeholder="Optional"
-                      className="mt-2"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="event-location">Location</Label>
-                  <Input
-                    id="event-location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Event location or online"
-                    className="mt-2"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-6">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is-virtual"
-                      checked={isVirtual}
-                      onCheckedChange={setIsVirtual}
-                    />
-                    <Label htmlFor="is-virtual">Virtual Event</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is-free"
-                      checked={isFree}
-                      onCheckedChange={setIsFree}
-                    />
-                    <Label htmlFor="is-free">Free Event</Label>
-                  </div>
-                </div>
-
-                {!isFree && (
-                  <div>
-                    <Label htmlFor="ticket-price">Ticket Price ($)</Label>
-                    <Input
-                      id="ticket-price"
-                      type="number"
-                      step="0.01"
-                      value={ticketPrice}
-                      onChange={(e) => setTicketPrice(e.target.value)}
-                      placeholder="0.00"
-                      className="mt-2"
-                    />
-                  </div>
-                )}
-              </div>
             )}
 
             {/* Media Upload for non-marketplace posts */}
@@ -641,7 +592,9 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               <Button 
                 onClick={handleSubmit} 
                 disabled={isSubmitting || 
-                  (selectedType === 'marketplace' ? (!marketplaceData.title.trim() || !marketplaceData.description.trim()) : (!title.trim() || !content.trim()))}
+                  (selectedType === 'marketplace' ? (!marketplaceData.title.trim() || !marketplaceData.description.trim()) : 
+                   selectedType === 'event' ? (!eventData.title.trim() || !eventData.description.trim()) :
+                   (!title.trim() || !content.trim()))}
                 variant="cultural"
               >
                 {isSubmitting ? "Publishing..." : "Publish Post"}
