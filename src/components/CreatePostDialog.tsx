@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import MarketplaceFormFields from "@/components/marketplace/MarketplaceFormFields";
 
 interface CreatePostDialogProps {
   isOpen: boolean;
@@ -132,11 +133,18 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   const [eventType, setEventType] = useState('');
 
   // Marketplace-specific fields
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('');
-  const [isNegotiable, setIsNegotiable] = useState(false);
-  const [contactInfo, setContactInfo] = useState('');
-  const [locationMarket, setLocationMarket] = useState('');
+  const [marketplaceData, setMarketplaceData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    price: '',
+    location: '',
+    isNegotiable: true,
+    contactPhone: '',
+    contactEmail: '',
+    preferredContact: ''
+  });
+  const [marketplaceImages, setMarketplaceImages] = useState<File[]>([]);
 
   const selectedPostType = postTypes.find(type => type.value === selectedType);
 
@@ -156,6 +164,26 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
   const removeMediaFile = (index: number) => {
     setMediaFiles(mediaFiles.filter((_, i) => i !== index));
+  };
+
+  const handleMarketplaceDataChange = (field: string, value: any) => {
+    setMarketplaceData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleMarketplaceImageUpload = (files: FileList) => {
+    const newFiles = Array.from(files);
+    if (newFiles.length + marketplaceImages.length > 5) {
+      toast.error("Maximum 5 images allowed");
+      return;
+    }
+    setMarketplaceImages(prev => [...prev, ...newFiles]);
+  };
+
+  const removeMarketplaceImage = (index: number) => {
+    setMarketplaceImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const uploadMedia = async (files: File[]): Promise<string[]> => {
@@ -181,7 +209,16 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim() || !selectedType || !user) {
+    if (!selectedType || !user) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // For marketplace posts, use marketplace data for title and content
+    const postTitle = selectedType === 'marketplace' ? marketplaceData.title : title;
+    const postContent = selectedType === 'marketplace' ? marketplaceData.description : content;
+
+    if (!postTitle.trim() || !postContent.trim()) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -192,7 +229,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       return;
     }
 
-    if (selectedType === 'marketplace' && !category) {
+    if (selectedType === 'marketplace' && !marketplaceData.category) {
       toast.error("Please select a category");
       return;
     }
@@ -201,14 +238,16 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     try {
       // Upload media files if any
       let mediaUrls: string[] = [];
-      if (mediaFiles.length > 0) {
+      if (selectedType === 'marketplace' && marketplaceImages.length > 0) {
+        mediaUrls = await uploadMedia(marketplaceImages);
+      } else if (mediaFiles.length > 0) {
         mediaUrls = await uploadMedia(mediaFiles);
       }
 
       // Create the post with proper validation
       const postData = {
-        title: title.trim(),
-        content: content.trim(),
+        title: postTitle.trim(),
+        content: postContent.trim(),
         post_type: selectedType,
         community_id: communityId && communityId !== "general" ? communityId : null,
         author_id: user.id,
@@ -232,8 +271,8 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       // Create corresponding event or marketplace entry if needed
       if (selectedType === 'event' && postResult) {
         const eventData = {
-          title: title.trim(),
-          description: content.trim(),
+          title: postTitle.trim(),
+          description: postContent.trim(),
           start_date: startDate,
           end_date: endDate || null,
           location: location || null,
@@ -260,24 +299,30 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       }
 
       if (selectedType === 'marketplace' && postResult) {
-        const marketplaceData = {
-          title: title.trim(),
-          description: content.trim(),
-          price: price ? parseFloat(price) : null,
-          category: category as Database['public']['Enums']['marketplace_category'],
-          is_negotiable: isNegotiable,
-          location: locationMarket || null,
+        // Prepare contact info
+        const contactInfo: any = {};
+        if (marketplaceData.contactPhone) contactInfo.phone = marketplaceData.contactPhone;
+        if (marketplaceData.contactEmail) contactInfo.email = marketplaceData.contactEmail;
+        if (marketplaceData.preferredContact) contactInfo.preferred = marketplaceData.preferredContact;
+
+        const marketplaceEntry = {
+          title: postTitle.trim(),
+          description: postContent.trim(),
+          price: marketplaceData.price ? parseFloat(marketplaceData.price) : null,
+          category: marketplaceData.category as Database['public']['Enums']['marketplace_category'],
+          is_negotiable: marketplaceData.isNegotiable,
+          location: marketplaceData.location || null,
           images: mediaUrls.length > 0 ? mediaUrls : null,
           seller_id: user.id,
           community_id: communityId && communityId !== "general" ? communityId : null,
           source: 'post' as const,
           post_id: postResult.id,
-          contact_info: contactInfo ? JSON.parse(contactInfo) : null
+          contact_info: Object.keys(contactInfo).length > 0 ? contactInfo : null
         };
 
         const { error: marketError } = await supabase
           .from('marketplace')
-          .insert(marketplaceData);
+          .insert(marketplaceEntry);
 
         if (marketError) {
           console.error('Marketplace creation error:', marketError);
@@ -316,11 +361,18 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     setIsFree(true);
     setEventType('');
     // Reset marketplace fields
-    setPrice('');
-    setCategory('');
-    setIsNegotiable(false);
-    setContactInfo('');
-    setLocationMarket('');
+    setMarketplaceData({
+      title: '',
+      description: '',
+      category: '',
+      price: '',
+      location: '',
+      isNegotiable: true,
+      contactPhone: '',
+      contactEmail: '',
+      preferredContact: ''
+    });
+    setMarketplaceImages([]);
   };
 
   const handleClose = () => {
@@ -379,30 +431,46 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               )}
             </div>
 
-            {/* Title */}
-            <div>
-              <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="What's your post about?"
-                className="mt-2"
+            {/* Marketplace-specific fields */}
+            {selectedType === 'marketplace' ? (
+              <MarketplaceFormFields
+                formData={marketplaceData}
+                onFormDataChange={handleMarketplaceDataChange}
+                images={marketplaceImages}
+                onImageUpload={handleMarketplaceImageUpload}
+                onRemoveImage={removeMarketplaceImage}
+                maxImages={5}
+                showTitle={true}
+                showDescription={true}
               />
-            </div>
+            ) : (
+              <>
+                {/* Title */}
+                <div>
+                  <Label htmlFor="title">Title *</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="What's your post about?"
+                    className="mt-2"
+                  />
+                </div>
 
-            {/* Content */}
-            <div>
-              <Label htmlFor="content">Description *</Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Share more details..."
-                rows={6}
-                className="mt-2"
-              />
-            </div>
+                {/* Content */}
+                <div>
+                  <Label htmlFor="content">Description *</Label>
+                  <Textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Share more details..."
+                    rows={6}
+                    className="mt-2"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Event-specific fields */}
             {selectedType === 'event' && (
@@ -511,130 +579,59 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               </div>
             )}
 
-            {/* Marketplace-specific fields */}
-            {selectedType === 'marketplace' && (
-              <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4 text-green-600" />
-                  <Label className="text-sm font-medium">Listing Details</Label>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="category">Category *</Label>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="goods">Goods</SelectItem>
-                        <SelectItem value="services">Services</SelectItem>
-                        <SelectItem value="housing">Housing</SelectItem>
-                        <SelectItem value="jobs">Jobs</SelectItem>
-                      </SelectContent>
-                    </Select>
+            {/* Media Upload for non-marketplace posts */}
+            {selectedType !== 'marketplace' && (
+              <div>
+                <Label>Photos (optional)</Label>
+                <div className="mt-2 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex items-center gap-2"
+                      onClick={() => document.getElementById('media-upload')?.click()}
+                    >
+                      <Camera className="w-4 h-4" />
+                      Add Photos
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {mediaFiles.length}/5 photos
+                    </span>
                   </div>
-                  <div>
-                    <Label htmlFor="price">Price ($)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      placeholder="0.00 (Leave empty for free)"
-                      className="mt-2"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="location-market">Location</Label>
-                  <Input
-                    id="location-market"
-                    value={locationMarket}
-                    onChange={(e) => setLocationMarket(e.target.value)}
-                    placeholder="Where is the item/service located?"
-                    className="mt-2"
+                  
+                  <input
+                    id="media-upload"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleMediaUpload}
+                    className="hidden"
                   />
-                </div>
 
-                <div>
-                  <Label htmlFor="contact-info">Contact Information</Label>
-                  <Input
-                    id="contact-info"
-                    value={contactInfo}
-                    onChange={(e) => setContactInfo(e.target.value)}
-                    placeholder='{"phone": "123-456-7890", "email": "email@example.com"}'
-                    className="mt-2"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Optional: JSON format for contact details
-                  </p>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="is-negotiable"
-                    checked={isNegotiable}
-                    onCheckedChange={setIsNegotiable}
-                  />
-                  <Label htmlFor="is-negotiable">Price is negotiable</Label>
+                  {mediaFiles.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {mediaFiles.map((file, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-1 right-1 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeMediaFile(index)}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
-
-            {/* Media Upload */}
-            <div>
-              <Label>Photos (optional)</Label>
-              <div className="mt-2 space-y-4">
-                <div className="flex items-center gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => document.getElementById('media-upload')?.click()}
-                  >
-                    <Camera className="w-4 h-4" />
-                    Add Photos
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {mediaFiles.length}/5 photos
-                  </span>
-                </div>
-                
-                <input
-                  id="media-upload"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleMediaUpload}
-                  className="hidden"
-                />
-
-                {mediaFiles.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {mediaFiles.map((file, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Upload ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="absolute top-1 right-1 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeMediaFile(index)}
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Submit buttons */}
             <div className="flex justify-end gap-3 pt-4">
@@ -643,7 +640,8 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               </Button>
               <Button 
                 onClick={handleSubmit} 
-                disabled={isSubmitting || !title.trim() || !content.trim()}
+                disabled={isSubmitting || 
+                  (selectedType === 'marketplace' ? (!marketplaceData.title.trim() || !marketplaceData.description.trim()) : (!title.trim() || !content.trim()))}
                 variant="cultural"
               >
                 {isSubmitting ? "Publishing..." : "Publish Post"}

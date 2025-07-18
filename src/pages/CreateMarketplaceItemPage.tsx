@@ -1,16 +1,13 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Upload, X } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import MarketplaceFormFields from '@/components/marketplace/MarketplaceFormFields';
 
 const CreateMarketplaceItemPage = () => {
   const navigate = useNavigate();
@@ -24,23 +21,86 @@ const CreateMarketplaceItemPage = () => {
     category: '',
     price: '',
     location: '',
-    is_negotiable: true,
+    isNegotiable: true,
+    contactPhone: '',
+    contactEmail: '',
+    preferredContact: ''
   });
   const [images, setImages] = useState<File[]>([]);
 
-  const categories = [
-    { value: 'goods', label: 'Goods' },
-    { value: 'services', label: 'Services' },
-    { value: 'housing', label: 'Housing' },
-    { value: 'jobs', label: 'Jobs' }
-  ];
+  const handleFormDataChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageUpload = (files: FileList) => {
+    const newFiles = Array.from(files);
+    if (newFiles.length + images.length > 5) {
+      toast({
+        title: "Error",
+        description: "Maximum 5 images allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+    setImages(prev => [...prev, ...newFiles]);
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const uploadPromises = files.map(async (file) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `marketplace/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('uploads')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from('uploads')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    });
+
+    return Promise.all(uploadPromises);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
+    if (!formData.title.trim() || !formData.description.trim() || !formData.category) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      // Upload images if any
+      let imageUrls: string[] = [];
+      if (images.length > 0) {
+        imageUrls = await uploadImages(images);
+      }
+
+      // Prepare contact info
+      const contactInfo: any = {};
+      if (formData.contactPhone) contactInfo.phone = formData.contactPhone;
+      if (formData.contactEmail) contactInfo.email = formData.contactEmail;
+      if (formData.preferredContact) contactInfo.preferred = formData.preferredContact;
+
       const { data, error } = await supabase
         .from('marketplace')
         .insert({
@@ -49,8 +109,11 @@ const CreateMarketplaceItemPage = () => {
           category: formData.category as any,
           price: formData.price ? parseFloat(formData.price) : null,
           location: formData.location,
-          is_negotiable: formData.is_negotiable,
+          is_negotiable: formData.isNegotiable,
           seller_id: user.id,
+          images: imageUrls.length > 0 ? imageUrls : null,
+          contact_info: Object.keys(contactInfo).length > 0 ? contactInfo : null,
+          source: 'dedicated'
         })
         .select()
         .single();
@@ -73,17 +136,6 @@ const CreateMarketplaceItemPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newImages = Array.from(e.target.files).slice(0, 5 - images.length);
-      setImages(prev => [...prev, ...newImages]);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -113,142 +165,16 @@ const CreateMarketplaceItemPage = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
-            <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                required
-                placeholder="What are you selling?"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              />
-            </div>
-
-            {/* Category */}
-            <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(cat => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
-              <Textarea
-                id="description"
-                required
-                placeholder="Provide details about your item..."
-                rows={4}
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-
-            {/* Price */}
-            <div className="space-y-2">
-              <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                placeholder="Enter price (leave empty for free items)"
-                value={formData.price}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-              />
-            </div>
-
-            {/* Negotiable */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Negotiable Price</Label>
-                <p className="text-sm text-muted-foreground">
-                  Allow buyers to negotiate the price
-                </p>
-              </div>
-              <Switch
-                checked={formData.is_negotiable}
-                onCheckedChange={(checked) => 
-                  setFormData(prev => ({ ...prev, is_negotiable: checked }))
-                }
-              />
-            </div>
-
-            {/* Location */}
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                placeholder="Where is this item located?"
-                value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              />
-            </div>
-
-            {/* Images */}
-            <div className="space-y-2">
-              <Label>Photos (Optional)</Label>
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="images"
-                  disabled={images.length >= 5}
-                />
-                <label
-                  htmlFor="images"
-                  className="cursor-pointer flex flex-col items-center gap-2"
-                >
-                  <Upload className="w-8 h-8 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    {images.length >= 5 
-                      ? 'Maximum 5 photos allowed' 
-                      : `Upload photos (${images.length}/5)`
-                    }
-                  </p>
-                </label>
-              </div>
-
-              {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-20 object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute -top-2 -right-2 h-6 w-6 p-0"
-                        onClick={() => removeImage(index)}
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <MarketplaceFormFields
+              formData={formData}
+              onFormDataChange={handleFormDataChange}
+              images={images}
+              onImageUpload={handleImageUpload}
+              onRemoveImage={removeImage}
+              maxImages={5}
+              showTitle={true}
+              showDescription={true}
+            />
 
             {/* Submit */}
             <div className="flex gap-3 pt-4">
