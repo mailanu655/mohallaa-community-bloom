@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import CreatePostModal from '@/components/CreatePostModal';
+import CreatePostDialog from '@/components/CreatePostDialog';
 import FeedSortTabs from '@/components/FeedSortTabs';
 import TwitterLikePostCard from '@/components/TwitterLikePostCard';
 import PostDetailModal from '@/components/PostDetailModal';
@@ -37,7 +38,7 @@ const HomePage = () => {
   const [businesses, setBusinesses] = useState([]);
   const [feedSort, setFeedSort] = useState('for-you');
   const [loading, setLoading] = useState(true);
-  const [createPostModalOpen, setCreatePostModalOpen] = useState(false);
+  const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
   const [safetyAlertsModalOpen, setSafetyAlertsModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [postDetailModalOpen, setPostDetailModalOpen] = useState(false);
@@ -190,6 +191,11 @@ const HomePage = () => {
     setShareModalOpen(true);
   };
 
+  const handlePostCreated = () => {
+    // Refresh the feed when a new post is created
+    fetchFeedData(1, true);
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -240,7 +246,7 @@ const HomePage = () => {
             <Button 
               variant="ghost" 
               className="flex-1 justify-start text-muted-foreground h-12 text-lg rounded-lg border border-border/50"
-              onClick={() => setCreatePostModalOpen(true)}
+              onClick={() => setCreatePostDialogOpen(true)}
             >
               What's happening?
             </Button>
@@ -333,7 +339,7 @@ const HomePage = () => {
                 </div>
                 <Button 
                   variant="default"
-                  onClick={() => setCreatePostModalOpen(true)}
+                  onClick={() => setCreatePostDialogOpen(true)}
                 >
                   Create First Post
                 </Button>
@@ -405,9 +411,11 @@ const HomePage = () => {
       </div>
 
       {/* Modals */}
-      <CreatePostModal 
-        open={createPostModalOpen} 
-        onOpenChange={setCreatePostModalOpen}
+      <CreatePostDialog 
+        isOpen={createPostDialogOpen} 
+        onClose={() => setCreatePostDialogOpen(false)}
+        communityId="general"
+        onPostCreated={handlePostCreated}
       />
       
       <PostDetailModal

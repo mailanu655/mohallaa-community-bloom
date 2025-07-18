@@ -11,7 +11,13 @@ import {
   Bookmark, 
   MoreHorizontal,
   MapPin,
-  Users
+  Users,
+  MessageSquare,
+  Calendar,
+  ShoppingBag,
+  AlertTriangle,
+  Briefcase,
+  Home
 } from 'lucide-react';
 import SharePostModal from '@/components/SharePostModal';
 import PostMediaGallery from '@/components/PostMediaGallery';
@@ -88,15 +94,79 @@ const TwitterLikePostCard = ({
     onCommentClick?.(post.id);
   };
 
-  const getPostTypeColor = (type: string) => {
+  const getPostTypeConfig = (type: string) => {
     switch (type) {
-      case 'question': return 'bg-white text-blue-700 border-blue-200';
-      case 'recommendation': return 'bg-white text-green-700 border-green-200';
-      case 'event': return 'bg-white text-purple-700 border-purple-200';
-      case 'alert': return 'bg-white text-red-700 border-red-200';
-      default: return 'bg-white text-muted-foreground border-border';
+      case 'discussion':
+        return {
+          color: 'bg-blue-50 text-blue-700 border-blue-200',
+          icon: MessageSquare,
+          label: 'Discussion'
+        };
+      case 'question':
+        return {
+          color: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: MessageCircle,
+          label: 'Question'
+        };
+      case 'announcement':
+        return {
+          color: 'bg-orange-50 text-orange-700 border-orange-200',
+          icon: AlertTriangle,
+          label: 'Announcement'
+        };
+      case 'recommendation':
+        return {
+          color: 'bg-green-50 text-green-700 border-green-200',
+          icon: Heart,
+          label: 'Recommendation'
+        };
+      case 'event':
+        return {
+          color: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: Calendar,
+          label: 'Event'
+        };
+      case 'job':
+        return {
+          color: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          icon: Briefcase,
+          label: 'Job'
+        };
+      case 'housing':
+        return {
+          color: 'bg-red-50 text-red-700 border-red-200',
+          icon: Home,
+          label: 'Housing'
+        };
+      case 'marketplace':
+        return {
+          color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          icon: ShoppingBag,
+          label: 'For Sale'
+        };
+      case 'safety_alert':
+        return {
+          color: 'bg-red-50 text-red-700 border-red-200',
+          icon: AlertTriangle,
+          label: 'Safety Alert'
+        };
+      case 'resource':
+        return {
+          color: 'bg-teal-50 text-teal-700 border-teal-200',
+          icon: Users,
+          label: 'Resource'
+        };
+      default:
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: MessageSquare,
+          label: 'General'
+        };
     }
   };
+
+  const postTypeConfig = getPostTypeConfig(post.post_type);
+  const PostTypeIcon = postTypeConfig.icon;
 
   return (
     <>
@@ -149,12 +219,15 @@ const TwitterLikePostCard = ({
 
             {/* Post Type Badge */}
             {post.post_type && post.post_type !== 'general' && (
-              <Badge 
-                variant="outline" 
-                className={`mb-2 text-xs ${getPostTypeColor(post.post_type)}`}
-              >
-                {post.post_type}
-              </Badge>
+              <div className="flex items-center space-x-1 mb-2">
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs border ${postTypeConfig.color}`}
+                >
+                  <PostTypeIcon className="w-3 h-3 mr-1" />
+                  {postTypeConfig.label}
+                </Badge>
+              </div>
             )}
 
             {/* Title */}

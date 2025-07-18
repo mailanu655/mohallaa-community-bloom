@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ import type { Database } from "@/integrations/supabase/types";
 interface CreatePostDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  communityId: string;
+  communityId?: string;
   onPostCreated?: () => void;
 }
 
@@ -46,7 +47,7 @@ const postTypes = [
     value: "question" as const, 
     label: "Question", 
     icon: MessageSquare,
-    color: "bg-blue-600",
+    color: "bg-purple-600",
     description: "Ask the community for help or advice"
   },
   { 
@@ -107,7 +108,7 @@ const postTypes = [
   }
 ];
 
-const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: CreatePostDialogProps) => {
+const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCreated }: CreatePostDialogProps) => {
   const { user } = useAuth();
   const [step, setStep] = useState<'type' | 'content'>('type');
   const [selectedType, setSelectedType] = useState<Database['public']['Enums']['post_type'] | ''>('');
@@ -122,7 +123,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
     setSelectedType(type);
     setStep('content');
   };
-
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -165,11 +165,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
       return;
     }
 
-    if (!communityId) {
-      toast.error("Community ID is required");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       // Upload media files if any
@@ -183,7 +178,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
         title: title.trim(),
         content: content.trim(),
         post_type: selectedType,
-        community_id: communityId,
+        community_id: communityId && communityId !== "general" ? communityId : null,
         author_id: user.id,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         media_type: mediaUrls.length > 0 ? 'image' : null
@@ -225,7 +220,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
     setSelectedType('');
     setTitle('');
     setContent('');
-    
     setMediaFiles([]);
     onClose();
   };
@@ -357,7 +351,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId, onPostCreated }: Creat
                 )}
               </div>
             </div>
-
 
             {/* Submit buttons */}
             <div className="flex justify-end gap-3 pt-4">
