@@ -47,13 +47,14 @@ const CommunityJoinButton = ({ communityId, requiresApproval }: CommunityJoinBut
   if (isMember) {
     return (
       <Button 
-        variant="outline" 
+        variant="secondary" 
         size="sm"
         onClick={leaveCommunity}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+        title="Click to leave community"
       >
         <UserCheck className="w-4 h-4" />
-        Member
+        Joined
       </Button>
     );
   }
@@ -61,14 +62,15 @@ const CommunityJoinButton = ({ communityId, requiresApproval }: CommunityJoinBut
   if (hasPendingRequest) {
     return (
       <Button 
-        variant="outline" 
+        variant="secondary" 
         size="sm"
         onClick={cancelJoinRequest}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+        title="Click to cancel request"
       >
         <Clock className="w-4 h-4" />
         Pending
-        <X className="w-3 h-3 ml-1" />
+        <X className="w-3 h-3 ml-1 opacity-60" />
       </Button>
     );
   }
@@ -76,11 +78,11 @@ const CommunityJoinButton = ({ communityId, requiresApproval }: CommunityJoinBut
   return (
     <>
       <Button 
-        variant="outline" 
+        variant="default" 
         size="sm"
         onClick={handleJoin}
         disabled={joining}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
       >
         {joining ? (
           <Loader2 className="w-4 h-4 animate-spin" />
