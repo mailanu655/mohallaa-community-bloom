@@ -362,10 +362,6 @@ const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) => {
                 <div className="flex items-center space-x-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center space-x-1">
-                        <MapPin className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Where:</span>
-                      </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">{getCommunityDescription()}</p>
