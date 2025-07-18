@@ -25,7 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRealTimeSubscription } from "@/hooks/useRealTimeSubscription";
 import ConnectButton from "@/components/ConnectButton";
-import CreatePostModal from "@/components/CreatePostModal";
+import CreatePostDialog from "@/components/CreatePostDialog";
 
 const ProfilePage = () => {
   const { id } = useParams();
@@ -392,9 +392,9 @@ const ProfilePage = () => {
       </div>
       
       {/* Create Post Modal */}
-      <CreatePostModal 
-        open={showCreatePost} 
-        onOpenChange={setShowCreatePost} 
+      <CreatePostDialog 
+        isOpen={showCreatePost} 
+        onClose={() => setShowCreatePost(false)} 
       />
     </div>
   );

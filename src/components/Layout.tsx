@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 import Header from './Header';
 import MobileNav from './MobileNav';
 import NavigationSidebar from './NavigationSidebar';
-import CreatePostModal from './CreatePostModal';
+import CreatePostDialog from './CreatePostDialog';
 
 interface LayoutProps {
   children: ReactNode;
@@ -27,9 +27,9 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </div>
 
-      <CreatePostModal 
-        open={createPostModalOpen} 
-        onOpenChange={setCreatePostModalOpen} 
+      <CreatePostDialog 
+        isOpen={createPostModalOpen} 
+        onClose={() => setCreatePostModalOpen(false)} 
       />
     </div>
   );
