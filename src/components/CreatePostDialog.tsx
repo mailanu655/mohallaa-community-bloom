@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,9 @@ const postTypes = [
     value: "discussion" as const, 
     label: "General Discussion", 
     icon: MessageSquare,
-    color: "text-blue-500",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
     description: "Share thoughts, questions, or start a conversation"
   },
   { 
@@ -57,55 +60,71 @@ const postTypes = [
     label: "Question", 
     icon: HelpCircle,
     color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
     description: "Ask the community for help or advice"
   },
   { 
     value: "announcement" as const, 
     label: "Announcement", 
     icon: AlertTriangle,
-    color: "text-orange-500",
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200",
     description: "Important community updates or notices"
   },
   { 
     value: "resource" as const, 
     label: "Resource", 
     icon: Users,
-    color: "text-teal-500",
+    color: "text-teal-600",
+    bgColor: "bg-teal-50",
+    borderColor: "border-teal-200",
     description: "Share helpful resources and information"
   },
   { 
     value: "event" as const, 
     label: "Event", 
     icon: Calendar,
-    color: "text-purple-500",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    borderColor: "border-purple-200",
     description: "Community events and gatherings"
   },
   { 
     value: "job" as const, 
     label: "Jobs", 
     icon: Briefcase,
-    color: "text-indigo-500",
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50",
+    borderColor: "border-indigo-200",
     description: "Job opportunities and hiring"
   },
   { 
     value: "housing" as const, 
     label: "Housing", 
     icon: Home,
-    color: "text-green-500",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
     description: "Rentals, roommates, and housing"
   },
   { 
     value: "marketplace" as const, 
     label: "For Sale & Free", 
     icon: ShoppingBag,
-    color: "text-emerald-500",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50",
+    borderColor: "border-emerald-200",
     description: "Buy, sell, or give away items"
   },
   { 
     value: "recommendation" as const, 
     label: "Recommendation", 
     icon: Heart,
-    color: "text-pink-500",
+    color: "text-pink-600",
+    bgColor: "bg-pink-50",
+    borderColor: "border-pink-200",
     description: "Recommend local businesses or services"
   },
   { 
@@ -113,13 +132,17 @@ const postTypes = [
     label: "Safety Alert", 
     icon: Shield,
     color: "text-red-600",
+    bgColor: "bg-red-50",
+    borderColor: "border-red-200",
     description: "Important safety information for the community"
   },
   { 
     value: "travel_companion" as const, 
     label: "Travel Companion", 
     icon: Users,
-    color: "text-cyan-500",
+    color: "text-cyan-600",
+    bgColor: "bg-cyan-50",
+    borderColor: "border-cyan-200",
     description: "Find travel companions and travel buddies"
   }
 ];
@@ -602,45 +625,66 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="bg-gray-50/30 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-4 border-b border-gray-200/50">
-          <DialogTitle className={`flex items-center gap-2 text-gray-700`}>
-            {selectedPostType && <selectedPostType.icon className={`w-5 h-5 ${selectedPostType.color}`} />}
-            Create New Post
+          <DialogTitle className="flex items-center gap-3 text-gray-700">
+            {selectedPostType && (
+              <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${selectedPostType.bgColor} ${selectedPostType.borderColor} border-2`}>
+                <selectedPostType.icon className={`w-6 h-6 ${selectedPostType.color}`} />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold">Create New Post</span>
+              {selectedPostType && (
+                <span className="text-sm text-gray-500 font-normal">{selectedPostType.label}</span>
+              )}
+            </div>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* Post Category Selection */}
           <div className="space-y-2">
-            <Label htmlFor="post-type">Post Category</Label>
+            <Label htmlFor="post-type" className="text-gray-700 font-medium">Post Category</Label>
             <Select value={selectedType} onValueChange={handleTypeChange}>
-              <SelectTrigger className="border-gray-300">
+              <SelectTrigger className="border-gray-300 bg-white">
                 <SelectValue placeholder="Select post category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-gray-200 shadow-lg">
                 {postTypes.map((type) => {
                   const Icon = type.icon;
                   return (
-                    <SelectItem key={type.value} value={type.value}>
-                      <div className="flex items-center gap-2">
-                        <Icon className={`w-4 h-4 ${type.color}`} />
-                        {type.label}
+                    <SelectItem 
+                      key={type.value} 
+                      value={type.value}
+                      className="hover:bg-gray-50 focus:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3 py-1">
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-md ${type.bgColor} ${type.borderColor} border`}>
+                          <Icon className={`w-5 h-5 ${type.color}`} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-900">{type.label}</span>
+                          <span className="text-xs text-gray-500">{type.description}</span>
+                        </div>
                       </div>
                     </SelectItem>
                   );
                 })}
               </SelectContent>
             </Select>
-            {selectedPostType && (
-              <p className="text-sm text-muted-foreground">{selectedPostType.description}</p>
-            )}
           </div>
 
-          {/* Category indicator badge */}
+          {/* Enhanced Category Badge */}
           {selectedPostType && (
-            <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-gray-100 border border-gray-300">
-              <selectedPostType.icon className={`w-3 h-3 ${selectedPostType.color}`} />
-              {selectedPostType.label}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant="secondary" 
+                className={`flex items-center gap-2 px-3 py-1.5 ${selectedPostType.bgColor} ${selectedPostType.borderColor} border text-gray-700`}
+              >
+                <selectedPostType.icon className={`w-4 h-4 ${selectedPostType.color}`} />
+                <span className="font-medium">{selectedPostType.label}</span>
+              </Badge>
+              <span className="text-sm text-gray-500">{selectedPostType.description}</span>
+            </div>
           )}
 
           {/* Category-specific form fields */}
@@ -648,25 +692,25 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
             <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="event-post-title">Event Title *</Label>
+                  <Label htmlFor="event-post-title" className="text-gray-700 font-medium">Event Title *</Label>
                   <Input
                     id="event-post-title"
                     value={eventData.title}
                     onChange={(e) => handleEventDataChange('title', e.target.value)}
                     placeholder="e.g., Diwali Celebration 2024"
-                    className="border-gray-300"
+                    className="border-gray-300 bg-white"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="event-post-description">Event Description *</Label>
+                  <Label htmlFor="event-post-description" className="text-gray-700 font-medium">Event Description *</Label>
                   <Textarea
                     id="event-post-description"
                     value={eventData.description}
                     onChange={(e) => handleEventDataChange('description', e.target.value)}
                     placeholder="Describe your event, activities, and what attendees can expect..."
                     rows={4}
-                    className="border-gray-300"
+                    className="border-gray-300 bg-white"
                   />
                 </div>
               </div>
@@ -722,25 +766,25 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               {/* Standard post fields */}
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="title">Title *</Label>
+                  <Label htmlFor="title" className="text-gray-700 font-medium">Title *</Label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="What's your post about?"
-                    className="mt-2 border-gray-300"
+                    className="mt-2 border-gray-300 bg-white"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="content">Description *</Label>
+                  <Label htmlFor="content" className="text-gray-700 font-medium">Description *</Label>
                   <Textarea
                     id="content"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Share more details..."
                     rows={6}
-                    className="mt-2 border-gray-300"
+                    className="mt-2 border-gray-300 bg-white"
                   />
                 </div>
               </div>
@@ -750,19 +794,19 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
           {/* Media Upload for non-marketplace posts */}
           {selectedType !== 'marketplace' && (
             <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
-              <Label>Photos (optional)</Label>
+              <Label className="text-gray-700 font-medium">Photos (optional)</Label>
               <div className="mt-2 space-y-4">
                 <div className="flex items-center gap-4">
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex items-center gap-2 border-gray-300"
+                    className="flex items-center gap-2 border-gray-300 bg-white hover:bg-gray-50"
                     onClick={() => document.getElementById('media-upload')?.click()}
                   >
                     <Camera className="w-4 h-4" />
                     Add Photos
                   </Button>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-gray-500">
                     {mediaFiles.length}/5 photos
                   </span>
                 </div>
@@ -783,7 +827,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                         <img
                           src={URL.createObjectURL(file)}
                           alt={`Upload ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
+                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
                         />
                         <Button
                           size="sm"
@@ -803,7 +847,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
           {/* Submit buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button variant="outline" onClick={handleClose}>
+            <Button variant="outline" onClick={handleClose} className="border-gray-300">
               Cancel
             </Button>
             <Button 
