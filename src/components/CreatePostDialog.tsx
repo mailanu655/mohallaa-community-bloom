@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   MessageSquare, 
   Camera, 
@@ -109,8 +116,7 @@ const postTypes = [
 
 const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCreated }: CreatePostDialogProps) => {
   const { user } = useAuth();
-  const [step, setStep] = useState<'type' | 'content'>('type');
-  const [selectedType, setSelectedType] = useState<Database['public']['Enums']['post_type'] | ''>('');
+  const [selectedType, setSelectedType] = useState<Database['public']['Enums']['post_type']>('discussion');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -146,10 +152,40 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   const [marketplaceImages, setMarketplaceImages] = useState<File[]>([]);
 
   const selectedPostType = postTypes.find(type => type.value === selectedType);
+  const isSpecializedType = selectedType === 'event' || selectedType === 'marketplace';
 
-  const handleTypeSelect = (type: Database['public']['Enums']['post_type']) => {
+  const handleTypeChange = (type: Database['public']['Enums']['post_type']) => {
     setSelectedType(type);
-    setStep('content');
+    // Reset form fields when switching types
+    if (type !== 'event') {
+      setEventData({
+        title: '',
+        description: '',
+        event_type: '',
+        is_virtual: false,
+        start_date: '',
+        end_date: '',
+        location: '',
+        address: '',
+        max_attendees: '',
+        is_free: true,
+        ticket_price: ''
+      });
+    }
+    if (type !== 'marketplace') {
+      setMarketplaceData({
+        title: '',
+        description: '',
+        category: '',
+        price: '',
+        location: '',
+        isNegotiable: true,
+        contactPhone: '',
+        contactEmail: '',
+        preferredContact: ''
+      });
+      setMarketplaceImages([]);
+    }
   };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -362,8 +398,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   };
 
   const resetForm = () => {
-    setStep('type');
-    setSelectedType('');
+    setSelectedType('discussion');
     setTitle('');
     setContent('');
     setMediaFiles([]);
@@ -405,203 +440,193 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {step === 'type' ? 'What would you like to share?' : `Create ${selectedPostType?.label}`}
-          </DialogTitle>
+          <DialogTitle>Create New Post</DialogTitle>
         </DialogHeader>
 
-        {step === 'type' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            {postTypes.map((type) => {
-              const Icon = type.icon;
-              return (
-                <Card 
-                  key={type.value}
-                  className="cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1"
-                  onClick={() => handleTypeSelect(type.value as Database['public']['Enums']['post_type'])}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className={`w-10 h-10 rounded-lg ${type.color} flex items-center justify-center`}>
-                        <Icon className="w-5 h-5 text-white" />
+        <div className="space-y-6 py-4">
+          {/* Post Category Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="post-type">Post Category</Label>
+            <Select value={selectedType} onValueChange={handleTypeChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select post category" />
+              </SelectTrigger>
+              <SelectContent>
+                {postTypes.map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <SelectItem key={type.value} value={type.value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="w-4 h-4" />
+                        {type.label}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground">{type.label}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{type.description}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            {selectedPostType && (
+              <p className="text-sm text-muted-foreground">{selectedPostType.description}</p>
+            )}
           </div>
-        )}
 
-        {step === 'content' && (
-          <div className="space-y-6 py-4">
-            {/* Back button and type indicator */}
-            <div className="flex items-center justify-between">
-              <Button variant="ghost" onClick={() => setStep('type')}>
-                ← Back to categories
-              </Button>
-              {selectedPostType && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <selectedPostType.icon className="w-3 h-3" />
-                  {selectedPostType.label}
-                </Badge>
-              )}
-            </div>
+          {/* Category indicator badge */}
+          {selectedPostType && (
+            <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+              <selectedPostType.icon className="w-3 h-3" />
+              {selectedPostType.label}
+            </Badge>
+          )}
 
-            {/* Event-specific fields */}
-            {selectedType === 'event' ? (
-              <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-purple-600" />
-                  <Label className="text-sm font-medium">Event Details</Label>
+          {/* Event-specific fields */}
+          {selectedType === 'event' ? (
+            <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-purple-600" />
+                <Label className="text-sm font-medium">Event Details</Label>
+              </div>
+              
+              {/* Title and Description for event posts */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="event-post-title">Event Title *</Label>
+                  <Input
+                    id="event-post-title"
+                    value={eventData.title}
+                    onChange={(e) => handleEventDataChange('title', e.target.value)}
+                    placeholder="e.g., Diwali Celebration 2024"
+                  />
                 </div>
                 
-                {/* Title and Description for event posts */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="event-post-title">Event Title *</Label>
-                    <Input
-                      id="event-post-title"
-                      value={eventData.title}
-                      onChange={(e) => handleEventDataChange('title', e.target.value)}
-                      placeholder="e.g., Diwali Celebration 2024"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="event-post-description">Event Description *</Label>
-                    <Textarea
-                      id="event-post-description"
-                      value={eventData.description}
-                      onChange={(e) => handleEventDataChange('description', e.target.value)}
-                      placeholder="Describe your event, activities, and what attendees can expect..."
-                      rows={4}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="event-post-description">Event Description *</Label>
+                  <Textarea
+                    id="event-post-description"
+                    value={eventData.description}
+                    onChange={(e) => handleEventDataChange('description', e.target.value)}
+                    placeholder="Describe your event, activities, and what attendees can expect..."
+                    rows={4}
+                  />
                 </div>
+              </div>
 
-                <EventFormFields
-                  formData={eventData}
-                  onFormDataChange={handleEventDataChange}
-                  showTitle={false}
-                  showDescription={false}
+              <EventFormFields
+                formData={eventData}
+                onFormDataChange={handleEventDataChange}
+                showTitle={false}
+                showDescription={false}
+              />
+            </div>
+          ) : selectedType === 'marketplace' ? (
+            <MarketplaceFormFields
+              formData={marketplaceData}
+              onFormDataChange={handleMarketplaceDataChange}
+              images={marketplaceImages}
+              onImageUpload={handleMarketplaceImageUpload}
+              onRemoveImage={removeMarketplaceImage}
+              maxImages={5}
+              showTitle={true}
+              showDescription={true}
+            />
+          ) : (
+            <>
+              {/* Title and Content for standard post types */}
+              <div>
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What's your post about?"
+                  className="mt-2"
                 />
               </div>
-            ) : selectedType === 'marketplace' ? (
-              <MarketplaceFormFields
-                formData={marketplaceData}
-                onFormDataChange={handleMarketplaceDataChange}
-                images={marketplaceImages}
-                onImageUpload={handleMarketplaceImageUpload}
-                onRemoveImage={removeMarketplaceImage}
-                maxImages={5}
-                showTitle={true}
-                showDescription={true}
-              />
-            ) : (
-              <>
-                {/* Title and Content for other post types */}
-                <div>
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="What's your post about?"
-                    className="mt-2"
-                  />
-                </div>
 
-                <div>
-                  <Label htmlFor="content">Description *</Label>
-                  <Textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Share more details..."
-                    rows={6}
-                    className="mt-2"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Media Upload for non-marketplace posts */}
-            {selectedType !== 'marketplace' && (
               <div>
-                <Label>Photos (optional)</Label>
-                <div className="mt-2 space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="flex items-center gap-2"
-                      onClick={() => document.getElementById('media-upload')?.click()}
-                    >
-                      <Camera className="w-4 h-4" />
-                      Add Photos
-                    </Button>
-                    <span className="text-sm text-muted-foreground">
-                      {mediaFiles.length}/5 photos
-                    </span>
-                  </div>
-                  
-                  <input
-                    id="media-upload"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleMediaUpload}
-                    className="hidden"
-                  />
-
-                  {mediaFiles.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {mediaFiles.map((file, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Upload ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="absolute top-1 right-1 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => removeMediaFile(index)}
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Label htmlFor="content">Description *</Label>
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Share more details..."
+                  rows={6}
+                  className="mt-2"
+                />
               </div>
-            )}
+            </>
+          )}
 
-            {/* Submit buttons */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSubmit} 
-                disabled={isSubmitting || 
-                  (selectedType === 'marketplace' ? (!marketplaceData.title.trim() || !marketplaceData.description.trim()) : 
-                   selectedType === 'event' ? (!eventData.title.trim() || !eventData.description.trim()) :
-                   (!title.trim() || !content.trim()))}
-                variant="cultural"
-              >
-                {isSubmitting ? "Publishing..." : "Publish Post"}
-              </Button>
+          {/* Media Upload for non-marketplace posts */}
+          {selectedType !== 'marketplace' && (
+            <div>
+              <Label>Photos (optional)</Label>
+              <div className="mt-2 space-y-4">
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={() => document.getElementById('media-upload')?.click()}
+                  >
+                    <Camera className="w-4 h-4" />
+                    Add Photos
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {mediaFiles.length}/5 photos
+                  </span>
+                </div>
+                
+                <input
+                  id="media-upload"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleMediaUpload}
+                  className="hidden"
+                />
+
+                {mediaFiles.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {mediaFiles.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Upload ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg"
+                        />
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="absolute top-1 right-1 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeMediaFile(index)}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+          )}
+
+          {/* Submit buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isSubmitting || 
+                (selectedType === 'marketplace' ? (!marketplaceData.title.trim() || !marketplaceData.description.trim()) : 
+                 selectedType === 'event' ? (!eventData.title.trim() || !eventData.description.trim()) :
+                 (!title.trim() || !content.trim()))}
+              variant="cultural"
+            >
+              {isSubmitting ? "Publishing..." : "Publish Post"}
+            </Button>
           </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );
