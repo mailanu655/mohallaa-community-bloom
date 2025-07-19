@@ -626,11 +626,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="bg-gray-50/30 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-4 border-b border-gray-200/50">
           <DialogTitle className="flex items-center gap-3 text-gray-700">
-            {selectedPostType && (
-              <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${selectedPostType.bgColor} ${selectedPostType.borderColor} border-2`}>
-                <selectedPostType.icon className={`w-6 h-6 ${selectedPostType.color}`} />
-              </div>
-            )}
             <div className="flex flex-col">
               <span className="text-lg font-semibold">Create New Post</span>
               {selectedPostType && (
