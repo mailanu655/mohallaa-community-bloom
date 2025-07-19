@@ -56,7 +56,6 @@ const HousingFormFields = ({
   return (
     <div className="space-y-4 p-4 bg-gray-50/30 rounded-lg border border-gray-200/50">
       <div className="flex items-center gap-2 text-gray-700">
-        <Home className="w-4 h-4 text-green-500" />
         <Label className="text-sm font-medium">Housing Details</Label>
       </div>
 

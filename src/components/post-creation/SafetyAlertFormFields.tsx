@@ -45,7 +45,6 @@ const SafetyAlertFormFields = ({
     <div className="space-y-4 p-4 bg-gray-50/30 rounded-lg border border-gray-200/50">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-gray-700">
-          <Shield className="w-4 h-4 text-red-600" />
           <Label className="text-sm font-medium">Safety Alert Details</Label>
         </div>
         {formData.urgencyLevel && (
