@@ -33,10 +33,6 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import MarketplaceFormFields from "@/components/marketplace/MarketplaceFormFields";
 import EventFormFields from "@/components/events/EventFormFields";
-import TravelCompanionFormFields from "@/components/post-creation/TravelCompanionFormFields";
-import JobFormFields from "@/components/post-creation/JobFormFields";
-import HousingFormFields from "@/components/post-creation/HousingFormFields";
-import SafetyAlertFormFields from "@/components/post-creation/SafetyAlertFormFields";
 
 interface CreatePostDialogProps {
   isOpen: boolean;
@@ -50,99 +46,77 @@ const postTypes = [
     value: "discussion" as const, 
     label: "General Discussion", 
     icon: MessageSquare,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
+    color: "bg-blue-500",
     description: "Share thoughts, questions, or start a conversation"
   },
   { 
     value: "question" as const, 
     label: "Question", 
     icon: HelpCircle,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    borderColor: "border-purple-200",
+    color: "bg-purple-600",
     description: "Ask the community for help or advice"
   },
   { 
     value: "announcement" as const, 
     label: "Announcement", 
     icon: AlertTriangle,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-    borderColor: "border-orange-200",
+    color: "bg-orange-500",
     description: "Important community updates or notices"
   },
   { 
     value: "resource" as const, 
     label: "Resource", 
     icon: Users,
-    color: "text-teal-600",
-    bgColor: "bg-teal-50",
-    borderColor: "border-teal-200",
+    color: "bg-teal-500",
     description: "Share helpful resources and information"
   },
   { 
     value: "event" as const, 
     label: "Event", 
     icon: Calendar,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    borderColor: "border-purple-200",
+    color: "bg-purple-500",
     description: "Community events and gatherings"
   },
   { 
     value: "job" as const, 
     label: "Jobs", 
     icon: Briefcase,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50",
-    borderColor: "border-indigo-200",
+    color: "bg-indigo-500",
     description: "Job opportunities and hiring"
   },
   { 
     value: "housing" as const, 
     label: "Housing", 
     icon: Home,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-200",
+    color: "bg-red-500",
     description: "Rentals, roommates, and housing"
   },
   { 
     value: "marketplace" as const, 
     label: "For Sale & Free", 
     icon: ShoppingBag,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-    borderColor: "border-emerald-200",
+    color: "bg-green-500",
     description: "Buy, sell, or give away items"
   },
   { 
     value: "recommendation" as const, 
     label: "Recommendation", 
     icon: Heart,
-    color: "text-pink-600",
-    bgColor: "bg-pink-50",
-    borderColor: "border-pink-200",
+    color: "bg-pink-500",
     description: "Recommend local businesses or services"
   },
   { 
     value: "safety_alert" as const, 
     label: "Safety Alert", 
     icon: Shield,
-    color: "text-red-600",
-    bgColor: "bg-red-50",
-    borderColor: "border-red-200",
+    color: "bg-red-600",
     description: "Important safety information for the community"
   },
   { 
     value: "travel_companion" as const, 
     label: "Travel Companion", 
     icon: Users,
-    color: "text-cyan-600",
-    bgColor: "bg-cyan-50",
-    borderColor: "border-cyan-200",
+    color: "bg-cyan-500",
     description: "Find travel companions and travel buddies"
   }
 ];
@@ -184,67 +158,8 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   });
   const [marketplaceImages, setMarketplaceImages] = useState<File[]>([]);
 
-  // Travel Companion fields
-  const [travelData, setTravelData] = useState({
-    title: '',
-    description: '',
-    destination: '',
-    departureDate: '',
-    returnDate: '',
-    travelStyle: '',
-    groupSize: '',
-    transportation: '',
-    budgetRange: '',
-    specialRequirements: ''
-  });
-
-  // Job fields
-  const [jobData, setJobData] = useState({
-    title: '',
-    description: '',
-    jobTitle: '',
-    companyName: '',
-    employmentType: '',
-    salaryRange: '',
-    experienceRequired: '',
-    skills: '',
-    applicationDeadline: '',
-    contactMethod: '',
-    isRemote: false,
-    location: ''
-  });
-
-  // Housing fields
-  const [housingData, setHousingData] = useState({
-    title: '',
-    description: '',
-    propertyType: '',
-    rentRange: '',
-    availableFrom: '',
-    furnishingStatus: '',
-    amenities: [] as string[],
-    tenantType: '',
-    securityDeposit: '',
-    location: '',
-    bedrooms: '',
-    bathrooms: '',
-    preferences: ''
-  });
-
-  // Safety Alert fields
-  const [safetyData, setSafetyData] = useState({
-    title: '',
-    description: '',
-    alertType: '',
-    urgencyLevel: '',
-    affectedArea: '',
-    timeOfIncident: '',
-    authoritiesContacted: false,
-    emergencyContacts: ''
-  });
-
   const selectedPostType = postTypes.find(type => type.value === selectedType);
-  const isSpecializedType = ['event', 'marketplace', 'travel_companion', 'job', 'housing', 'safety_alert'].includes(selectedType);
+  const isSpecializedType = selectedType === 'event' || selectedType === 'marketplace';
 
   const handleTypeChange = (type: Database['public']['Enums']['post_type']) => {
     setSelectedType(type);
@@ -278,66 +193,6 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
       });
       setMarketplaceImages([]);
     }
-    // Reset other category data as needed
-    if (type !== 'travel_companion') {
-      setTravelData({
-        title: '',
-        description: '',
-        destination: '',
-        departureDate: '',
-        returnDate: '',
-        travelStyle: '',
-        groupSize: '',
-        transportation: '',
-        budgetRange: '',
-        specialRequirements: ''
-      });
-    }
-    if (type !== 'job') {
-      setJobData({
-        title: '',
-        description: '',
-        jobTitle: '',
-        companyName: '',
-        employmentType: '',
-        salaryRange: '',
-        experienceRequired: '',
-        skills: '',
-        applicationDeadline: '',
-        contactMethod: '',
-        isRemote: false,
-        location: ''
-      });
-    }
-    if (type !== 'housing') {
-      setHousingData({
-        title: '',
-        description: '',
-        propertyType: '',
-        rentRange: '',
-        availableFrom: '',
-        furnishingStatus: '',
-        amenities: [],
-        tenantType: '',
-        securityDeposit: '',
-        location: '',
-        bedrooms: '',
-        bathrooms: '',
-        preferences: ''
-      });
-    }
-    if (type !== 'safety_alert') {
-      setSafetyData({
-        title: '',
-        description: '',
-        alertType: '',
-        urgencyLevel: '',
-        affectedArea: '',
-        timeOfIncident: '',
-        authoritiesContacted: false,
-        emergencyContacts: ''
-      });
-    }
   };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -354,27 +209,17 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   };
 
   const handleEventDataChange = (field: string, value: any) => {
-    setEventData(prev => ({ ...prev, [field]: value }));
+    setEventData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleMarketplaceDataChange = (field: string, value: any) => {
-    setMarketplaceData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleTravelDataChange = (field: string, value: any) => {
-    setTravelData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleJobDataChange = (field: string, value: any) => {
-    setJobData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleHousingDataChange = (field: string, value: any) => {
-    setHousingData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSafetyDataChange = (field: string, value: any) => {
-    setSafetyData(prev => ({ ...prev, [field]: value }));
+    setMarketplaceData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleMarketplaceImageUpload = (files: FileList) => {
@@ -412,47 +257,40 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     return Promise.all(uploadPromises);
   };
 
-  const getFormData = () => {
-    switch (selectedType) {
-      case 'marketplace':
-        return { title: marketplaceData.title, content: marketplaceData.description };
-      case 'event':
-        return { title: eventData.title, content: eventData.description };
-      case 'travel_companion':
-        return { title: travelData.title, content: travelData.description };
-      case 'job':
-        return { title: jobData.title, content: jobData.description };
-      case 'housing':
-        return { title: housingData.title, content: housingData.description };
-      case 'safety_alert':
-        return { title: safetyData.title, content: safetyData.description };
-      default:
-        return { title, content };
-    }
-  };
-
-  const validateForm = () => {
-    const { title: postTitle, content: postContent } = getFormData();
-    if (!postTitle.trim() || !postContent.trim()) return false;
-
-    // Additional validation for specific types
-    if (selectedType === 'event' && (!eventData.start_date || !eventData.event_type)) return false;
-    if (selectedType === 'marketplace' && !marketplaceData.category) return false;
-    if (selectedType === 'travel_companion' && (!travelData.destination || !travelData.departureDate)) return false;
-    if (selectedType === 'job' && (!jobData.jobTitle || !jobData.employmentType)) return false;
-    if (selectedType === 'housing' && (!housingData.propertyType || !housingData.rentRange)) return false;
-    if (selectedType === 'safety_alert' && (!safetyData.alertType || !safetyData.urgencyLevel)) return false;
-
-    return true;
-  };
-
   const handleSubmit = async () => {
-    if (!selectedType || !user || !validateForm()) {
+    if (!selectedType || !user) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    const { title: postTitle, content: postContent } = getFormData();
+    // Determine title and content based on post type
+    let postTitle, postContent;
+    if (selectedType === 'marketplace') {
+      postTitle = marketplaceData.title;
+      postContent = marketplaceData.description;
+    } else if (selectedType === 'event') {
+      postTitle = eventData.title;
+      postContent = eventData.description;
+    } else {
+      postTitle = title;
+      postContent = content;
+    }
+
+    if (!postTitle.trim() || !postContent.trim()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Additional validation for event and marketplace posts
+    if (selectedType === 'event' && (!eventData.start_date || !eventData.event_type)) {
+      toast.error("Please fill in event date and type");
+      return;
+    }
+
+    if (selectedType === 'marketplace' && !marketplaceData.category) {
+      toast.error("Please select a category");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -488,7 +326,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
         throw postError;
       }
 
-      // Create corresponding specialized entries
+      // Create corresponding event or marketplace entry if needed
       if (selectedType === 'event' && postResult) {
         const eventEntryData = {
           title: postTitle.trim(),
@@ -551,23 +389,9 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
         }
       }
 
-      if (selectedType === 'travel_companion' && postResult) {
-        // No specific table for travel companions, just create the post
-      }
-
-      if (selectedType === 'job' && postResult) {
-        // No specific table for jobs, just create the post
-      }
-
-      if (selectedType === 'housing' && postResult) {
-        // No specific table for housing, just create the post
-      }
-
-      if (selectedType === 'safety_alert' && postResult) {
-        // No specific table for safety alerts, just create the post
-      }
-
       toast.success("Post created successfully!");
+      
+      // Reset form
       resetForm();
       onPostCreated?.();
       onClose();
@@ -585,35 +409,33 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
     setTitle('');
     setContent('');
     setMediaFiles([]);
-    // Reset all category-specific data
+    // Reset event fields
     setEventData({
-      title: '', description: '', event_type: '', is_virtual: false,
-      start_date: '', end_date: '', location: '', address: '',
-      max_attendees: '', is_free: true, ticket_price: ''
+      title: '',
+      description: '',
+      event_type: '',
+      is_virtual: false,
+      start_date: '',
+      end_date: '',
+      location: '',
+      address: '',
+      max_attendees: '',
+      is_free: true,
+      ticket_price: ''
     });
+    // Reset marketplace fields
     setMarketplaceData({
-      title: '', description: '', category: '', price: '', location: '',
-      isNegotiable: true, contactPhone: '', contactEmail: '', preferredContact: ''
+      title: '',
+      description: '',
+      category: '',
+      price: '',
+      location: '',
+      isNegotiable: true,
+      contactPhone: '',
+      contactEmail: '',
+      preferredContact: ''
     });
     setMarketplaceImages([]);
-    setTravelData({
-      title: '', description: '', destination: '', departureDate: '', returnDate: '',
-      travelStyle: '', groupSize: '', transportation: '', budgetRange: '', specialRequirements: ''
-    });
-    setJobData({
-      title: '', description: '', jobTitle: '', companyName: '', employmentType: '',
-      salaryRange: '', experienceRequired: '', skills: '', applicationDeadline: '',
-      contactMethod: '', isRemote: false, location: ''
-    });
-    setHousingData({
-      title: '', description: '', propertyType: '', rentRange: '', availableFrom: '',
-      furnishingStatus: '', amenities: [], tenantType: '', securityDeposit: '',
-      location: '', bedrooms: '', bathrooms: '', preferences: ''
-    });
-    setSafetyData({
-      title: '', description: '', alertType: '', urgencyLevel: '', affectedArea: '',
-      timeOfIncident: '', authoritiesContacted: false, emergencyContacts: ''
-    });
   };
 
   const handleClose = () => {
@@ -623,89 +445,74 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="bg-gray-50/30 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-4 border-b border-gray-200/50">
-          <DialogTitle className="flex items-center gap-3 text-gray-700">
-            <div className="flex flex-col">
-              <span className="text-lg font-semibold">Create New Post</span>
-              {selectedPostType && (
-                <span className="text-sm text-gray-500 font-normal">{selectedPostType.label}</span>
-              )}
-            </div>
-          </DialogTitle>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Create New Post</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* Post Category Selection */}
           <div className="space-y-2">
-            <Label htmlFor="post-type" className="text-gray-700 font-medium">Post Category</Label>
+            <Label htmlFor="post-type">Post Category</Label>
             <Select value={selectedType} onValueChange={handleTypeChange}>
-              <SelectTrigger className="border-gray-300 bg-white">
+              <SelectTrigger>
                 <SelectValue placeholder="Select post category" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-200 shadow-lg">
+              <SelectContent>
                 {postTypes.map((type) => {
                   const Icon = type.icon;
                   return (
-                    <SelectItem 
-                      key={type.value} 
-                      value={type.value}
-                      className="hover:bg-gray-50 focus:bg-gray-50 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3 py-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-md ${type.bgColor} ${type.borderColor} border`}>
-                          <Icon className={`w-5 h-5 ${type.color}`} />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">{type.label}</span>
-                          <span className="text-xs text-gray-500">{type.description}</span>
-                        </div>
+                    <SelectItem key={type.value} value={type.value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="w-4 h-4" />
+                        {type.label}
                       </div>
                     </SelectItem>
                   );
                 })}
               </SelectContent>
             </Select>
+            {selectedPostType && (
+              <p className="text-sm text-muted-foreground">{selectedPostType.description}</p>
+            )}
           </div>
 
-          {/* Enhanced Category Badge */}
+          {/* Category indicator badge */}
           {selectedPostType && (
-            <div className="flex items-center gap-2">
-              <Badge 
-                variant="secondary" 
-                className={`flex items-center gap-2 px-3 py-1.5 ${selectedPostType.bgColor} ${selectedPostType.borderColor} border text-gray-700`}
-              >
-                <selectedPostType.icon className={`w-4 h-4 ${selectedPostType.color}`} />
-                <span className="font-medium">{selectedPostType.label}</span>
-              </Badge>
-              <span className="text-sm text-gray-500">{selectedPostType.description}</span>
-            </div>
+            <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+              <selectedPostType.icon className="w-3 h-3" />
+              {selectedPostType.label}
+            </Badge>
           )}
 
-          {/* Category-specific form fields */}
+          {/* Event-specific fields */}
           {selectedType === 'event' ? (
-            <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
+            <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-purple-600" />
+                <Label className="text-sm font-medium">Event Details</Label>
+              </div>
+              
+              {/* Title and Description for event posts */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="event-post-title" className="text-gray-700 font-medium">Event Title *</Label>
+                  <Label htmlFor="event-post-title">Event Title *</Label>
                   <Input
                     id="event-post-title"
                     value={eventData.title}
                     onChange={(e) => handleEventDataChange('title', e.target.value)}
                     placeholder="e.g., Diwali Celebration 2024"
-                    className="border-gray-300 bg-white"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="event-post-description" className="text-gray-700 font-medium">Event Description *</Label>
+                  <Label htmlFor="event-post-description">Event Description *</Label>
                   <Textarea
                     id="event-post-description"
                     value={eventData.description}
                     onChange={(e) => handleEventDataChange('description', e.target.value)}
                     placeholder="Describe your event, activities, and what attendees can expect..."
                     rows={4}
-                    className="border-gray-300 bg-white"
                   />
                 </div>
               </div>
@@ -728,80 +535,50 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               showTitle={true}
               showDescription={true}
             />
-          ) : selectedType === 'travel_companion' ? (
-            <TravelCompanionFormFields
-              formData={travelData}
-              onFormDataChange={handleTravelDataChange}
-              showTitle={true}
-              showDescription={true}
-            />
-          ) : selectedType === 'job' ? (
-            <JobFormFields
-              formData={jobData}
-              onFormDataChange={handleJobDataChange}
-              showTitle={true}
-              showDescription={true}
-            />
-          ) : selectedType === 'housing' ? (
-            <HousingFormFields
-              formData={housingData}
-              onFormDataChange={handleHousingDataChange}
-              showTitle={true}
-              showDescription={true}
-            />
-          ) : selectedType === 'safety_alert' ? (
-            <SafetyAlertFormFields
-              formData={safetyData}
-              onFormDataChange={handleSafetyDataChange}
-              showTitle={true}
-              showDescription={true}
-            />
           ) : (
-            <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
-              {/* Standard post fields */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title" className="text-gray-700 font-medium">Title *</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="What's your post about?"
-                    className="mt-2 border-gray-300 bg-white"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="content" className="text-gray-700 font-medium">Description *</Label>
-                  <Textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Share more details..."
-                    rows={6}
-                    className="mt-2 border-gray-300 bg-white"
-                  />
-                </div>
+            <>
+              {/* Title and Content for standard post types */}
+              <div>
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What's your post about?"
+                  className="mt-2"
+                />
               </div>
-            </div>
+
+              <div>
+                <Label htmlFor="content">Description *</Label>
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Share more details..."
+                  rows={6}
+                  className="mt-2"
+                />
+              </div>
+            </>
           )}
 
           {/* Media Upload for non-marketplace posts */}
           {selectedType !== 'marketplace' && (
-            <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
-              <Label className="text-gray-700 font-medium">Photos (optional)</Label>
+            <div>
+              <Label>Photos (optional)</Label>
               <div className="mt-2 space-y-4">
                 <div className="flex items-center gap-4">
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex items-center gap-2 border-gray-300 bg-white hover:bg-gray-50"
+                    className="flex items-center gap-2"
                     onClick={() => document.getElementById('media-upload')?.click()}
                   >
                     <Camera className="w-4 h-4" />
                     Add Photos
                   </Button>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     {mediaFiles.length}/5 photos
                   </span>
                 </div>
@@ -822,7 +599,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                         <img
                           src={URL.createObjectURL(file)}
                           alt={`Upload ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                          className="w-full h-24 object-cover rounded-lg"
                         />
                         <Button
                           size="sm"
@@ -841,14 +618,17 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
           )}
 
           {/* Submit buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button variant="outline" onClick={handleClose} className="border-gray-300">
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={isSubmitting || !validateForm()}
-              className="bg-primary hover:bg-primary/90"
+              disabled={isSubmitting || 
+                (selectedType === 'marketplace' ? (!marketplaceData.title.trim() || !marketplaceData.description.trim()) : 
+                 selectedType === 'event' ? (!eventData.title.trim() || !eventData.description.trim()) :
+                 (!title.trim() || !content.trim()))}
+              variant="cultural"
             >
               {isSubmitting ? "Publishing..." : "Publish Post"}
             </Button>
