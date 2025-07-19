@@ -40,9 +40,9 @@ const JobFormFields = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
-    <div className="space-y-4 p-4 bg-indigo-50/30 rounded-lg border border-indigo-200/50">
-      <div className="flex items-center gap-2 text-indigo-700">
-        <Briefcase className="w-4 h-4" />
+    <div className="space-y-4 p-4 bg-gray-50/30 rounded-lg border border-gray-200/50">
+      <div className="flex items-center gap-2 text-gray-700">
+        <Briefcase className="w-4 h-4 text-indigo-500" />
         <Label className="text-sm font-medium">Job Posting Details</Label>
       </div>
 
@@ -55,7 +55,7 @@ const JobFormFields = ({
             value={formData.title}
             onChange={(e) => onFormDataChange('title', e.target.value)}
             placeholder="e.g., Hiring React Developer - Remote Position"
-            className="border-indigo-200"
+            className="border-gray-300"
           />
         </div>
       )}
@@ -69,7 +69,7 @@ const JobFormFields = ({
             onChange={(e) => onFormDataChange('description', e.target.value)}
             placeholder="Describe the job role, responsibilities, company culture..."
             rows={4}
-            className="border-indigo-200"
+            className="border-gray-300"
           />
         </div>
       )}
@@ -83,7 +83,7 @@ const JobFormFields = ({
             value={formData.jobTitle}
             onChange={(e) => onFormDataChange('jobTitle', e.target.value)}
             placeholder="e.g., Senior React Developer"
-            className="border-indigo-200"
+            className="border-gray-300"
           />
         </div>
 
@@ -96,7 +96,7 @@ const JobFormFields = ({
               value={formData.companyName}
               onChange={(e) => onFormDataChange('companyName', e.target.value)}
               placeholder="e.g., Tech Solutions Inc."
-              className="pl-10 border-indigo-200"
+              className="pl-10 border-gray-300"
             />
           </div>
         </div>
@@ -106,7 +106,7 @@ const JobFormFields = ({
         <div className="space-y-2">
           <Label htmlFor="employment-type">Employment Type *</Label>
           <Select value={formData.employmentType} onValueChange={(value) => onFormDataChange('employmentType', value)}>
-            <SelectTrigger className="border-indigo-200">
+            <SelectTrigger className="border-gray-300">
               <SelectValue placeholder="Select employment type" />
             </SelectTrigger>
             <SelectContent>
@@ -124,7 +124,7 @@ const JobFormFields = ({
           <div className="relative">
             <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Select value={formData.salaryRange} onValueChange={(value) => onFormDataChange('salaryRange', value)}>
-              <SelectTrigger className="pl-10 border-indigo-200">
+              <SelectTrigger className="pl-10 border-gray-300">
                 <SelectValue placeholder="Select salary range" />
               </SelectTrigger>
               <SelectContent>
@@ -144,7 +144,7 @@ const JobFormFields = ({
       {/* Advanced Fields - Progressive Disclosure */}
       <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0 h-auto text-indigo-700 hover:text-indigo-800">
+          <Button variant="ghost" className="w-full justify-between p-0 h-auto text-gray-600 hover:text-gray-800">
             <span className="text-sm font-medium">
               {showAdvanced ? 'Hide' : 'Show'} Additional Job Details
             </span>
@@ -157,7 +157,7 @@ const JobFormFields = ({
             <div className="space-y-2">
               <Label htmlFor="experience-required">Experience Required</Label>
               <Select value={formData.experienceRequired} onValueChange={(value) => onFormDataChange('experienceRequired', value)}>
-                <SelectTrigger className="border-indigo-200">
+                <SelectTrigger className="border-gray-300">
                   <SelectValue placeholder="Select experience level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -179,7 +179,7 @@ const JobFormFields = ({
                   type="date"
                   value={formData.applicationDeadline}
                   onChange={(e) => onFormDataChange('applicationDeadline', e.target.value)}
-                  className="pl-10 border-indigo-200"
+                  className="pl-10 border-gray-300"
                 />
               </div>
             </div>
@@ -193,7 +193,7 @@ const JobFormFields = ({
               onChange={(e) => onFormDataChange('skills', e.target.value)}
               placeholder="e.g., React, TypeScript, Node.js, Bachelor's degree in CS..."
               rows={3}
-              className="border-indigo-200"
+              className="border-gray-300"
             />
           </div>
 
@@ -204,7 +204,7 @@ const JobFormFields = ({
               value={formData.location}
               onChange={(e) => onFormDataChange('location', e.target.value)}
               placeholder="e.g., Bangalore, Karnataka"
-              className="border-indigo-200"
+              className="border-gray-300"
             />
           </div>
 
@@ -222,7 +222,7 @@ const JobFormFields = ({
           <div className="space-y-2">
             <Label htmlFor="contact-method">Preferred Contact Method</Label>
             <Select value={formData.contactMethod} onValueChange={(value) => onFormDataChange('contactMethod', value)}>
-              <SelectTrigger className="border-indigo-200">
+              <SelectTrigger className="border-gray-300">
                 <SelectValue placeholder="How should candidates apply?" />
               </SelectTrigger>
               <SelectContent>

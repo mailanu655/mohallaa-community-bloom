@@ -38,9 +38,9 @@ const TravelCompanionFormFields = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
-    <div className="space-y-4 p-4 bg-cyan-50/30 rounded-lg border border-cyan-200/50">
-      <div className="flex items-center gap-2 text-cyan-700">
-        <Users className="w-4 h-4" />
+    <div className="space-y-4 p-4 bg-gray-50/30 rounded-lg border border-gray-200/50">
+      <div className="flex items-center gap-2 text-gray-700">
+        <Users className="w-4 h-4 text-cyan-500" />
         <Label className="text-sm font-medium">Travel Companion Details</Label>
       </div>
 
@@ -53,7 +53,7 @@ const TravelCompanionFormFields = ({
             value={formData.title}
             onChange={(e) => onFormDataChange('title', e.target.value)}
             placeholder="e.g., Looking for travel buddy to Goa"
-            className="border-cyan-200"
+            className="border-gray-300"
           />
         </div>
       )}
@@ -67,7 +67,7 @@ const TravelCompanionFormFields = ({
             onChange={(e) => onFormDataChange('description', e.target.value)}
             placeholder="Describe your travel plans, what you're looking for in a travel companion..."
             rows={3}
-            className="border-cyan-200"
+            className="border-gray-300"
           />
         </div>
       )}
@@ -83,7 +83,7 @@ const TravelCompanionFormFields = ({
               value={formData.destination}
               onChange={(e) => onFormDataChange('destination', e.target.value)}
               placeholder="e.g., Goa, India"
-              className="pl-10 border-cyan-200"
+              className="pl-10 border-gray-300"
             />
           </div>
         </div>
@@ -97,7 +97,7 @@ const TravelCompanionFormFields = ({
               type="date"
               value={formData.departureDate}
               onChange={(e) => onFormDataChange('departureDate', e.target.value)}
-              className="pl-10 border-cyan-200"
+              className="pl-10 border-gray-300"
             />
           </div>
         </div>
@@ -111,14 +111,14 @@ const TravelCompanionFormFields = ({
             type="date"
             value={formData.returnDate}
             onChange={(e) => onFormDataChange('returnDate', e.target.value)}
-            className="border-cyan-200"
+            className="border-gray-300"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="travel-style">Travel Style</Label>
           <Select value={formData.travelStyle} onValueChange={(value) => onFormDataChange('travelStyle', value)}>
-            <SelectTrigger className="border-cyan-200">
+            <SelectTrigger className="border-gray-300">
               <SelectValue placeholder="Select travel style" />
             </SelectTrigger>
             <SelectContent>
@@ -135,7 +135,7 @@ const TravelCompanionFormFields = ({
       {/* Advanced Fields - Progressive Disclosure */}
       <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0 h-auto text-cyan-700 hover:text-cyan-800">
+          <Button variant="ghost" className="w-full justify-between p-0 h-auto text-gray-600 hover:text-gray-800">
             <span className="text-sm font-medium">
               {showAdvanced ? 'Hide' : 'Show'} Additional Options
             </span>
@@ -148,7 +148,7 @@ const TravelCompanionFormFields = ({
             <div className="space-y-2">
               <Label htmlFor="group-size">Preferred Group Size</Label>
               <Select value={formData.groupSize} onValueChange={(value) => onFormDataChange('groupSize', value)}>
-                <SelectTrigger className="border-cyan-200">
+                <SelectTrigger className="border-gray-300">
                   <SelectValue placeholder="Select group size" />
                 </SelectTrigger>
                 <SelectContent>
@@ -163,7 +163,7 @@ const TravelCompanionFormFields = ({
             <div className="space-y-2">
               <Label htmlFor="transportation">Transportation</Label>
               <Select value={formData.transportation} onValueChange={(value) => onFormDataChange('transportation', value)}>
-                <SelectTrigger className="border-cyan-200">
+                <SelectTrigger className="border-gray-300">
                   <SelectValue placeholder="Select transportation" />
                 </SelectTrigger>
                 <SelectContent>
@@ -182,7 +182,7 @@ const TravelCompanionFormFields = ({
             <div className="relative">
               <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Select value={formData.budgetRange} onValueChange={(value) => onFormDataChange('budgetRange', value)}>
-                <SelectTrigger className="pl-10 border-cyan-200">
+                <SelectTrigger className="pl-10 border-gray-300">
                   <SelectValue placeholder="Select budget range" />
                 </SelectTrigger>
                 <SelectContent>
@@ -204,7 +204,7 @@ const TravelCompanionFormFields = ({
               onChange={(e) => onFormDataChange('specialRequirements', e.target.value)}
               placeholder="e.g., Vegetarian food preferences, photography enthusiast, early riser, specific interests..."
               rows={3}
-              className="border-cyan-200"
+              className="border-gray-300"
             />
           </div>
         </CollapsibleContent>

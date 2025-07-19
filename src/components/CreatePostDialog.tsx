@@ -49,110 +49,77 @@ const postTypes = [
     value: "discussion" as const, 
     label: "General Discussion", 
     icon: MessageSquare,
-    color: "bg-blue-500",
-    bgGradient: "bg-gradient-to-br from-blue-50 to-blue-100",
-    borderColor: "border-blue-200",
-    textColor: "text-blue-700",
+    color: "text-blue-500",
     description: "Share thoughts, questions, or start a conversation"
   },
   { 
     value: "question" as const, 
     label: "Question", 
     icon: HelpCircle,
-    color: "bg-purple-600",
-    bgGradient: "bg-gradient-to-br from-purple-50 to-purple-100",
-    borderColor: "border-purple-200",
-    textColor: "text-purple-700",
+    color: "text-purple-600",
     description: "Ask the community for help or advice"
   },
   { 
     value: "announcement" as const, 
     label: "Announcement", 
     icon: AlertTriangle,
-    color: "bg-orange-500",
-    bgGradient: "bg-gradient-to-br from-orange-50 to-orange-100",
-    borderColor: "border-orange-200",
-    textColor: "text-orange-700",
+    color: "text-orange-500",
     description: "Important community updates or notices"
   },
   { 
     value: "resource" as const, 
     label: "Resource", 
     icon: Users,
-    color: "bg-teal-500",
-    bgGradient: "bg-gradient-to-br from-teal-50 to-teal-100",
-    borderColor: "border-teal-200",
-    textColor: "text-teal-700",
+    color: "text-teal-500",
     description: "Share helpful resources and information"
   },
   { 
     value: "event" as const, 
     label: "Event", 
     icon: Calendar,
-    color: "bg-purple-500",
-    bgGradient: "bg-gradient-to-br from-purple-50 to-purple-100",
-    borderColor: "border-purple-200",
-    textColor: "text-purple-700",
+    color: "text-purple-500",
     description: "Community events and gatherings"
   },
   { 
     value: "job" as const, 
     label: "Jobs", 
     icon: Briefcase,
-    color: "bg-indigo-500",
-    bgGradient: "bg-gradient-to-br from-indigo-50 to-indigo-100",
-    borderColor: "border-indigo-200",
-    textColor: "text-indigo-700",
+    color: "text-indigo-500",
     description: "Job opportunities and hiring"
   },
   { 
     value: "housing" as const, 
     label: "Housing", 
     icon: Home,
-    color: "bg-green-500",
-    bgGradient: "bg-gradient-to-br from-green-50 to-green-100",
-    borderColor: "border-green-200",
-    textColor: "text-green-700",
+    color: "text-green-500",
     description: "Rentals, roommates, and housing"
   },
   { 
     value: "marketplace" as const, 
     label: "For Sale & Free", 
     icon: ShoppingBag,
-    color: "bg-emerald-500",
-    bgGradient: "bg-gradient-to-br from-emerald-50 to-emerald-100",
-    borderColor: "border-emerald-200",
-    textColor: "text-emerald-700",
+    color: "text-emerald-500",
     description: "Buy, sell, or give away items"
   },
   { 
     value: "recommendation" as const, 
     label: "Recommendation", 
     icon: Heart,
-    color: "bg-pink-500",
-    bgGradient: "bg-gradient-to-br from-pink-50 to-pink-100",
-    borderColor: "border-pink-200",
-    textColor: "text-pink-700",
+    color: "text-pink-500",
     description: "Recommend local businesses or services"
   },
   { 
     value: "safety_alert" as const, 
     label: "Safety Alert", 
     icon: Shield,
-    color: "bg-red-600",
-    bgGradient: "bg-gradient-to-br from-red-50 to-red-100",
-    borderColor: "border-red-200",
-    textColor: "text-red-700",
+    color: "text-red-600",
     description: "Important safety information for the community"
   },
   { 
     value: "travel_companion" as const, 
     label: "Travel Companion", 
     icon: Users,
-    color: "bg-cyan-500",
-    bgGradient: "bg-gradient-to-br from-cyan-50 to-cyan-100",
-    borderColor: "border-cyan-200",
-    textColor: "text-cyan-700",
+    color: "text-cyan-500",
     description: "Find travel companions and travel buddies"
   }
 ];
@@ -634,9 +601,9 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className={selectedPostType ? `${selectedPostType.bgGradient} -mx-6 -mt-6 px-6 pt-6 pb-4 mb-4` : ""}>
-          <DialogTitle className={`flex items-center gap-2 ${selectedPostType?.textColor || ''}`}>
-            {selectedPostType && <selectedPostType.icon className="w-5 h-5" />}
+        <DialogHeader className="bg-gray-50/30 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-4 border-b border-gray-200/50">
+          <DialogTitle className={`flex items-center gap-2 text-gray-700`}>
+            {selectedPostType && <selectedPostType.icon className={`w-5 h-5 ${selectedPostType.color}`} />}
             Create New Post
           </DialogTitle>
         </DialogHeader>
@@ -646,7 +613,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
           <div className="space-y-2">
             <Label htmlFor="post-type">Post Category</Label>
             <Select value={selectedType} onValueChange={handleTypeChange}>
-              <SelectTrigger className={selectedPostType?.borderColor}>
+              <SelectTrigger className="border-gray-300">
                 <SelectValue placeholder="Select post category" />
               </SelectTrigger>
               <SelectContent>
@@ -655,7 +622,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                   return (
                     <SelectItem key={type.value} value={type.value}>
                       <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
+                        <Icon className={`w-4 h-4 ${type.color}`} />
                         {type.label}
                       </div>
                     </SelectItem>
@@ -670,15 +637,15 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
           {/* Category indicator badge */}
           {selectedPostType && (
-            <Badge variant="secondary" className={`flex items-center gap-1 w-fit ${selectedPostType.bgGradient} ${selectedPostType.borderColor} border`}>
-              <selectedPostType.icon className="w-3 h-3" />
+            <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-gray-100 border border-gray-300">
+              <selectedPostType.icon className={`w-3 h-3 ${selectedPostType.color}`} />
               {selectedPostType.label}
             </Badge>
           )}
 
           {/* Category-specific form fields */}
           {selectedType === 'event' ? (
-            <div className={`${selectedPostType?.bgGradient} p-4 rounded-lg`}>
+            <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="event-post-title">Event Title *</Label>
@@ -687,7 +654,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                     value={eventData.title}
                     onChange={(e) => handleEventDataChange('title', e.target.value)}
                     placeholder="e.g., Diwali Celebration 2024"
-                    className={selectedPostType?.borderColor}
+                    className="border-gray-300"
                   />
                 </div>
                 
@@ -699,7 +666,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                     onChange={(e) => handleEventDataChange('description', e.target.value)}
                     placeholder="Describe your event, activities, and what attendees can expect..."
                     rows={4}
-                    className={selectedPostType?.borderColor}
+                    className="border-gray-300"
                   />
                 </div>
               </div>
@@ -751,7 +718,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
               showDescription={true}
             />
           ) : (
-            <div className={selectedPostType ? `${selectedPostType.bgGradient} p-4 rounded-lg` : ""}>
+            <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
               {/* Standard post fields */}
               <div className="space-y-4">
                 <div>
@@ -761,7 +728,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="What's your post about?"
-                    className={`mt-2 ${selectedPostType?.borderColor || ''}`}
+                    className="mt-2 border-gray-300"
                   />
                 </div>
 
@@ -773,7 +740,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Share more details..."
                     rows={6}
-                    className={`mt-2 ${selectedPostType?.borderColor || ''}`}
+                    className="mt-2 border-gray-300"
                   />
                 </div>
               </div>
@@ -782,14 +749,14 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
 
           {/* Media Upload for non-marketplace posts */}
           {selectedType !== 'marketplace' && (
-            <div className={selectedPostType ? `${selectedPostType.bgGradient} p-4 rounded-lg` : ""}>
+            <div className="bg-gray-50/30 p-4 rounded-lg border border-gray-200/50">
               <Label>Photos (optional)</Label>
               <div className="mt-2 space-y-4">
                 <div className="flex items-center gap-4">
                   <Button
                     type="button"
                     variant="outline"
-                    className={`flex items-center gap-2 ${selectedPostType?.borderColor || ''}`}
+                    className="flex items-center gap-2 border-gray-300"
                     onClick={() => document.getElementById('media-upload')?.click()}
                   >
                     <Camera className="w-4 h-4" />
@@ -835,15 +802,14 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
           )}
 
           {/* Submit buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button 
               onClick={handleSubmit} 
               disabled={isSubmitting || !validateForm()}
-              variant="cultural"
-              className={selectedPostType?.color}
+              className="bg-primary hover:bg-primary/90"
             >
               {isSubmitting ? "Publishing..." : "Publish Post"}
             </Button>

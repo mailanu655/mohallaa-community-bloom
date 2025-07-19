@@ -42,10 +42,10 @@ const SafetyAlertFormFields = ({
   };
 
   return (
-    <div className="space-y-4 p-4 bg-red-50/30 rounded-lg border border-red-200/50">
+    <div className="space-y-4 p-4 bg-gray-50/30 rounded-lg border border-gray-200/50">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-red-700">
-          <Shield className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-gray-700">
+          <Shield className="w-4 h-4 text-red-600" />
           <Label className="text-sm font-medium">Safety Alert Details</Label>
         </div>
         {formData.urgencyLevel && (
@@ -64,7 +64,7 @@ const SafetyAlertFormFields = ({
             value={formData.title}
             onChange={(e) => onFormDataChange('title', e.target.value)}
             placeholder="e.g., Road Accident on MG Road - Traffic Blocked"
-            className="border-red-200"
+            className="border-gray-300"
           />
         </div>
       )}
@@ -78,7 +78,7 @@ const SafetyAlertFormFields = ({
             onChange={(e) => onFormDataChange('description', e.target.value)}
             placeholder="Provide detailed information about the safety alert..."
             rows={4}
-            className="border-red-200"
+            className="border-gray-300"
           />
         </div>
       )}
@@ -88,7 +88,7 @@ const SafetyAlertFormFields = ({
         <div className="space-y-2">
           <Label htmlFor="alert-type">Alert Type *</Label>
           <Select value={formData.alertType} onValueChange={(value) => onFormDataChange('alertType', value)}>
-            <SelectTrigger className="border-red-200">
+            <SelectTrigger className="border-gray-300">
               <SelectValue placeholder="Select alert type" />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +106,7 @@ const SafetyAlertFormFields = ({
         <div className="space-y-2">
           <Label htmlFor="urgency-level">Urgency Level *</Label>
           <Select value={formData.urgencyLevel} onValueChange={(value) => onFormDataChange('urgencyLevel', value)}>
-            <SelectTrigger className="border-red-200">
+            <SelectTrigger className="border-gray-300">
               <SelectValue placeholder="Select urgency level" />
             </SelectTrigger>
             <SelectContent>
@@ -149,7 +149,7 @@ const SafetyAlertFormFields = ({
               value={formData.affectedArea}
               onChange={(e) => onFormDataChange('affectedArea', e.target.value)}
               placeholder="e.g., MG Road, near Metro Station"
-              className="pl-10 border-red-200"
+              className="pl-10 border-gray-300"
             />
           </div>
         </div>
@@ -163,7 +163,7 @@ const SafetyAlertFormFields = ({
               type="datetime-local"
               value={formData.timeOfIncident}
               onChange={(e) => onFormDataChange('timeOfIncident', e.target.value)}
-              className="pl-10 border-red-200"
+              className="pl-10 border-gray-300"
             />
           </div>
         </div>
@@ -188,12 +188,12 @@ const SafetyAlertFormFields = ({
           onChange={(e) => onFormDataChange('emergencyContacts', e.target.value)}
           placeholder="e.g., Police: 100, Fire: 101, Ambulance: 108, Local contacts..."
           rows={3}
-          className="border-red-200"
+          className="border-gray-300"
         />
       </div>
 
       {formData.urgencyLevel === 'critical' && (
-        <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
             <div className="text-sm text-red-800">
