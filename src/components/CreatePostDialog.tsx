@@ -111,6 +111,13 @@ const postTypes = [
     icon: Shield,
     color: "bg-red-600",
     description: "Important safety information for the community"
+  },
+  { 
+    value: "travel_companion" as const, 
+    label: "Travel Companion", 
+    icon: Users,
+    color: "bg-cyan-500",
+    description: "Find travel companions and travel buddies"
   }
 ];
 

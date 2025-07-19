@@ -4535,6 +4535,7 @@ export type Database = {
         | "marketplace"
         | "recommendation"
         | "safety_alert"
+        | "travel_companion"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -4704,6 +4705,7 @@ export const Constants = {
         "marketplace",
         "recommendation",
         "safety_alert",
+        "travel_companion",
       ],
     },
   },
