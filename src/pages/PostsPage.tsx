@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { MessageSquare, Heart, Search, Filter, Plus, TrendingUp, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import CreatePostForm from "@/components/EnhancedCreatePostForm";
+import EnhancedCreatePostForm from "@/components/EnhancedCreatePostForm";
 import RichContentRenderer from "@/components/RichContentRenderer";
 import PostMediaGallery from "@/components/PostMediaGallery";
 import { useVoting } from "@/hooks/useVoting";
@@ -239,7 +239,7 @@ const PostsPage = () => {
                   <DialogHeader>
                     <DialogTitle>Create New Post</DialogTitle>
                   </DialogHeader>
-                  <CreatePostForm 
+                  <EnhancedCreatePostForm 
                     communities={communities} 
                     onPostCreated={handlePostCreated}
                   />
