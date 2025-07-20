@@ -4,6 +4,8 @@ interface CachedLocation {
     longitude: number;
     city?: string;
     state?: string;
+    neighborhood?: string;
+    zipcode?: string;
     accuracy?: number;
   };
   timestamp: number;

@@ -11,6 +11,8 @@ export interface LocationData {
   longitude: number;
   city?: string;
   state?: string;
+  neighborhood?: string;
+  zipcode?: string;
   accuracy?: number;
   fromCache?: boolean;
   provider?: string;
@@ -80,6 +82,8 @@ export const useLocation = () => {
         if (geocodeResult.success) {
           locationData.city = geocodeResult.city;
           locationData.state = geocodeResult.state;
+          locationData.neighborhood = geocodeResult.neighborhood;
+          locationData.zipcode = geocodeResult.zipcode;
           locationData.fromCache = geocodeResult.fromCache;
           locationData.provider = geocodeResult.provider;
           locationData.accuracyLevel = geocodeResult.accuracy;
@@ -107,6 +111,8 @@ export const useLocation = () => {
               current_longitude: locationData.longitude,
               current_city: locationData.city,
               current_state: locationData.state,
+              current_neighborhood: locationData.neighborhood,
+              current_zipcode: locationData.zipcode,
             })
             .eq('id', user.id);
 
@@ -140,7 +146,7 @@ export const useLocation = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('current_latitude, current_longitude, current_city, current_state')
+        .select('current_latitude, current_longitude, current_city, current_state, current_neighborhood, current_zipcode')
         .eq('id', user.id)
         .maybeSingle();
 
@@ -152,6 +158,8 @@ export const useLocation = () => {
           longitude: data.current_longitude,
           city: data.current_city,
           state: data.current_state,
+          neighborhood: data.current_neighborhood,
+          zipcode: data.current_zipcode,
           fromCache: true
         });
       }

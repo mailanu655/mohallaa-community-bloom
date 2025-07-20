@@ -3,6 +3,8 @@ import LocationCacheService from './locationCache';
 interface GeocodeResult {
   city?: string;
   state?: string;
+  neighborhood?: string;
+  zipcode?: string;
   success: boolean;
   fromCache: boolean;
   provider?: string;
@@ -32,6 +34,8 @@ class GeocodingService {
       parser: (data: any) => ({
         city: data.city || data.locality,
         state: data.principalSubdivision || data.principalSubdivisionCode,
+        neighborhood: data.neighbourhood || data.suburb || data.district,
+        zipcode: data.postcode,
         accuracy: data.confidence > 0.8 ? 'high' : data.confidence > 0.5 ? 'medium' : 'low',
         confidence: data.confidence || 0.5
       }),
@@ -45,6 +49,8 @@ class GeocodingService {
       parser: (data: any) => ({
         city: data.address?.city || data.address?.town || data.address?.village,
         state: data.address?.state || data.address?.region,
+        neighborhood: data.address?.neighbourhood || data.address?.suburb || data.address?.quarter,
+        zipcode: data.address?.postcode,
         accuracy: data.importance > 0.7 ? 'high' : data.importance > 0.4 ? 'medium' : 'low',
         confidence: data.importance || 0.3
       }),
@@ -82,6 +88,8 @@ class GeocodingService {
       return {
         city: cached.city,
         state: cached.state,
+        neighborhood: cached.neighborhood,
+        zipcode: cached.zipcode,
         success: true,
         fromCache: true
       };
@@ -110,12 +118,16 @@ class GeocodingService {
               longitude,
               city: parsed.city,
               state: parsed.state,
+              neighborhood: parsed.neighborhood,
+              zipcode: parsed.zipcode,
               accuracy: parsed.confidence
             });
 
             return {
               city: parsed.city,
               state: parsed.state,
+              neighborhood: parsed.neighborhood,
+              zipcode: parsed.zipcode,
               success: true,
               fromCache: false,
               provider: provider.name,
