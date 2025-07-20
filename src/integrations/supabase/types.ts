@@ -2079,7 +2079,9 @@ export type Database = {
           current_city: string | null
           current_latitude: number | null
           current_longitude: number | null
+          current_neighborhood: string | null
           current_state: string | null
+          current_zipcode: string | null
           email: string
           experience_years: number | null
           first_name: string
@@ -2113,7 +2115,9 @@ export type Database = {
           current_city?: string | null
           current_latitude?: number | null
           current_longitude?: number | null
+          current_neighborhood?: string | null
           current_state?: string | null
+          current_zipcode?: string | null
           email: string
           experience_years?: number | null
           first_name: string
@@ -2147,7 +2151,9 @@ export type Database = {
           current_city?: string | null
           current_latitude?: number | null
           current_longitude?: number | null
+          current_neighborhood?: string | null
           current_state?: string | null
+          current_zipcode?: string | null
           email?: string
           experience_years?: number | null
           first_name?: string
