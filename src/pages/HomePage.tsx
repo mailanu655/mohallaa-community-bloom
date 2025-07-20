@@ -230,6 +230,7 @@ const HomePage = () => {
             }}
             alertsCount={getActiveAlertsCount()}
             onAlertsClick={() => setSafetyAlertsModalOpen(true)}
+            location={location}
           />
         </div>
 

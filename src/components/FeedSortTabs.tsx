@@ -12,9 +12,14 @@ interface FeedSortTabsProps {
   onSortChange: (sort: string) => void;
   alertsCount?: number;
   onAlertsClick?: () => void;
+  location?: {
+    city?: string;
+    state?: string;
+    neighborhood?: string;
+  } | null;
 }
 
-const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0, onAlertsClick }: FeedSortTabsProps) => {
+const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0, onAlertsClick, location }: FeedSortTabsProps) => {
   const tabs = [
     { id: 'for-you', label: 'For You', icon: Sparkles },
     { id: 'latest', label: 'Latest', icon: Clock },
@@ -59,6 +64,19 @@ const FeedSortTabs = ({ activeSort, onSortChange, alertsCount = 0, onAlertsClick
           </Button>
         )}
       </div>
+      
+      {/* Location Info for Nearby Tab */}
+      {activeSort === 'nearby' && location && (
+        <div className="px-4 py-2 bg-muted/30 border-t border-border/50">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="w-4 h-4" />
+            <span>
+              Showing posts near {location.neighborhood && `${location.neighborhood}, `}
+              {location.city}{location.state && `, ${location.state}`}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
