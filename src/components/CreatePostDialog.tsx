@@ -544,7 +544,7 @@ const CreatePostDialog = ({ isOpen, onClose, communityId = "general", onPostCrea
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder={selectedType === 'question' ? "What's your question?" : "What's your post about?"}
+                  placeholder={selectedType === 'question' ? "What's your question?" : selectedType === 'announcement' ? "What's your announcement?" : "What's your post about?"}
                   className="mt-2"
                 />
               </div>
