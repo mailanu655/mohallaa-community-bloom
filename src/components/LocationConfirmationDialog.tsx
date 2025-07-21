@@ -64,7 +64,7 @@ const LocationConfirmationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[600px] w-full max-w-[95vw] p-0 gap-0 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 px-6 pt-6 pb-4 border-b border-border/50">
           <DialogHeader className="text-center space-y-3">
@@ -91,36 +91,38 @@ const LocationConfirmationDialog = ({
                   <CheckCircle className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-foreground text-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 className="font-semibold text-foreground text-lg leading-tight truncate">
                       {location.neighborhood ? `${location.neighborhood}` : location.city}
                     </h3>
-                    <Badge variant="secondary" className="text-xs font-medium">
+                    <Badge variant="secondary" className="text-xs font-medium shrink-0 self-start sm:self-center">
                       {confidenceInfo.level.toUpperCase()} MATCH
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground font-medium">
+                  <p className="text-muted-foreground font-medium break-words">
                     {location.city}, {location.state}
                     {location.zipcode && ` • ${location.zipcode}`}
                   </p>
                   
-                  {/* Accuracy Info */}
-                  {location.accuracy && (
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-current/20">
-                      <accuracyInfo.icon className={`h-4 w-4 ${accuracyInfo.color}`} />
-                      <span className="text-sm text-muted-foreground">
-                        Accuracy: <span className="font-medium">±{Math.round(location.accuracy)}m</span>
-                      </span>
-                      {location.provider && (
-                        <>
-                          <span className="text-muted-foreground">•</span>
-                          <span className="text-sm text-muted-foreground font-medium">
-                            {location.provider}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  )}
+                   {/* Accuracy Info */}
+                   {location.accuracy && (
+                     <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-current/20">
+                       <div className="flex items-center gap-2">
+                         <accuracyInfo.icon className={`h-4 w-4 ${accuracyInfo.color} shrink-0`} />
+                         <span className="text-sm text-muted-foreground">
+                           Accuracy: <span className="font-medium">±{Math.round(location.accuracy)}m</span>
+                         </span>
+                       </div>
+                       {location.provider && (
+                         <div className="flex items-center gap-2">
+                           <span className="text-muted-foreground">•</span>
+                           <span className="text-sm text-muted-foreground font-medium">
+                             {location.provider}
+                           </span>
+                         </div>
+                       )}
+                     </div>
+                   )}
                 </div>
               </div>
             </div>
@@ -144,9 +146,9 @@ const LocationConfirmationDialog = ({
           )}
 
           {/* Privacy Notice */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
-            <Shield className="h-4 w-4 text-primary" />
-            <span>Your precise location is private and never shared with other users</span>
+          <div className="flex items-start gap-2 text-sm text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
+            <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+            <span className="break-words">Your precise location is private and never shared with other users</span>
           </div>
         </div>
 
