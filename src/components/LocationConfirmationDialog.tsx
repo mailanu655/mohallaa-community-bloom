@@ -145,11 +145,6 @@ const LocationConfirmationDialog = ({
             </div>
           )}
 
-          {/* Privacy Notice */}
-          <div className="flex items-start gap-2 text-sm text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
-            <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-            <span className="break-words">Your precise location is private and never shared with other users</span>
-          </div>
         </div>
 
         {/* Footer */}
