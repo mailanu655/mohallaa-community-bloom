@@ -1,3 +1,4 @@
+
 import LocationCacheService from './locationCache';
 
 interface GeocodeResult {
@@ -25,11 +26,27 @@ class GeocodingService {
   private static readonly TIMEOUT_MS = 8000;
   private static readonly MAX_RETRIES = 2;
   private static readonly RETRY_DELAY = 1000;
+  private static readonly BDC_API_KEY = 'bdc_667d49b03e0141fd97e8effa7e4bafeb';
 
   private static readonly PROVIDERS: GeocodingProvider[] = [
     {
-      name: 'BigDataCloud',
+      name: 'BigDataCloud (Premium)',
       priority: 1,
+      endpoint: (lat: number, lng: number) => 
+        `https://api.bigdatacloud.net/data/reverse-geocode?latitude=${lat}&longitude=${lng}&localityLanguage=en&key=${GeocodingService.BDC_API_KEY}`,
+      parser: (data: any) => ({
+        city: data.city || data.locality || data.localityName,
+        state: data.principalSubdivision || data.principalSubdivisionCode || data.region,
+        neighborhood: data.neighbourhood || data.suburb || data.district || data.localityInfo?.administrative?.[3]?.name,
+        zipcode: data.postcode || data.postalCode,
+        accuracy: data.confidence > 0.8 ? 'high' : data.confidence > 0.5 ? 'medium' : 'low',
+        confidence: data.confidence || 0.7
+      }),
+      attribution: 'BigDataCloud'
+    },
+    {
+      name: 'BigDataCloud (Free)',
+      priority: 2,
       endpoint: (lat: number, lng: number) => 
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`,
       parser: (data: any) => ({
@@ -44,7 +61,7 @@ class GeocodingService {
     },
     {
       name: 'OpenStreetMap Nominatim',
-      priority: 2,
+      priority: 3,
       endpoint: (lat: number, lng: number) => 
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
       parser: (data: any) => ({
@@ -68,6 +85,7 @@ class GeocodingService {
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
+          'User-Agent': 'Mohallaa/1.0'
         }
       });
       clearTimeout(timeoutId);
@@ -82,12 +100,30 @@ class GeocodingService {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  private static isValidCoordinates(lat: number, lng: number): boolean {
+    return !isNaN(lat) && !isNaN(lng) && 
+           lat >= -90 && lat <= 90 && 
+           lng >= -180 && lng <= 180 &&
+           !(lat === 0 && lng === 0); // Exclude null island
+  }
+
+  private static isValidLocationData(data: Partial<GeocodeResult>): boolean {
+    if (!data.city || !data.state) return false;
+    
+    const invalidValues = ['unknown', 'null', 'undefined', '', 'n/a'];
+    const cityLower = data.city.toLowerCase();
+    const stateLower = data.state.toLowerCase();
+    
+    return !invalidValues.includes(cityLower) && 
+           !invalidValues.includes(stateLower) &&
+           data.city.length >= 2 && 
+           data.state.length >= 2;
+  }
+
   static async reverseGeocode(latitude: number, longitude: number): Promise<GeocodeResult> {
     try {
       // Validate coordinates first
-      if (!latitude || !longitude || 
-          latitude < -90 || latitude > 90 || 
-          longitude < -180 || longitude > 180) {
+      if (!this.isValidCoordinates(latitude, longitude)) {
         console.error('Invalid coordinates for geocoding:', { latitude, longitude });
         return {
           success: false,
@@ -133,30 +169,21 @@ class GeocodingService {
             const parsed = provider.parser(data);
             console.log(`Parsed result from ${provider.name}:`, parsed);
 
-            if (parsed.city && parsed.state) {
-              // Additional validation of parsed result
-              if (parsed.city.toLowerCase() === 'unknown' || 
-                  parsed.state.toLowerCase() === 'unknown' ||
-                  parsed.city.length < 2 || 
-                  parsed.state.length < 2) {
-                console.warn(`${provider.name} returned invalid location data:`, parsed);
-                continue;
-              }
-              
+            if (this.isValidLocationData(parsed)) {
               // Cache the successful result
               LocationCacheService.set(latitude, longitude, {
                 latitude,
                 longitude,
-                city: parsed.city,
-                state: parsed.state,
+                city: parsed.city!,
+                state: parsed.state!,
                 neighborhood: parsed.neighborhood,
                 zipcode: parsed.zipcode,
                 accuracy: parsed.confidence
               });
 
               return {
-                city: parsed.city,
-                state: parsed.state,
+                city: parsed.city!,
+                state: parsed.state!,
                 neighborhood: parsed.neighborhood,
                 zipcode: parsed.zipcode,
                 success: true,
@@ -167,7 +194,7 @@ class GeocodingService {
               };
             }
 
-            throw new Error('Incomplete geocoding data received');
+            console.warn(`${provider.name} returned invalid location data:`, parsed);
           } catch (error) {
             console.warn(`${provider.name} geocoding attempt ${attempt + 1} failed:`, error);
             

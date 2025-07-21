@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,18 +19,25 @@ interface ManualLocationDialogProps {
   onLocationSet: (city: string, state: string) => Promise<boolean>;
   loading?: boolean;
   trigger?: React.ReactNode;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const ManualLocationDialog = ({ 
   onLocationSet, 
   loading = false,
-  trigger 
+  trigger,
+  isOpen,
+  onOpenChange
 }: ManualLocationDialogProps) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const open = isOpen !== undefined ? isOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,64 +90,69 @@ export const ManualLocationDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
+      {trigger && (
+        <DialogTrigger asChild>
+          {trigger || defaultTrigger}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
+            <MapPin className="h-5 w-5 text-primary" />
             Set Your Location
           </DialogTitle>
           <DialogDescription>
-            Enter your city and state manually if automatic location detection isn't working.
+            Enter your city and state to find posts and events in your area.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city" className="text-sm font-medium">City</Label>
               <Input
                 id="city"
                 type="text"
-                placeholder="Enter your city"
+                placeholder="e.g., San Francisco"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 disabled={isSubmitting || loading}
+                className="focus:ring-2 focus:ring-primary/20"
                 required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium">State</Label>
               <Input
                 id="state"
                 type="text"
-                placeholder="Enter your state"
+                placeholder="e.g., California"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 disabled={isSubmitting || loading}
+                className="focus:ring-2 focus:ring-primary/20"
                 required
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
               disabled={isSubmitting || loading}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting || loading || !city.trim() || !state.trim()}
-              className="gap-2"
+              className="w-full sm:w-auto gap-2"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Setting...
+                  Setting Location...
                 </>
               ) : (
                 <>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   MessageSquare, 
   MapPin,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -278,34 +278,59 @@ const HomePage = () => {
 
         {/* Enhanced Location Permission Prompt for Nearby */}
         {feedSort === 'nearby' && permissionStatus === 'prompt' && (
-          <div className="bg-gradient-subtle border border-border rounded-lg p-4 m-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 text-primary" />
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 m-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <MapPin className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground mb-1">Find Your Community</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  We'll show you posts from people in your area (within ~5 miles). Your precise location is never shared with others.
+                <h3 className="font-semibold text-foreground mb-2 text-lg">Find Your Community</h3>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  Discover posts, events, and connections from people in your neighborhood. 
+                  Your precise location is kept private and secure.
                 </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                  <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
                     <span>Private & Secure</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                     <span>Approximate Area Only</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    <span>Never Shared</span>
+                  </div>
                 </div>
-                <Button 
-                  onClick={requestLocation} 
-                  disabled={locationLoading}
-                  size="sm"
-                  className="w-full sm:w-auto"
-                >
-                  {locationLoading ? 'Getting Location...' : 'Enable Location'}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    onClick={requestLocation} 
+                    disabled={locationLoading}
+                    size="sm"
+                    className="shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    {locationLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Getting Location...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Enable Location
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setManualLocationOpen(true)}
+                    className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950/50"
+                  >
+                    Enter Location Manually
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -313,22 +338,44 @@ const HomePage = () => {
 
         {/* Enhanced Location Denied Message */}
         {feedSort === 'nearby' && permissionStatus === 'denied' && (
-          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 m-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 m-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <AlertTriangle className="w-6 h-6 text-white" />
+              </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-destructive mb-1">Location Access Needed</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  To see nearby posts, please enable location access in your browser settings or try again.
+                <h3 className="font-semibold text-foreground mb-2 text-lg">Location Access Needed</h3>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  To show you posts and events from your neighborhood, we need access to your location. 
+                  You can also enter your location manually if you prefer.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Button 
                     onClick={requestLocation} 
                     disabled={locationLoading}
                     size="sm"
                     variant="outline"
+                    className="border-amber-200 hover:bg-amber-50 dark:border-amber-800 dark:hover:bg-amber-950/50"
                   >
-                    Try Again
+                    {locationLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Trying Again...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Try Again
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => setManualLocationOpen(true)}
+                    className="shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Enter Location Manually
                   </Button>
                 </div>
               </div>
@@ -474,6 +521,8 @@ const HomePage = () => {
 
       {/* Manual Location Dialog */}
       <ManualLocationDialog
+        isOpen={manualLocationOpen}
+        onOpenChange={setManualLocationOpen}
         onLocationSet={setManualLocation}
         loading={locationLoading}
       />
