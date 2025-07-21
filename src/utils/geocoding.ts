@@ -10,6 +10,7 @@ interface GeocodeResult {
   provider?: string;
   accuracy?: 'high' | 'medium' | 'low';
   confidence?: number;
+  error?: string;
 }
 
 interface GeocodingProvider {
@@ -82,76 +83,117 @@ class GeocodingService {
   }
 
   static async reverseGeocode(latitude: number, longitude: number): Promise<GeocodeResult> {
-    // Check cache first
-    const cached = LocationCacheService.get(latitude, longitude);
-    if (cached?.city && cached?.state) {
-      return {
-        city: cached.city,
-        state: cached.state,
-        neighborhood: cached.neighborhood,
-        zipcode: cached.zipcode,
-        success: true,
-        fromCache: true
-      };
-    }
+    try {
+      // Validate coordinates first
+      if (!latitude || !longitude || 
+          latitude < -90 || latitude > 90 || 
+          longitude < -180 || longitude > 180) {
+        console.error('Invalid coordinates for geocoding:', { latitude, longitude });
+        return {
+          success: false,
+          fromCache: false,
+          error: 'Invalid coordinates provided'
+        };
+      }
 
-    // Try providers in order of priority
-    const sortedProviders = this.PROVIDERS.sort((a, b) => a.priority - b.priority);
+      console.log(`Reverse geocoding coordinates: ${latitude}, ${longitude}`);
 
-    for (const provider of sortedProviders) {
-      for (let attempt = 0; attempt < this.MAX_RETRIES; attempt++) {
-        try {
-          const url = provider.endpoint(latitude, longitude);
-          const response = await this.fetchWithTimeout(url, this.TIMEOUT_MS);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
+      // Check cache first
+      const cached = LocationCacheService.get(latitude, longitude);
+      if (cached?.city && cached?.state) {
+        console.log('Geocoding cache hit:', cached);
+        return {
+          city: cached.city,
+          state: cached.state,
+          neighborhood: cached.neighborhood,
+          zipcode: cached.zipcode,
+          success: true,
+          fromCache: true
+        };
+      }
 
-          const data = await response.json();
-          const parsed = provider.parser(data);
+      // Try providers in order of priority
+      const sortedProviders = this.PROVIDERS.sort((a, b) => a.priority - b.priority);
 
-          if (parsed.city && parsed.state) {
-            // Cache the successful result
-            LocationCacheService.set(latitude, longitude, {
-              latitude,
-              longitude,
-              city: parsed.city,
-              state: parsed.state,
-              neighborhood: parsed.neighborhood,
-              zipcode: parsed.zipcode,
-              accuracy: parsed.confidence
-            });
+      for (const provider of sortedProviders) {
+        for (let attempt = 0; attempt < this.MAX_RETRIES; attempt++) {
+          try {
+            const url = provider.endpoint(latitude, longitude);
+            console.log(`Trying ${provider.name} (attempt ${attempt + 1}):`, url);
+            
+            const response = await this.fetchWithTimeout(url, this.TIMEOUT_MS);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
 
-            return {
-              city: parsed.city,
-              state: parsed.state,
-              neighborhood: parsed.neighborhood,
-              zipcode: parsed.zipcode,
-              success: true,
-              fromCache: false,
-              provider: provider.name,
-              accuracy: parsed.accuracy,
-              confidence: parsed.confidence
-            };
-          }
+            const data = await response.json();
+            console.log(`Raw response from ${provider.name}:`, data);
+            
+            const parsed = provider.parser(data);
+            console.log(`Parsed result from ${provider.name}:`, parsed);
 
-          throw new Error('Incomplete geocoding data received');
-        } catch (error) {
-          console.warn(`${provider.name} geocoding attempt ${attempt + 1} failed:`, error);
-          
-          if (attempt < this.MAX_RETRIES - 1) {
-            await this.delay(this.RETRY_DELAY * Math.pow(2, attempt));
+            if (parsed.city && parsed.state) {
+              // Additional validation of parsed result
+              if (parsed.city.toLowerCase() === 'unknown' || 
+                  parsed.state.toLowerCase() === 'unknown' ||
+                  parsed.city.length < 2 || 
+                  parsed.state.length < 2) {
+                console.warn(`${provider.name} returned invalid location data:`, parsed);
+                continue;
+              }
+              
+              // Cache the successful result
+              LocationCacheService.set(latitude, longitude, {
+                latitude,
+                longitude,
+                city: parsed.city,
+                state: parsed.state,
+                neighborhood: parsed.neighborhood,
+                zipcode: parsed.zipcode,
+                accuracy: parsed.confidence
+              });
+
+              return {
+                city: parsed.city,
+                state: parsed.state,
+                neighborhood: parsed.neighborhood,
+                zipcode: parsed.zipcode,
+                success: true,
+                fromCache: false,
+                provider: provider.name,
+                accuracy: parsed.accuracy,
+                confidence: parsed.confidence
+              };
+            }
+
+            throw new Error('Incomplete geocoding data received');
+          } catch (error) {
+            console.warn(`${provider.name} geocoding attempt ${attempt + 1} failed:`, error);
+            
+            if (attempt < this.MAX_RETRIES - 1) {
+              await this.delay(this.RETRY_DELAY * Math.pow(2, attempt));
+            }
           }
         }
       }
-    }
 
-    // All providers failed
-    return {
-      success: false,
-      fromCache: false
-    };
+      // All providers failed
+      console.error('All geocoding providers failed for coordinates:', latitude, longitude);
+      return {
+        success: false,
+        fromCache: false,
+        error: 'All geocoding providers failed'
+      };
+      
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return {
+        success: false,
+        fromCache: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 }
 

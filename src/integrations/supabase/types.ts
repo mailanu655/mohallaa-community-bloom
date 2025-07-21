@@ -3160,12 +3160,14 @@ export type Database = {
         }[]
       }
       get_posts_by_location: {
-        Args: {
-          user_city: string
-          user_state: string
-          limit_count?: number
-          offset_count?: number
-        }
+        Args:
+          | { search_city: string; search_state: string; limit_count?: number }
+          | {
+              user_city: string
+              user_state: string
+              limit_count?: number
+              offset_count?: number
+            }
         Returns: {
           id: string
           title: string

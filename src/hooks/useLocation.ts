@@ -25,6 +25,7 @@ export const useLocation = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [locationConfirmed, setLocationConfirmed] = useState(false);
   const { user } = useAuth();
 
   const requestLocation = async (): Promise<boolean> => {
@@ -96,6 +97,13 @@ export const useLocation = () => {
         // Don't fail the entire location request for geocoding errors
         console.warn('Geocoding service unavailable:', geocodeError);
         ApiErrorHandler.showLocationToast({ message: 'geocoding failed' });
+      }
+
+      // Validate the location before setting it
+      if (!validateLocation(locationData)) {
+        setError('Invalid location data received. Please try again.');
+        setLoading(false);
+        return false;
       }
 
       setLocation(locationData);
@@ -224,11 +232,50 @@ export const useLocation = () => {
     }
   };
 
+  const validateLocation = (locationData: LocationData): boolean => {
+    // Validate coordinates are within valid ranges
+    if (!locationData.latitude || !locationData.longitude) return false;
+    if (locationData.latitude < -90 || locationData.latitude > 90) return false;
+    if (locationData.longitude < -180 || locationData.longitude > 180) return false;
+    
+    // Log the location for debugging
+    console.log('Location validation:', {
+      coordinates: `${locationData.latitude}, ${locationData.longitude}`,
+      city: locationData.city,
+      state: locationData.state,
+      provider: locationData.provider,
+      accuracy: locationData.accuracy
+    });
+    
+    return true;
+  };
+
+  const confirmLocation = (): void => {
+    setLocationConfirmed(true);
+  };
+
   const clearLocationCache = (): void => {
     LocationCacheService.clear();
     setLocation(null);
     setPermissionStatus('prompt');
+    setLocationConfirmed(false);
     setError(null);
+    
+    // Also clear from user profile if logged in
+    if (user) {
+      supabase
+        .from('profiles')
+        .update({
+          current_latitude: null,
+          current_longitude: null,
+          current_city: null,
+          current_state: null,
+          current_neighborhood: null,
+          current_zipcode: null,
+        })
+        .eq('id', user.id)
+        .then(() => console.log('Cleared location from user profile'));
+    }
   };
 
   useEffect(() => {
@@ -242,9 +289,12 @@ export const useLocation = () => {
     loading,
     error,
     permissionStatus,
+    locationConfirmed,
     requestLocation,
     loadSavedLocation,
     clearLocationCache,
     setManualLocation,
+    validateLocation,
+    confirmLocation,
   };
 };

@@ -23,6 +23,8 @@ import { usePersonalizedFeed } from '@/hooks/usePersonalizedFeed';
 import { useUserInteractions } from '@/hooks/useUserInteractions';
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyPosts } from '@/hooks/useNearbyPosts';
+import LocationConfirmationDialog from '@/components/LocationConfirmationDialog';
+import { ManualLocationDialog } from '@/components/ManualLocationDialog';
 import { requestService } from '@/utils/requestService';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
@@ -72,8 +74,21 @@ const HomePage = () => {
   } = useUserInteractions();
 
   // Location and nearby posts hooks
-  const { location, loading: locationLoading, requestLocation, permissionStatus } = useLocation();
+  const { 
+    location, 
+    loading: locationLoading, 
+    requestLocation, 
+    permissionStatus,
+    locationConfirmed,
+    clearLocationCache,
+    setManualLocation,
+    confirmLocation
+  } = useLocation();
   const { posts: nearbyPosts, loading: nearbyLoading } = useNearbyPosts(location);
+  
+  // Location confirmation states
+  const [locationConfirmationOpen, setLocationConfirmationOpen] = useState(false);
+  const [manualLocationOpen, setManualLocationOpen] = useState(false);
 
   // Real-time subscription for posts
   useRealTimeSubscription({
@@ -110,6 +125,13 @@ const HomePage = () => {
   }, [hasMore, loading, page, feedSort]);
 
   const { isFetching } = useInfiniteScroll(fetchMore);
+
+  // Show location confirmation dialog when location is detected but not confirmed
+  useEffect(() => {
+    if (location && !locationConfirmed && !locationConfirmationOpen) {
+      setLocationConfirmationOpen(true);
+    }
+  }, [location, locationConfirmed, locationConfirmationOpen]);
 
   useEffect(() => {
     setPage(1);
@@ -428,6 +450,32 @@ const HomePage = () => {
       <SafetyAlertsModal
         open={safetyAlertsModalOpen}
         onOpenChange={setSafetyAlertsModalOpen}
+      />
+
+      {/* Location Confirmation Dialog */}
+      <LocationConfirmationDialog
+        isOpen={locationConfirmationOpen}
+        onClose={() => setLocationConfirmationOpen(false)}
+        location={location}
+        onConfirm={() => {
+          confirmLocation();
+          setLocationConfirmationOpen(false);
+        }}
+        onRetry={() => {
+          setLocationConfirmationOpen(false);
+          clearLocationCache();
+          requestLocation();
+        }}
+        onManualEntry={() => {
+          setLocationConfirmationOpen(false);
+          setManualLocationOpen(true);
+        }}
+      />
+
+      {/* Manual Location Dialog */}
+      <ManualLocationDialog
+        onLocationSet={setManualLocation}
+        loading={locationLoading}
       />
     </div>
   );
