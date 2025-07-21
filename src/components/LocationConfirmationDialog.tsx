@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, CheckCircle, AlertCircle, MapIcon } from 'lucide-react';
+import { MapPin, CheckCircle, AlertTriangle, Shield, Target, Navigation } from 'lucide-react';
 import { LocationData } from '@/hooks/useLocation';
 
 interface LocationConfirmationDialogProps {
@@ -37,129 +37,146 @@ const LocationConfirmationDialog = ({
   const isAccurate = location.accuracy && location.accuracy < 1000; // Within 1km
   const confidenceLevel = location.confidence || 0.5;
 
-  const getAccuracyBadge = () => {
-    if (!location.accuracy) return null;
+  const getAccuracyLevel = () => {
+    if (!location.accuracy) return { level: 'unknown', icon: Target, color: 'text-muted-foreground' };
     
     if (location.accuracy < 100) {
-      return <Badge className="bg-green-100 text-green-700 hover:bg-green-200">High Accuracy</Badge>;
+      return { level: 'high', icon: Target, color: 'text-emerald-600' };
     } else if (location.accuracy < 1000) {
-      return <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-200">Medium Accuracy</Badge>;
+      return { level: 'medium', icon: Target, color: 'text-amber-600' };
     } else {
-      return <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-200">Low Accuracy</Badge>;
+      return { level: 'low', icon: Target, color: 'text-red-600' };
     }
   };
 
-  const getConfidenceBadge = () => {
+  const getConfidenceLevel = () => {
     if (confidenceLevel > 0.8) {
-      return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200">High Confidence</Badge>;
+      return { level: 'high', color: 'text-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200' };
     } else if (confidenceLevel > 0.5) {
-      return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">Medium Confidence</Badge>;
+      return { level: 'medium', color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-amber-200' };
     } else {
-      return <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200">Low Confidence</Badge>;
+      return { level: 'low', color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' };
     }
   };
+
+  const accuracyInfo = getAccuracyLevel();
+  const confidenceInfo = getConfidenceLevel();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <MapPin className="h-8 w-8 text-primary" />
-          </div>
-          <DialogTitle className="text-xl font-semibold">
-            Confirm Your Location
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            We've detected your location. Please confirm if this looks correct.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 px-6 pt-6 pb-4 border-b border-border/50">
+          <DialogHeader className="text-center space-y-3">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-background shadow-lg border border-border/50">
+              <Navigation className="h-7 w-7 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Confirm Location
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground mt-2 text-base">
+                We've detected your location. Please verify the details below.
+              </DialogDescription>
+            </div>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4 py-4">
-          <Card className="border-muted">
-            <CardContent className="p-4">
-              {hasLocationDetails ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground">
-                        {location.neighborhood && `${location.neighborhood}, `}
-                        {location.city}, {location.state}
-                      </div>
-                      {location.zipcode && (
-                        <div className="text-sm text-muted-foreground">
-                          {location.zipcode}
-                        </div>
-                      )}
-                    </div>
+        {/* Content */}
+        <div className="p-6 space-y-5">
+          {hasLocationDetails ? (
+            <div className={`p-4 rounded-xl border transition-all ${confidenceInfo.bgColor} ${confidenceInfo.borderColor} hover:shadow-md`}>
+              <div className="flex items-start gap-3">
+                <div className={`mt-0.5 ${confidenceInfo.color}`}>
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-foreground text-lg">
+                      {location.neighborhood ? `${location.neighborhood}` : location.city}
+                    </h3>
+                    <Badge variant="secondary" className="text-xs font-medium">
+                      {confidenceInfo.level.toUpperCase()} MATCH
+                    </Badge>
                   </div>
+                  <p className="text-muted-foreground font-medium">
+                    {location.city}, {location.state}
+                    {location.zipcode && ` • ${location.zipcode}`}
+                  </p>
                   
-                  <div className="flex flex-wrap gap-2">
-                    {getAccuracyBadge()}
-                    {getConfidenceBadge()}
-                    {location.provider && (
-                      <Badge variant="outline" className="text-xs">
-                        {location.provider}
-                      </Badge>
-                    )}
-                  </div>
-
+                  {/* Accuracy Info */}
                   {location.accuracy && (
-                    <div className="text-xs text-muted-foreground">
-                      Accuracy: ±{Math.round(location.accuracy)}m
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-current/20">
+                      <accuracyInfo.icon className={`h-4 w-4 ${accuracyInfo.color}`} />
+                      <span className="text-sm text-muted-foreground">
+                        Accuracy: <span className="font-medium">±{Math.round(location.accuracy)}m</span>
+                      </span>
+                      {location.provider && (
+                        <>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-sm text-muted-foreground font-medium">
+                            {location.provider}
+                          </span>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-amber-600" />
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground">
-                        Location detected but incomplete
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Coordinates: {location.latitude?.toFixed(4)}, {location.longitude?.toFixed(4)}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p className="text-sm text-amber-800">
-                      We couldn't determine your exact city and state. You may want to enter your location manually for better results.
-                    </p>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded-xl border border-amber-200 bg-amber-50">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-amber-900 mb-1">
+                    Incomplete Location Data
+                  </h3>
+                  <p className="text-sm text-amber-700 mb-3">
+                    We found your coordinates but couldn't determine the exact address.
+                  </p>
+                  <div className="text-xs font-mono bg-amber-100 text-amber-800 px-2 py-1 rounded border">
+                    {location.latitude?.toFixed(6)}, {location.longitude?.toFixed(6)}
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            </div>
+          )}
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <MapIcon className="h-3 w-3" />
-            <span>Your exact location is never shared with other users</span>
+          {/* Privacy Notice */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
+            <Shield className="h-4 w-4 text-primary" />
+            <span>Your precise location is private and never shared with other users</span>
           </div>
         </div>
 
-        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+        {/* Footer */}
+        <DialogFooter className="p-6 pt-0 flex-col gap-3 sm:flex-row sm:gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={onRetry}
+              className="flex-1 sm:flex-none"
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={onManualEntry}
+              className="flex-1 sm:flex-none"
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              Manual
+            </Button>
+          </div>
           <Button 
-            variant="outline" 
-            onClick={onRetry} 
-            className="w-full sm:w-auto"
-          >
-            Try Again
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={onManualEntry} 
-            className="w-full sm:w-auto"
-          >
-            Enter Manually
-          </Button>
-          <Button 
-            onClick={onConfirm} 
-            className="w-full sm:w-auto"
+            onClick={onConfirm}
+            className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25"
             disabled={!hasLocationDetails && (!location.latitude || !location.longitude)}
+            size="lg"
           >
+            <CheckCircle className="h-4 w-4 mr-2" />
             {hasLocationDetails ? 'Confirm Location' : 'Use Coordinates'}
           </Button>
         </DialogFooter>
