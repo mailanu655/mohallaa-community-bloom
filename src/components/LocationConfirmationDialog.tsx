@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, CheckCircle, AlertTriangle, Shield, Target, Navigation } from 'lucide-react';
 import { LocationData } from '@/hooks/useLocation';
@@ -91,14 +90,9 @@ const LocationConfirmationDialog = ({
                   <CheckCircle className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                    <h3 className="font-semibold text-foreground text-lg leading-tight truncate">
-                      {location.neighborhood ? `${location.neighborhood}` : location.city}
-                    </h3>
-                    <Badge variant="secondary" className="text-xs font-medium shrink-0 self-start sm:self-center">
-                      {confidenceInfo.level.toUpperCase()} MATCH
-                    </Badge>
-                  </div>
+                  <h3 className="font-semibold text-foreground text-lg leading-tight truncate mb-2">
+                    {location.neighborhood ? `${location.neighborhood}` : location.city}
+                  </h3>
                   <p className="text-muted-foreground font-medium break-words">
                     {location.city}, {location.state}
                     {location.zipcode && ` • ${location.zipcode}`}
