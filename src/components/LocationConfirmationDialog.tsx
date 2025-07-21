@@ -148,12 +148,12 @@ const LocationConfirmationDialog = ({
         </div>
 
         {/* Footer */}
-        <DialogFooter className="p-6 pt-0 flex-col gap-3 sm:flex-row sm:gap-2">
-          <div className="flex gap-2 w-full sm:w-auto">
+        <DialogFooter className="p-6 pt-0">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Button 
               variant="outline" 
               onClick={onRetry}
-              className="flex-1 sm:flex-none"
+              className="flex-1"
             >
               <Target className="h-4 w-4 mr-2" />
               Retry
@@ -161,21 +161,20 @@ const LocationConfirmationDialog = ({
             <Button 
               variant="outline" 
               onClick={onManualEntry}
-              className="flex-1 sm:flex-none"
+              className="flex-1"
             >
               <MapPin className="h-4 w-4 mr-2" />
               Manual
             </Button>
+            <Button 
+              onClick={onConfirm}
+              className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25"
+              disabled={!hasLocationDetails && (!location.latitude || !location.longitude)}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Confirm Location
+            </Button>
           </div>
-          <Button 
-            onClick={onConfirm}
-            className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25"
-            disabled={!hasLocationDetails && (!location.latitude || !location.longitude)}
-            size="lg"
-          >
-            <CheckCircle className="h-4 w-4 mr-2" />
-            {hasLocationDetails ? 'Confirm Location' : 'Use Coordinates'}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
