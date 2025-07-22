@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bookmark, ArrowLeft } from 'lucide-react';
+import { Bookmark, ArrowLeft, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { PostBookmarkButton } from '@/components/PostBookmarkButton';
-import { PostLikeButton } from '@/components/PostLikeButton';
+import { useVoting } from '@/hooks/useVoting';
+import { useBookmarks } from '@/hooks/useBookmarks';
 import { Button } from '@/components/ui/button';
 
 interface BookmarkedPost {
@@ -32,6 +32,42 @@ interface BookmarkedPost {
     } | null;
   };
 }
+
+// Individual post interaction component to properly use hooks
+const PostInteractionButtons = ({ postId }: { postId: string }) => {
+  const { upvotes, userVote, vote, isLoading: voteLoading } = useVoting(postId, 'post');
+  const { isBookmarked, toggleBookmark, isLoading: bookmarkLoading } = useBookmarks(postId);
+
+  return (
+    <div className="flex items-center space-x-4 pt-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={voteLoading}
+        className={`h-8 px-3 ${userVote === 'upvote' ? 'text-red-500' : 'text-muted-foreground'}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          vote('upvote');
+        }}
+      >
+        <Heart className={`w-4 h-4 mr-2 ${userVote === 'upvote' ? 'fill-current' : ''}`} />
+        {upvotes}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={bookmarkLoading}
+        className={`h-8 px-3 ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleBookmark();
+        }}
+      >
+        <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+      </Button>
+    </div>
+  );
+};
 
 const BookmarksPage = () => {
   const { user } = useAuth();
@@ -169,10 +205,7 @@ const BookmarksPage = () => {
                             <p className="text-foreground leading-relaxed">{bookmark.posts.content}</p>
                           </div>
                           
-                          <div className="flex items-center space-x-4 pt-2">
-                            <PostLikeButton postId={bookmark.posts.id} />
-                            <PostBookmarkButton postId={bookmark.posts.id} />
-                          </div>
+                          <PostInteractionButtons postId={bookmark.posts.id} />
                         </div>
                       </div>
                     </div>

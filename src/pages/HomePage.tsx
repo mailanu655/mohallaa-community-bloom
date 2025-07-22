@@ -25,8 +25,6 @@ import { useLocation } from '@/hooks/useLocation';
 import { useNearbyPosts } from '@/hooks/useNearbyPosts';
 import { NeighborhoodLocationPrompt } from '@/components/NeighborhoodLocationPrompt';
 import { requestService } from '@/utils/requestService';
-import { PostLikeButton } from '@/components/PostLikeButton';
-import { PostBookmarkButton } from '@/components/PostBookmarkButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useRealTimeSubscription } from '@/hooks/useRealTimeSubscription';
 import PostMediaGallery from '@/components/PostMediaGallery';
