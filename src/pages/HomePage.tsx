@@ -226,150 +226,155 @@ const HomePage = () => {
       )}
 
       {selectedNeighborhood && (
-        <div className="lg:col-span-2 border-r border-border/50">
-          {/* Header */}
-          <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-foreground">Home</h1>
-              <p className="text-sm text-muted-foreground">
-                {selectedNeighborhood.name}, {selectedNeighborhood.city}
-              </p>
+        <>
+          <div className="lg:col-span-2 border-r border-border/50">
+            {/* Header */}
+            <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-xl font-bold text-foreground">Home</h1>
+                <p className="text-sm text-muted-foreground">
+                  {selectedNeighborhood.name}, {selectedNeighborhood.city}
+                </p>
+              </div>
             </div>
-          </div>
 
-        {/* Feed Sort Tabs */}
-        <div className="border-b border-border/50">
-          <FeedSortTabs 
-            activeSort={feedSort} 
-            onSortChange={(sort) => {
-              setFeedSort(sort);
-            }}
-            alertsCount={getActiveAlertsCount()}
-            onAlertsClick={() => setSafetyAlertsModalOpen(true)}
-            location={location}
-          />
-        </div>
+            {/* Feed Sort Tabs */}
+            <div className="border-b border-border/50">
+              <FeedSortTabs 
+                activeSort={feedSort} 
+                onSortChange={(sort) => {
+                  setFeedSort(sort);
+                }}
+                alertsCount={getActiveAlertsCount()}
+                onAlertsClick={() => setSafetyAlertsModalOpen(true)}
+                location={{
+                  city: selectedNeighborhood.city,
+                  state: selectedNeighborhood.state,
+                  neighborhood: selectedNeighborhood.name
+                }}
+              />
+            </div>
 
-        {/* Create Post */}
-        <div className="border-b border-border/50 p-4">
-          <div className="flex space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            
-            <Button 
-              variant="ghost" 
-              className="flex-1 justify-start text-muted-foreground h-12 text-lg rounded-lg border border-border/50"
-              onClick={() => setCreatePostDialogOpen(true)}
-            >
-              What's happening?
-            </Button>
-          </div>
-        </div>
-
-        {/* Location prompts are now handled by neighborhood selection */}
-
-        {/* Posts Feed */}
-        <div>
-          {posts.map((post) => (
-            <TwitterLikePostCard
-              key={post.id}
-              post={post}
-              onPostClick={handlePostClick}
-              onCommentClick={handleCommentClick}
-              onShareClick={handleShareClick}
-            />
-          ))}
-
-          {posts.length === 0 && !loading && (
-            <div className="p-12 text-center">
-              <div className="space-y-4">
-                <div className="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center">
-                  <MessageSquare className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-foreground">Your feed is empty</h3>
-                  <p className="text-muted-foreground">
-                    Be the first to share something with your neighborhood!
-                  </p>
-                </div>
+            {/* Create Post */}
+            <div className="border-b border-border/50 p-4">
+              <div className="flex space-x-3">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                    {user?.user_metadata?.first_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                
                 <Button 
-                  variant="default"
+                  variant="ghost" 
+                  className="flex-1 justify-start text-muted-foreground h-12 text-lg rounded-lg border border-border/50"
                   onClick={() => setCreatePostDialogOpen(true)}
                 >
-                  Create First Post
+                  What's happening?
                 </Button>
               </div>
             </div>
-          )}
 
-          {/* Loading indicator for infinite scroll */}
-          {isFetching && (
-            <div className="p-6 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground mt-2">Loading more posts...</p>
-            </div>
-          )}
-        </div>
-      </div>
+            {/* Location prompts are now handled by neighborhood selection */}
 
-        )}
-      
-      {/* Right Sidebar */}
-      <div className="hidden lg:block lg:col-span-1 p-6 space-y-6">
-        {/* Upcoming Events */}
-        <Card className="border border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold">Upcoming Events</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {events.slice(0, 3).map((event) => (
-              <div key={event.id} className="space-y-1">
-                <h4 className="font-medium text-sm">{event.title}</h4>
-                <div className="text-xs text-muted-foreground">
-                  {new Date(event.start_date).toLocaleDateString()}
+            {/* Posts Feed */}
+            <div>
+              {posts.map((post) => (
+                <TwitterLikePostCard
+                  key={post.id}
+                  post={post}
+                  onPostClick={handlePostClick}
+                  onCommentClick={handleCommentClick}
+                  onShareClick={handleShareClick}
+                />
+              ))}
+
+              {posts.length === 0 && !loading && (
+                <div className="p-12 text-center">
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center">
+                      <MessageSquare className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">Your feed is empty</h3>
+                      <p className="text-muted-foreground">
+                        Be the first to share something with your neighborhood!
+                      </p>
+                    </div>
+                    <Button 
+                      variant="default"
+                      onClick={() => setCreatePostDialogOpen(true)}
+                    >
+                      Create First Post
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <Button variant="outline" size="sm" className="w-full mt-3" asChild>
-              <Link to="/events">View All Events</Link>
-            </Button>
-          </CardContent>
-        </Card>
+              )}
 
-        {/* Trending */}
-        <Card className="border border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold">What's happening</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {trendingLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="h-4 bg-muted rounded w-3/4"></div>
-                    <div className="h-3 bg-muted rounded w-1/2"></div>
+              {/* Loading indicator for infinite scroll */}
+              {isFetching && (
+                <div className="p-6 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  <p className="text-muted-foreground mt-2">Loading more posts...</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="hidden lg:block lg:col-span-1 p-6 space-y-6">
+            {/* Upcoming Events */}
+            <Card className="border border-border/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold">Upcoming Events</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {events.slice(0, 3).map((event) => (
+                  <div key={event.id} className="space-y-1">
+                    <h4 className="font-medium text-sm">{event.title}</h4>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(event.start_date).toLocaleDateString()}
+                    </div>
                   </div>
                 ))}
-              </div>
-            ) : trending.length > 0 ? (
-              trending.map((topic) => (
-                <div key={topic.category} className="space-y-1">
-                  <h4 className="font-medium text-sm">{topic.label}</h4>
-                  <div className="text-xs text-muted-foreground">
-                    {topic.count} posts
+                <Button variant="outline" size="sm" className="w-full mt-3" asChild>
+                  <Link to="/events">View All Events</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Trending */}
+            <Card className="border border-border/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold">What's happening</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {trendingLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                        <div className="h-3 bg-muted rounded w-1/2"></div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No trending topics yet</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                ) : trending.length > 0 ? (
+                  trending.map((topic) => (
+                    <div key={topic.category} className="space-y-1">
+                      <h4 className="font-medium text-sm">{topic.label}</h4>
+                      <div className="text-xs text-muted-foreground">
+                        {topic.count} posts
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No trending topics yet</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
 
       {/* Modals */}
       <CreatePostDialog 

@@ -33,7 +33,10 @@ export const useNeighborhoods = () => {
       });
 
       if (error) throw error;
-      setPopularNeighborhoods(data || []);
+      setPopularNeighborhoods(data?.map(n => ({ 
+        ...n, 
+        is_popular: true 
+      })) || []);
     } catch (err: any) {
       console.error('Failed to load popular neighborhoods:', err);
       setError(err.message);
@@ -55,7 +58,10 @@ export const useNeighborhoods = () => {
       });
 
       if (error) throw error;
-      setSearchResults(data || []);
+      setSearchResults(data?.map(n => ({ 
+        ...n, 
+        is_popular: false 
+      })) || []);
     } catch (err: any) {
       console.error('Failed to search neighborhoods:', err);
       setError(err.message);
@@ -75,7 +81,7 @@ export const useNeighborhoods = () => {
           selected_neighborhood_id,
           neighborhoods!selected_neighborhood_id (*)
         `)
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
 
       if (profileError) throw profileError;
@@ -98,13 +104,13 @@ export const useNeighborhoods = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .upsert({
-          user_id: user.id,
+        .update({
           selected_neighborhood_id: neighborhood.id,
           current_city: neighborhood.city,
           current_state: neighborhood.state,
           current_neighborhood: neighborhood.name,
-        });
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
       setSelectedNeighborhood(neighborhood);
