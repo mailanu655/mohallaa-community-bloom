@@ -1066,6 +1066,7 @@ export type Database = {
           location_coordinates: unknown | null
           member_count: number | null
           name: string
+          neighborhood_id: string | null
           neighborhood_name: string | null
           post_count: number | null
           privacy_type: string
@@ -1089,6 +1090,7 @@ export type Database = {
           location_coordinates?: unknown | null
           member_count?: number | null
           name: string
+          neighborhood_id?: string | null
           neighborhood_name?: string | null
           post_count?: number | null
           privacy_type?: string
@@ -1112,6 +1114,7 @@ export type Database = {
           location_coordinates?: unknown | null
           member_count?: number | null
           name?: string
+          neighborhood_id?: string | null
           neighborhood_name?: string | null
           post_count?: number | null
           privacy_type?: string
@@ -1123,7 +1126,15 @@ export type Database = {
           updated_at?: string
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "communities_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_analytics: {
         Row: {
@@ -1730,6 +1741,48 @@ export type Database = {
         }
         Relationships: []
       }
+      neighborhoods: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          is_popular: boolean | null
+          latitude: number | null
+          longitude: number | null
+          metro_area: string | null
+          name: string
+          population: number | null
+          state: string
+          state_code: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          is_popular?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          metro_area?: string | null
+          name: string
+          population?: number | null
+          state: string
+          state_code: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_popular?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          metro_area?: string | null
+          name?: string
+          population?: number | null
+          state?: string
+          state_code?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1947,6 +2000,7 @@ export type Database = {
           longitude: number | null
           media_type: string | null
           media_urls: string[] | null
+          neighborhood_id: string | null
           original_post_id: string | null
           post_type: Database["public"]["Enums"]["post_type"]
           rich_content: Json | null
@@ -1972,6 +2026,7 @@ export type Database = {
           longitude?: number | null
           media_type?: string | null
           media_urls?: string[] | null
+          neighborhood_id?: string | null
           original_post_id?: string | null
           post_type?: Database["public"]["Enums"]["post_type"]
           rich_content?: Json | null
@@ -1997,6 +2052,7 @@ export type Database = {
           longitude?: number | null
           media_type?: string | null
           media_urls?: string[] | null
+          neighborhood_id?: string | null
           original_post_id?: string | null
           post_type?: Database["public"]["Enums"]["post_type"]
           rich_content?: Json | null
@@ -2020,6 +2076,13 @@ export type Database = {
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
             referencedColumns: ["id"]
           },
           {
@@ -2098,6 +2161,7 @@ export type Database = {
           preferred_languages: string[] | null
           profession: string | null
           profile_completion_score: number | null
+          selected_neighborhood_id: string | null
           skills: string[] | null
           social_media_links: Json | null
           updated_at: string
@@ -2134,6 +2198,7 @@ export type Database = {
           preferred_languages?: string[] | null
           profession?: string | null
           profile_completion_score?: number | null
+          selected_neighborhood_id?: string | null
           skills?: string[] | null
           social_media_links?: Json | null
           updated_at?: string
@@ -2170,6 +2235,7 @@ export type Database = {
           preferred_languages?: string[] | null
           profession?: string | null
           profile_completion_score?: number | null
+          selected_neighborhood_id?: string | null
           skills?: string[] | null
           social_media_links?: Json | null
           updated_at?: string
@@ -2182,6 +2248,13 @@ export type Database = {
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_selected_neighborhood_id_fkey"
+            columns: ["selected_neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
             referencedColumns: ["id"]
           },
         ]
@@ -3159,6 +3232,18 @@ export type Database = {
           distance_miles: number
         }[]
       }
+      get_popular_neighborhoods: {
+        Args: { limit_count?: number }
+        Returns: {
+          id: string
+          name: string
+          city: string
+          state: string
+          state_code: string
+          metro_area: string
+          population: number
+        }[]
+      }
       get_posts_by_location: {
         Args:
           | { search_city: string; search_state: string; limit_count?: number }
@@ -3190,6 +3275,38 @@ export type Database = {
           city: string
           state: string
           location_name: string
+        }[]
+      }
+      get_posts_by_neighborhood: {
+        Args: {
+          neighborhood_uuid: string
+          include_metro?: boolean
+          limit_count?: number
+          offset_count?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          author_id: string
+          community_id: string
+          created_at: string
+          updated_at: string
+          upvotes: number
+          downvotes: number
+          comment_count: number
+          post_type: string
+          tags: string[]
+          media_urls: string[]
+          media_type: string
+          rich_content: Json
+          is_pinned: boolean
+          latitude: number
+          longitude: number
+          city: string
+          state: string
+          location_name: string
+          neighborhood_id: string
         }[]
       }
       get_proj4_from_srid: {
@@ -3413,6 +3530,19 @@ export type Database = {
       postgis_wagyu_version: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      search_neighborhoods: {
+        Args: { search_query: string; limit_count?: number }
+        Returns: {
+          id: string
+          name: string
+          city: string
+          state: string
+          state_code: string
+          metro_area: string
+          population: number
+          relevance: number
+        }[]
       }
       spheroid_in: {
         Args: { "": unknown }

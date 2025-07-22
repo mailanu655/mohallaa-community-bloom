@@ -23,8 +23,7 @@ import { usePersonalizedFeed } from '@/hooks/usePersonalizedFeed';
 import { useUserInteractions } from '@/hooks/useUserInteractions';
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyPosts } from '@/hooks/useNearbyPosts';
-import LocationConfirmationDialog from '@/components/LocationConfirmationDialog';
-import { ManualLocationDialog } from '@/components/ManualLocationDialog';
+import { NeighborhoodLocationPrompt } from '@/components/NeighborhoodLocationPrompt';
 import { requestService } from '@/utils/requestService';
 import { PostLikeButton } from '@/components/PostLikeButton';
 import { PostBookmarkButton } from '@/components/PostBookmarkButton';
@@ -77,18 +76,10 @@ const HomePage = () => {
   const { 
     location, 
     loading: locationLoading, 
-    requestLocation, 
-    permissionStatus,
-    locationConfirmed,
-    clearLocationCache,
-    setManualLocation,
-    confirmLocation
+    selectedNeighborhood,
+    setNeighborhoodLocation
   } = useLocation();
   const { posts: nearbyPosts, loading: nearbyLoading } = useNearbyPosts(location);
-  
-  // Location confirmation states
-  const [locationConfirmationOpen, setLocationConfirmationOpen] = useState(false);
-  const [manualLocationOpen, setManualLocationOpen] = useState(false);
 
   // Real-time subscription for posts
   useRealTimeSubscription({
@@ -126,12 +117,7 @@ const HomePage = () => {
 
   const { isFetching } = useInfiniteScroll(fetchMore);
 
-  // Show location confirmation dialog when location is detected but not confirmed
-  useEffect(() => {
-    if (location && !locationConfirmed && !locationConfirmationOpen) {
-      setLocationConfirmationOpen(true);
-    }
-  }, [location, locationConfirmed, locationConfirmationOpen]);
+  // No location confirmation dialog needed anymore
 
   useEffect(() => {
     setPage(1);
@@ -232,13 +218,24 @@ const HomePage = () => {
 
   return (
     <div>
-      <div className="lg:col-span-2 border-r border-border/50">
-        {/* Header */}
-        <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-foreground">Home</h1>
-          </div>
+      {/* Show neighborhood selection prompt if no neighborhood selected */}
+      {!selectedNeighborhood && (
+        <div className="max-w-md mx-auto p-4">
+          <NeighborhoodLocationPrompt />
         </div>
+      )}
+
+      {selectedNeighborhood && (
+        <div className="lg:col-span-2 border-r border-border/50">
+          {/* Header */}
+          <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border/50 p-4">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-bold text-foreground">Home</h1>
+              <p className="text-sm text-muted-foreground">
+                {selectedNeighborhood.name}, {selectedNeighborhood.city}
+              </p>
+            </div>
+          </div>
 
         {/* Feed Sort Tabs */}
         <div className="border-b border-border/50">
@@ -246,9 +243,6 @@ const HomePage = () => {
             activeSort={feedSort} 
             onSortChange={(sort) => {
               setFeedSort(sort);
-              if (sort === 'nearby' && !location && permissionStatus === 'prompt') {
-                requestLocation();
-              }
             }}
             alertsCount={getActiveAlertsCount()}
             onAlertsClick={() => setSafetyAlertsModalOpen(true)}
@@ -276,112 +270,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Enhanced Location Permission Prompt for Nearby */}
-        {feedSort === 'nearby' && permissionStatus === 'prompt' && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 m-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                <MapPin className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground mb-2 text-lg">Find Your Community</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  Discover posts, events, and connections from people in your neighborhood. 
-                  Your precise location is kept private and secure.
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span>Private & Secure</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span>Approximate Area Only</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                    <span>Never Shared</span>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    onClick={requestLocation} 
-                    disabled={locationLoading}
-                    size="sm"
-                    className="shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    {locationLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Getting Location...
-                      </>
-                    ) : (
-                      <>
-                        <MapPin className="h-4 w-4 mr-2" />
-                        Enable Location
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setManualLocationOpen(true)}
-                    className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950/50"
-                  >
-                    Enter Location Manually
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Enhanced Location Denied Message */}
-        {feedSort === 'nearby' && permissionStatus === 'denied' && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 m-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                <AlertTriangle className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground mb-2 text-lg">Location Access Needed</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  To show you posts and events from your neighborhood, we need access to your location. 
-                  You can also enter your location manually if you prefer.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    onClick={requestLocation} 
-                    disabled={locationLoading}
-                    size="sm"
-                    variant="outline"
-                    className="border-amber-200 hover:bg-amber-50 dark:border-amber-800 dark:hover:bg-amber-950/50"
-                  >
-                    {locationLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Trying Again...
-                      </>
-                    ) : (
-                      <>
-                        <MapPin className="h-4 w-4 mr-2" />
-                        Try Again
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setManualLocationOpen(true)}
-                    className="shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    <MapPin className="h-4 w-4 mr-2" />
-                    Enter Location Manually
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Location prompts are now handled by neighborhood selection */}
 
         {/* Posts Feed */}
         <div>
@@ -427,6 +316,8 @@ const HomePage = () => {
         </div>
       </div>
 
+        )}
+      
       {/* Right Sidebar */}
       <div className="hidden lg:block lg:col-span-1 p-6 space-y-6">
         {/* Upcoming Events */}
@@ -499,33 +390,7 @@ const HomePage = () => {
         onOpenChange={setSafetyAlertsModalOpen}
       />
 
-      {/* Location Confirmation Dialog */}
-      <LocationConfirmationDialog
-        isOpen={locationConfirmationOpen}
-        onClose={() => setLocationConfirmationOpen(false)}
-        location={location}
-        onConfirm={() => {
-          confirmLocation();
-          setLocationConfirmationOpen(false);
-        }}
-        onRetry={() => {
-          setLocationConfirmationOpen(false);
-          clearLocationCache();
-          requestLocation();
-        }}
-        onManualEntry={() => {
-          setLocationConfirmationOpen(false);
-          setManualLocationOpen(true);
-        }}
-      />
-
-      {/* Manual Location Dialog */}
-      <ManualLocationDialog
-        isOpen={manualLocationOpen}
-        onOpenChange={setManualLocationOpen}
-        onLocationSet={setManualLocation}
-        loading={locationLoading}
-      />
+      {/* Dialogs are now handled by the neighborhood selection system */}
     </div>
   );
 };

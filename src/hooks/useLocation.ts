@@ -1,300 +1,97 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { ApiErrorHandler } from '@/utils/errorHandler';
-import GeocodingService from '@/utils/geocoding';
-import LocationCacheService from '@/utils/locationCache';
-import LocationHistoryService from '@/utils/locationHistory';
+import { useNeighborhoods, Neighborhood } from './useNeighborhoods';
 
 export interface LocationData {
-  latitude: number;
-  longitude: number;
-  city?: string;
-  state?: string;
-  neighborhood?: string;
-  zipcode?: string;
-  accuracy?: number;
-  fromCache?: boolean;
-  provider?: string;
-  accuracyLevel?: 'high' | 'medium' | 'low';
-  confidence?: number;
+  neighborhood: Neighborhood;
+  city: string;
+  state: string;
+  source: 'neighborhood_selection';
 }
 
 export const useLocation = () => {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [locationConfirmed, setLocationConfirmed] = useState(false);
   const { user } = useAuth();
+  const { selectedNeighborhood, selectNeighborhood } = useNeighborhoods();
 
   const requestLocation = async (): Promise<boolean> => {
-    if (!navigator.geolocation) {
-      const error = ApiErrorHandler.handleLocationError({
-        code: 0,
-        message: 'Geolocation is not supported by this browser.'
-      });
-      setError(error.message);
-      setPermissionStatus('denied');
-      return false;
-    }
+    // This method is now simplified - just prompt for neighborhood selection
+    setError('Please select your neighborhood to continue');
+    return false;
+  };
 
+  const loadSavedLocation = async () => {
+    // Load from neighborhood selection instead
+    if (selectedNeighborhood) {
+      const locationData: LocationData = {
+        neighborhood: selectedNeighborhood,
+        city: selectedNeighborhood.city,
+        state: selectedNeighborhood.state,
+        source: 'neighborhood_selection'
+      };
+      setLocation(locationData);
+      setLocationConfirmed(true);
+    }
+  };
+
+  const setNeighborhoodLocation = async (neighborhood: Neighborhood): Promise<boolean> => {
+    if (loading) return false;
+    
     setLoading(true);
     setError(null);
-
-    try {
-      // Get current position with enhanced timeout handling
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject({ code: 3, message: 'Timeout: Location request took too long' });
-        }, 12000); // 12 second timeout
-
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            clearTimeout(timeoutId);
-            resolve(pos);
-          },
-          (err) => {
-            clearTimeout(timeoutId);
-            reject(err);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 300000, // 5 minutes
-          }
-        );
-      });
-
-      const locationData: LocationData = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
-        fromCache: false
-      };
-
-      // Enhanced reverse geocoding with caching and error handling
-      try {
-        const geocodeResult = await GeocodingService.reverseGeocode(
-          locationData.latitude,
-          locationData.longitude
-        );
-
-        if (geocodeResult.success) {
-          locationData.city = geocodeResult.city;
-          locationData.state = geocodeResult.state;
-          locationData.neighborhood = geocodeResult.neighborhood;
-          locationData.zipcode = geocodeResult.zipcode;
-          locationData.fromCache = geocodeResult.fromCache;
-          locationData.provider = geocodeResult.provider;
-          locationData.accuracyLevel = geocodeResult.accuracy;
-          locationData.confidence = geocodeResult.confidence;
-        } else {
-          // Geocoding failed but location still works
-          console.warn('Geocoding failed, but location coordinates are available');
-        }
-      } catch (geocodeError) {
-        // Don't fail the entire location request for geocoding errors
-        console.warn('Geocoding service unavailable:', geocodeError);
-        ApiErrorHandler.showLocationToast({ message: 'geocoding failed' });
-      }
-
-      // Validate the location before setting it
-      if (!validateLocation(locationData)) {
-        setError('Invalid location data received. Please try again.');
-        setLoading(false);
-        return false;
-      }
-
-      setLocation(locationData);
-      setPermissionStatus('granted');
-
-      // Update user's location preferences and add to history if logged in
-      if (user) {
-        try {
-          await supabase
-            .from('profiles')
-            .update({
-              current_latitude: locationData.latitude,
-              current_longitude: locationData.longitude,
-              current_city: locationData.city,
-              current_state: locationData.state,
-              current_neighborhood: locationData.neighborhood,
-              current_zipcode: locationData.zipcode,
-            })
-            .eq('id', user.id);
-
-          // Add to location history
-          await LocationHistoryService.addEntry(locationData, 'auto');
-        } catch (dbError) {
-          console.warn('Failed to save location to profile:', dbError);
-        }
-      }
-
-      setLoading(false);
-      return true;
-    } catch (err: any) {
-      const locationError = ApiErrorHandler.handleLocationError(err);
-      setError(locationError.message);
-      setPermissionStatus('denied');
-      setLoading(false);
-      
-      // Don't show toast for permission denied to avoid double messaging
-      if (locationError.type !== 'permission') {
-        ApiErrorHandler.showLocationToast(err);
-      }
-      
-      return false;
-    }
-  };
-
-  const loadSavedLocation = async (): Promise<void> => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('current_latitude, current_longitude, current_city, current_state, current_neighborhood, current_zipcode')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data?.current_latitude && data?.current_longitude) {
-        setLocation({
-          latitude: data.current_latitude,
-          longitude: data.current_longitude,
-          city: data.current_city,
-          state: data.current_state,
-          neighborhood: data.current_neighborhood,
-          zipcode: data.current_zipcode,
-          fromCache: true
-        });
-      }
-    } catch (err) {
-      console.error('Failed to load saved location:', err);
-    }
-  };
-
-  const setManualLocation = async (city: string, state: string): Promise<boolean> => {
-    if (!city || !state) {
-      setError('City and state are required');
-      return false;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Try to geocode the manual location to get coordinates
-      const geocodeResult = await GeocodingService.reverseGeocode(0, 0); // This will fail, but we'll handle it
-      
-      // For manual locations, we'll use approximate coordinates based on city/state
-      // In a real implementation, you'd want to use a forward geocoding service
-      const locationData: LocationData = {
-        latitude: 0, // Would be resolved by forward geocoding
-        longitude: 0, // Would be resolved by forward geocoding
-        city,
-        state,
-        accuracy: 0,
-        fromCache: false,
-        provider: 'manual',
-        accuracyLevel: 'low'
-      };
-
-      setLocation(locationData);
-      setPermissionStatus('granted');
-
-      // Update user's location preferences and add to history if logged in
-      if (user) {
-        try {
-          await supabase
-            .from('profiles')
-            .update({
-              current_city: locationData.city,
-              current_state: locationData.state,
-            })
-            .eq('id', user.id);
-
-          // Add to location history
-          await LocationHistoryService.addEntry(locationData, 'manual');
-        } catch (dbError) {
-          console.warn('Failed to save manual location to profile:', dbError);
-        }
-      }
-
-      setLoading(false);
-      return true;
-    } catch (err: any) {
-      setError('Failed to set manual location');
-      setLoading(false);
-      return false;
-    }
-  };
-
-  const validateLocation = (locationData: LocationData): boolean => {
-    // Validate coordinates are within valid ranges
-    if (!locationData.latitude || !locationData.longitude) return false;
-    if (locationData.latitude < -90 || locationData.latitude > 90) return false;
-    if (locationData.longitude < -180 || locationData.longitude > 180) return false;
     
-    // Log the location for debugging
-    console.log('Location validation:', {
-      coordinates: `${locationData.latitude}, ${locationData.longitude}`,
-      city: locationData.city,
-      state: locationData.state,
-      provider: locationData.provider,
-      accuracy: locationData.accuracy
-    });
-    
-    return true;
+    try {
+      await selectNeighborhood(neighborhood);
+      
+      const locationData: LocationData = {
+        neighborhood,
+        city: neighborhood.city,
+        state: neighborhood.state,
+        source: 'neighborhood_selection'
+      };
+      
+      setLocation(locationData);
+      setLocationConfirmed(true);
+      return true;
+      
+    } catch (err: any) {
+      console.error('Failed to set neighborhood location:', err);
+      setError('Failed to select neighborhood. Please try again.');
+      return false;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const confirmLocation = (): void => {
+  // Utility functions
+  const confirmLocation = () => {
     setLocationConfirmed(true);
   };
 
-  const clearLocationCache = (): void => {
-    LocationCacheService.clear();
+  const clearLocationCache = () => {
     setLocation(null);
-    setPermissionStatus('prompt');
     setLocationConfirmed(false);
     setError(null);
-    
-    // Also clear from user profile if logged in
-    if (user) {
-      supabase
-        .from('profiles')
-        .update({
-          current_latitude: null,
-          current_longitude: null,
-          current_city: null,
-          current_state: null,
-          current_neighborhood: null,
-          current_zipcode: null,
-        })
-        .eq('id', user.id)
-        .then(() => console.log('Cleared location from user profile'));
-    }
   };
 
+  // Load saved location on neighborhood change
   useEffect(() => {
-    if (user) {
-      loadSavedLocation();
-    }
-  }, [user]);
+    loadSavedLocation();
+  }, [selectedNeighborhood]);
 
   return {
     location,
     loading,
     error,
-    permissionStatus,
     locationConfirmed,
+    selectedNeighborhood,
     requestLocation,
-    loadSavedLocation,
-    clearLocationCache,
-    setManualLocation,
-    validateLocation,
+    setNeighborhoodLocation,
     confirmLocation,
+    clearLocationCache,
   };
 };

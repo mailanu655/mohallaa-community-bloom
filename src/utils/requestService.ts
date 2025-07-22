@@ -285,40 +285,21 @@ export const requestService = {
     );
   },
 
-  // Get nearby posts
-  getNearbyPosts: async (lat: number, lng: number, radiusMiles: number = 10) => {
-    const cacheKey = `nearby_posts_${lat}_${lng}_${radiusMiles}`;
+  // Get posts by neighborhood
+  getPostsByNeighborhood: async (neighborhoodId: string, includeMetro: boolean = true, limit: number = 20) => {
+    const cacheKey = `posts_by_neighborhood_${neighborhoodId}_${includeMetro}_${limit}`;
     
     return makeRequest(
       async () => {
-        return supabase.rpc('get_nearby_posts', {
-          user_lat: lat,
-          user_lng: lng,
-          radius_miles: radiusMiles,
-          limit_count: 20,
-          offset_count: 0,
-        });
-      },
-      cacheKey,
-      'Get Nearby Posts'
-    );
-  },
-
-  // Get posts by location
-  getPostsByLocation: async (city: string, state: string, limit: number = 20) => {
-    const cacheKey = `posts_by_location_${city}_${state}_${limit}`;
-    
-    return makeRequest(
-      async () => {
-        return supabase.rpc('get_posts_by_location', {
-          user_city: city,
-          user_state: state,
+        return supabase.rpc('get_posts_by_neighborhood', {
+          neighborhood_uuid: neighborhoodId,
+          include_metro: includeMetro,
           limit_count: limit,
           offset_count: 0,
         });
       },
       cacheKey,
-      'Get Posts by Location'
+      'Get Posts by Neighborhood'
     );
   },
 };
