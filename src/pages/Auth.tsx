@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, checkProfileCompletion } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -47,7 +47,16 @@ const Auth = () => {
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
-        navigate('/home');
+        
+        // Check if profile setup is required
+        setTimeout(async () => {
+          try {
+            const isComplete = await checkProfileCompletion();
+            navigate(isComplete ? '/home' : '/profile/complete');
+          } catch (err) {
+            navigate('/profile/complete');
+          }
+        }, 100);
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -77,6 +86,7 @@ const Auth = () => {
           description: "Please check your email to verify your account before signing in.",
         });
         // Don't navigate immediately - wait for email verification
+        // New users will be redirected to profile completion after email verification and login
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -90,7 +100,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/home`
+          redirectTo: `${window.location.origin}/profile/complete`
         }
       });
       

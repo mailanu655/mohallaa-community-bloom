@@ -2161,6 +2161,7 @@ export type Database = {
           preferred_languages: string[] | null
           profession: string | null
           profile_completion_score: number | null
+          profile_setup_completed: boolean | null
           selected_neighborhood_id: string | null
           skills: string[] | null
           social_media_links: Json | null
@@ -2198,6 +2199,7 @@ export type Database = {
           preferred_languages?: string[] | null
           profession?: string | null
           profile_completion_score?: number | null
+          profile_setup_completed?: boolean | null
           selected_neighborhood_id?: string | null
           skills?: string[] | null
           social_media_links?: Json | null
@@ -2235,6 +2237,7 @@ export type Database = {
           preferred_languages?: string[] | null
           profession?: string | null
           profile_completion_score?: number | null
+          profile_setup_completed?: boolean | null
           selected_neighborhood_id?: string | null
           skills?: string[] | null
           social_media_links?: Json | null
@@ -2936,6 +2939,10 @@ export type Database = {
       }
       can_moderate_community: {
         Args: { user_id: string; community_id: string }
+        Returns: boolean
+      }
+      check_profile_setup_complete: {
+        Args: { profile_id: string }
         Returns: boolean
       }
       cleanup_old_location_history: {

@@ -6,9 +6,11 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  profileSetupRequired: boolean;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  checkProfileCompletion: (userId?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +27,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileSetupRequired, setProfileSetupRequired] = useState(false);
+
+  const checkProfileCompletion = async (userId?: string): Promise<boolean> => {
+    const currentUserId = userId || user?.id;
+    if (!currentUserId) {
+      setProfileSetupRequired(false);
+      return false;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('profile_setup_completed, first_name, last_name, profession, selected_neighborhood_id')
+        .eq('id', currentUserId)
+        .single();
+
+      if (error || !data) {
+        setProfileSetupRequired(true);
+        return false;
+      }
+
+      // Check if profile setup is complete - minimum required: name, profession, neighborhood
+      const isComplete = Boolean(data.profile_setup_completed) || Boolean(
+        data.first_name && 
+        data.first_name.trim() !== '' &&
+        data.last_name && 
+        data.last_name.trim() !== '' &&
+        data.profession && 
+        data.profession.trim() !== '' &&
+        data.selected_neighborhood_id
+      );
+
+      setProfileSetupRequired(!isComplete);
+      return isComplete;
+    } catch (error) {
+      console.error('Error checking profile completion:', error);
+      setProfileSetupRequired(true);
+      return false;
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -33,10 +75,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Defer profile creation to avoid blocking auth flow
+        // Defer profile creation and completion check to avoid blocking auth flow
         if (session?.user && event === 'SIGNED_IN') {
-          setTimeout(() => {
-            createUserProfile(session.user);
+          setTimeout(async () => {
+            await createUserProfile(session.user);
+            await checkProfileCompletion(session.user.id);
           }, 0);
         }
         
@@ -45,14 +88,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        await checkProfileCompletion(session.user.id);
+      }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [checkProfileCompletion]);
 
   const createUserProfile = async (user: User) => {
     try {
@@ -83,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Error in createUserProfile:', error);
     }
   };
+
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
@@ -131,9 +178,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
+    profileSetupRequired,
     signUp,
     signIn,
-    signOut
+    signOut,
+    checkProfileCompletion
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

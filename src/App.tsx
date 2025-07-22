@@ -16,6 +16,7 @@ import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProfileRedirect from "./components/ProfileRedirect";
 import ProfileEditPage from "./pages/ProfileEditPage";
+import ProfileCompletePage from "./pages/ProfileCompletePage";
 import HomePage from "./pages/HomePage";
 import MarketplacePage from "./pages/MarketplacePage";
 import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/bookmarks" element={<Layout><BookmarksPage /></Layout>} />
             <Route path="/profile" element={<Layout><ProtectedRoute><ProfileRedirect /></ProtectedRoute></Layout>} />
             <Route path="/profile/:id" element={<Layout><ProfilePage /></Layout>} />
+            <Route path="/profile/complete" element={<ProtectedRoute><ProfileCompletePage /></ProtectedRoute>} />
             <Route path="/profile/edit" element={
               <Layout>
                 <ProtectedRoute>

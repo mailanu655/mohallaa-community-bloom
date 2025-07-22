@@ -23,6 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AvatarUpload from '@/components/AvatarUpload';
+import { NeighborhoodSelector } from '@/components/NeighborhoodSelector';
 import { Link } from 'react-router-dom';
 
 interface ProfileFormData {
@@ -37,6 +38,7 @@ interface ProfileFormData {
   hometown_india: string;
   linkedin_url: string;
   community_id: string;
+  selected_neighborhood_id: string | null;
   availability_status: string;
   social_media_links: Record<string, string>;
   contact_preferences: {
@@ -62,6 +64,7 @@ const ProfileEditPage = () => {
     hometown_india: '',
     linkedin_url: '',
     community_id: '',
+    selected_neighborhood_id: null,
     availability_status: 'available',
     social_media_links: {},
     contact_preferences: {
@@ -76,6 +79,7 @@ const ProfileEditPage = () => {
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
   const [currentProfile, setCurrentProfile] = useState<any>(null);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
@@ -110,6 +114,7 @@ const ProfileEditPage = () => {
           hometown_india: data.hometown_india || '',
           linkedin_url: data.linkedin_url || '',
           community_id: data.community_id || '',
+          selected_neighborhood_id: data.selected_neighborhood_id,
           availability_status: data.availability_status || 'available',
           social_media_links: (data.social_media_links as Record<string, string>) || {},
           contact_preferences: (data.contact_preferences as { email: boolean; message: boolean; linkedin: boolean }) || {
@@ -166,6 +171,14 @@ const ProfileEditPage = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleNeighborhoodSelect = async (neighborhood: any) => {
+    setSelectedNeighborhood(neighborhood);
+    setFormData({
+      ...formData,
+      selected_neighborhood_id: neighborhood.id
+    });
   };
 
   const addSkill = () => {
@@ -385,6 +398,25 @@ const ProfileEditPage = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="neighborhood">Neighborhood</Label>
+                  <NeighborhoodSelector
+                    onNeighborhoodSelect={handleNeighborhoodSelect}
+                    currentNeighborhood={selectedNeighborhood}
+                    trigger={
+                      <Button variant="outline" className="w-full justify-start">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        {formData.selected_neighborhood_id ? 'Change Neighborhood' : 'Select Your Neighborhood'}
+                      </Button>
+                    }
+                  />
+                  {formData.selected_neighborhood_id && (
+                    <p className="text-sm text-muted-foreground">
+                      Neighborhood selected! This helps us show you local community content.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
